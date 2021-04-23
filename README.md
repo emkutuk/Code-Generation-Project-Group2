@@ -12,9 +12,9 @@ Students will participate in a project in the structured development of a bankin
 
 ### Parts That Are Going To Be Developed ###
 * Security (Whole Group)
-* Account Management ()
-* User Management ()
-* Transaction ()
+* Account Management (Emre Kutuk)
+* User Management (Rasheed Ramhamdani)
+* Transaction (Stephen Holden, Omar Alawin)
 
 ### Deliverables ###
 * Week 1: Git repository access for examiners  :white_check_mark:
