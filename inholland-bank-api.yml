@@ -1,0 +1,289 @@
+openapi: "3.0.2"
+info:
+  version: '1.1'
+  title: Inholland Bank API
+  description: API for the Inholland banking application
+  termsOfService: n/a
+  contact:
+    name: Group2
+    url: https://www.github.com
+    email: 638931@student.inholland.nl
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+  - url: https://api.server.test/v1
+    description: Test server
+ 
+  - url: https://api.server.real/v1
+    description: Live Server
+ 
+paths:
+  /Transaction:
+ 
+    post:
+      summary: Create a new Transaction
+      description: Create a new Transaction
+      operationId: transactionPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/Transaction'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactionId:
+                    type: number
+                    example: 123456
+                    description: The ID of the created Transaction
+ 
+    get:
+      summary: Return a list of Transactions
+      description: Returns a list of Transactions for current user from most recent to oldest
+      parameters:
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionList'
+ 
+  /Transaction/Deposit:
+    post:
+      summary: Deposit money into an account
+      description: Deposit money into an account
+      operationId: depositPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/Deposit'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactionId:
+                    type: number
+                    example: 123456
+                    description: The ID of the created Transaction
+ 
+  /Transaction/Withdraw:
+    post:
+      summary: Withdraw money from an account
+      description: Withdraw money from an account
+      operationId: withdrawPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Withdrawal'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactionId:
+                    type: number
+                    example: 123456
+                    description: The ID of the created Transaction
+ 
+  /Transaction/{id}:
+    get:
+      summary: Return a Transaction with the specified ID
+      description: Get a specific transaction by its ID
+      operationId: transactionIdGet
+      parameters: 
+        - in: path
+          name: id
+          description: Transaction ID
+          required: true
+          schema:
+            type: integer
+            example: 124875
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref:  "#/components/schemas/Transaction"
+ 
+  /Transaction/ByAccountNumber:
+    get:
+      summary: Return a list of Transactions from IBAN
+      description: Return a list of transactions from the account with the specified IBAN
+      operationId: transactionByAccountNo
+      parameters:
+        - $ref: '#/components/parameters/ibanParam'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionList'
+ 
+components:
+ 
+  schemas:
+    Transaction:
+      type: object
+      required:
+        - accountTo
+        - accountFrom
+        - amount
+        - performedBy
+      properties:
+        transactionId:
+          type: number
+          example: 123456
+          description: The ID of the created Transaction
+ 
+        accountTo:
+          type: string
+          example: NL04INHO6818968668
+          description: IBAN of the account receiving the money
+ 
+        accountFrom:
+          type: string
+          example: NL01INHO0000579848
+          description: IBAN of the account sending the money
+ 
+        transactionDate:
+          type: string
+          example: 2021/12/01 16:02:06
+          description: Timestamp of the transaction
+ 
+        amount:
+          type: number
+          example: 123.45
+          description: The amonut of the transaction in EURO
+ 
+        performedBy:
+          type: integer
+          example: 123
+          description: ID of the user performing the transaction
+ 
+    Deposit:
+      type: object
+      required:
+        - accountTo
+        - transactionDate
+        - amount
+        - performedBy
+      properties:
+        accountTo:
+          type: string
+          example: NL04INHO6818968668
+          description: IBAN of the account receiving the money
+ 
+        transactionDate:
+          type: string
+          example: 2021/12/01 16:02:06
+          description: Timestamp of the transaction
+ 
+        amount:
+          type: number
+          example: 123.45
+          description: The amonut of the transaction in EURO
+ 
+        performedBy:
+          type: integer
+          example: 123
+          description: ID of the user performing the transaction
+ 
+    Withdrawal:
+      type: object
+      required:
+        - accountFrom
+        - transactionDate
+        - amount
+        - performedBy
+ 
+      properties:
+        accountFrom:
+          type: string
+          example: NL04INHO6818968668
+          description: IBAN of the account withdrawing the money
+ 
+        transactionDate:
+          type: string
+          example: 2021/12/01 16:02:06
+          description: Timestamp of the transaction
+ 
+        amount:
+          type: number
+          example: 123.45
+          description: The amonut of the transaction in EURO
+ 
+        performedBy:
+          type: integer
+          example: 123
+          description: ID of the user performing the transaction
+ 
+    TransactionList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Transaction'
+      example:
+        - transactionId: 123456
+          accountTo: NL04INHO6818968668
+          accountFrom: NL01INHO0000579848
+          transactionDate: 2021/12/01 16:02:06
+          amount: 123.45
+          performedBy: Dan
+ 
+        - transactionId: 123500
+          accountTo: NL04INHO6868186817
+          accountFrom: NL01INHO0000579848
+          transactionDate: 2021/12/01 16:02:06
+          amount: 123.45
+          performedBy: Dan
+ 
+        - transactionId: 123525
+          accountTo: NL09INHO6891486186
+          accountFrom: NL01INHO0000579848
+          transactionDate: 2021/12/01 16:02:06
+          amount: 123.45
+          performedBy: Alice
+    User:
+      type: object
+  parameters:
+ 
+    limitParam:
+      name: max
+      in: query
+      description: The Maximum number of items to return
+      schema:
+        type: integer
+        minimum: 10
+        maximum: 50
+        example: 15
+        default: 10
+ 
+    ibanParam:
+      name: IBAN
+      required: true
+      in: query
+      description: The account to perform action on
+      schema:
+        type: string
+        example: NL01INHO0000579848
