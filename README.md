@@ -12,7 +12,7 @@ Students will participate in a project in the structured development of a bankin
 
 ### Parts That Are Going To Be Developed ###
 * Security (Whole Group)
-* Account Management (Emre Kutuk)
+* Account Management (Emre Kutuk) (https://app.swaggerhub.com/apis/644851/AccountManagement/1.0.1#/)
 * User Management (Rasheed Ramhamdani)
 * Transaction (Stephen Holden, Omar Alawin)
 
