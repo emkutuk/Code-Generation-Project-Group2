@@ -14,13 +14,13 @@ info:
 servers:
   - url: https://api.server.test/v1
     description: Test server
- 
+
   - url: https://api.server.real/v1
     description: Live Server
- 
+
 paths:
   /Transaction:
- 
+
     post:
       summary: Create a new Transaction
       description: Create a new Transaction
@@ -29,7 +29,7 @@ paths:
         required: true
         content:
           application/json:
-            schema: 
+            schema:
               $ref: '#/components/schemas/Transaction'
       responses:
         "200":
@@ -43,7 +43,7 @@ paths:
                     type: number
                     example: 123456
                     description: The ID of the created Transaction
- 
+
     get:
       summary: Return a list of Transactions
       description: Returns a list of Transactions for current user from most recent to oldest
@@ -56,7 +56,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TransactionList'
- 
+
   /Transaction/Deposit:
     post:
       summary: Deposit money into an account
@@ -66,7 +66,7 @@ paths:
         required: true
         content:
           application/json:
-            schema: 
+            schema:
               $ref: '#/components/schemas/Deposit'
       responses:
         "200":
@@ -80,7 +80,7 @@ paths:
                     type: number
                     example: 123456
                     description: The ID of the created Transaction
- 
+
   /Transaction/Withdraw:
     post:
       summary: Withdraw money from an account
@@ -104,13 +104,13 @@ paths:
                     type: number
                     example: 123456
                     description: The ID of the created Transaction
- 
+
   /Transaction/{id}:
     get:
       summary: Return a Transaction with the specified ID
       description: Get a specific transaction by its ID
       operationId: transactionIdGet
-      parameters: 
+      parameters:
         - in: path
           name: id
           description: Transaction ID
@@ -142,6 +142,7 @@ paths:
         "200":
           description: OK
  
+
   /Transaction/ByAccountNumber:
     get:
       summary: Return a list of Transactions from IBAN
@@ -156,9 +157,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TransactionList'
- 
+
+  /Transaction/Edit:
+    post:
+      summary: Edit a transaction
+      description: Edit a transaction
+      operationId: editTransaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transaction'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactionId:
+                    type: number
+                    example: 789012
+                    description: The ID of the altered Transaction
+
+
+
 components:
- 
+
   schemas:
     Transaction:
       type: object
@@ -172,32 +199,32 @@ components:
           type: number
           example: 123456
           description: The ID of the created Transaction
- 
+
         accountTo:
           type: string
           example: NL04INHO6818968668
           description: IBAN of the account receiving the money
- 
+
         accountFrom:
           type: string
           example: NL01INHO0000579848
           description: IBAN of the account sending the money
- 
+
         transactionDate:
           type: string
           example: 2021/12/01 16:02:06
           description: Timestamp of the transaction
- 
+
         amount:
           type: number
           example: 123.45
           description: The amonut of the transaction in EURO
- 
+
         performedBy:
           type: integer
           example: 123
           description: ID of the user performing the transaction
- 
+
     Deposit:
       type: object
       required:
@@ -210,22 +237,22 @@ components:
           type: string
           example: NL04INHO6818968668
           description: IBAN of the account receiving the money
- 
+
         transactionDate:
           type: string
           example: 2021/12/01 16:02:06
           description: Timestamp of the transaction
- 
+
         amount:
           type: number
           example: 123.45
           description: The amonut of the transaction in EURO
- 
+
         performedBy:
           type: integer
           example: 123
           description: ID of the user performing the transaction
- 
+
     Withdrawal:
       type: object
       required:
@@ -233,28 +260,28 @@ components:
         - transactionDate
         - amount
         - performedBy
- 
+
       properties:
         accountFrom:
           type: string
           example: NL04INHO6818968668
           description: IBAN of the account withdrawing the money
- 
+
         transactionDate:
           type: string
           example: 2021/12/01 16:02:06
           description: Timestamp of the transaction
- 
+
         amount:
           type: number
           example: 123.45
           description: The amonut of the transaction in EURO
- 
+
         performedBy:
           type: integer
           example: 123
           description: ID of the user performing the transaction
- 
+
     TransactionList:
       type: array
       items:
@@ -266,14 +293,14 @@ components:
           transactionDate: 2021/12/01 16:02:06
           amount: 123.45
           performedBy: Dan
- 
+
         - transactionId: 123500
           accountTo: NL04INHO6868186817
           accountFrom: NL01INHO0000579848
           transactionDate: 2021/12/01 16:02:06
           amount: 123.45
           performedBy: Dan
- 
+
         - transactionId: 123525
           accountTo: NL09INHO6891486186
           accountFrom: NL01INHO0000579848
@@ -283,7 +310,7 @@ components:
     User:
       type: object
   parameters:
- 
+
     limitParam:
       name: max
       in: query
@@ -294,7 +321,7 @@ components:
         maximum: 50
         example: 15
         default: 10
- 
+
     ibanParam:
       name: IBAN
       required: true
