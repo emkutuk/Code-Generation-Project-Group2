@@ -21,3 +21,6 @@ Students will participate in a project in the structured development of a bankin
 * Week 4: Feature complete Swagger specification in the form of a Swagger UI URL, along with a list of endpoints each individual team member will implement. :white_check_mark:
 *	Week 7: First submission.
 *	Week 9: Second submission (retake).
+
+#### Link to swagger specification ####
+https://app.swaggerhub.com/apis/644851/InhGroup2BankAPI/1.1
