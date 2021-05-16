@@ -1,6 +1,6 @@
 openapi: "3.0.2"
 info:
-  version: '1.1'
+  version: '1.0.1'
   title: Inholland Bank API
   description: API for the Inholland banking application
   termsOfService: n/a
@@ -125,6 +125,22 @@ paths:
             application/json:
               schema:
                 $ref:  "#/components/schemas/Transaction"
+    
+    delete:
+      summary: Delete a scheduled transaction
+      description: Delete a scheduled transaction by it's ID
+      operationId: deleteTransactionById
+      parameters:
+        - in: path
+          name: id
+          description: Transaction ID
+          required: true
+          schema:
+            type: integer
+            example: 124875
+      responses:  
+        "200":
+          description: OK
  
   /Transaction/ByAccountNumber:
     get:
@@ -287,3 +303,5 @@ components:
       schema:
         type: string
         example: NL01INHO0000579848
+security:
+  - securityRequirement: []
