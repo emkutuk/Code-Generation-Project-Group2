@@ -1,0 +1,748 @@
+openapi: "3.0.2"
+info:
+  version: '1.1'
+  title: Inholland Bank API
+  description: API for the Inholland banking application
+  termsOfService: n/a
+  contact:
+    name: Group2
+    url: https://www.github.com
+    email: 638931@student.inholland.nl
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+  - url: https://api.server.test/v1
+    description: Test server
+
+  - url: https://api.server.real/v1
+    description: Live Server
+    
+paths:
+  /users:
+    get:
+      tags: 
+        - User
+      summary: Get All users
+      operationId: getAllUsers
+      parameters: 
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          description: users returned
+          
+  /users/{id}:
+    get:
+      tags:
+        - User
+      summary: get a user by id
+      operationId: getUserById
+      parameters:
+        - name: id
+          in: path
+          description: user id
+          required: true
+          schema:
+            type: integer
+      responses:
+        400:
+          description: succesful
+  /user/register:
+    post:
+      tags: 
+        - User
+      description: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/User'
+
+      responses:
+        201:
+          description: user created
+        400:
+          description: invalid input, user invalid
+        409:
+          description: an existing user already exists
+          
+  /user/login/{username},{password}:
+    post:
+      tags: 
+        - User
+      description: login
+      parameters:
+        - in: path
+          name: username
+          description: username
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: password
+          description: password
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: user logged in
+        404:
+          description: invalid input.
+  /user/update/{userid}:
+    put:
+      tags:
+      - User
+      description: User(customer - employee) can update his info.
+      operationId: updateUser
+      parameters:
+      - name: userid
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        202:
+          description: information updated.
+          
+  /Transaction:
+    post:
+      tags: 
+        - Transaction
+      summary: Create a new Transaction
+      description: Create a new Transaction
+      operationId: transactionPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transaction'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactionId:
+                    type: number
+                    example: 123456
+                    description: The ID of the created Transaction
+
+    get:
+      tags: 
+        - Transaction
+      summary: Return a list of Transactions
+      description: Returns a list of Transactions for current user from most recent to oldest
+      parameters:
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionList'
+
+  /Transaction/Deposit:
+    post:
+      tags: 
+        - Transaction
+      summary: Deposit money into an account
+      description: Deposit money into an account
+      operationId: depositPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Deposit'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactionId:
+                    type: number
+                    example: 123456
+                    description: The ID of the created Transaction
+
+  /Transaction/Withdraw:
+    post:
+      tags: 
+        - Transaction
+      summary: Withdraw money from an account
+      description: Withdraw money from an account
+      operationId: withdrawPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Withdrawal'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactionId:
+                    type: number
+                    example: 123456
+                    description: The ID of the created Transaction
+
+  /Transaction/{id}:
+    get:
+      tags: 
+        - Transaction
+      summary: Return a Transaction with the specified ID
+      description: Get a specific transaction by its ID
+      operationId: transactionIdGet
+      parameters:
+        - in: path
+          name: id
+          description: Transaction ID
+          required: true
+          schema:
+            type: integer
+            example: 124875
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref:  "#/components/schemas/Transaction"
+    delete:
+      tags: 
+        - Transaction
+      summary: Delete a scheduled transaction
+      description: Delete a scheduled transaction by it's ID
+      operationId: deleteTransactionById
+      parameters:
+        - in: path
+          name: id
+          description: Transaction ID
+          required: true
+          schema:
+            type: integer
+            example: 124875
+      responses:  
+        "200":
+          description: OK
+
+  /Transaction/ByAccountNumber:
+    get:  
+      tags: 
+        - Transaction
+      summary: Return a list of Transactions from IBAN
+      description: Return a list of transactions from the account with the specified IBAN
+      operationId: transactionByAccountNo
+      parameters:
+        - $ref: '#/components/parameters/ibanParam'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionList'
+
+  /Transaction/Edit:
+    post:
+      tags: 
+        - Transaction
+      summary: Edit a transaction
+      description: Edit a transaction
+      operationId: editTransaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transaction'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactionId:
+                    type: number
+                    example: 789012
+                    description: The ID of the altered Transaction
+
+  /Accounts/{id}:
+    summary: Represents an account
+    description: >
+      This resource represents and individual account in the system.
+      Each account is identified by a number id.
+    get:
+      tags: 
+        - AccountManagement
+      summary: Gets an account by ID.
+      operationId: getAccountById
+      parameters:
+      - in: path
+        name: id
+        description: Account ID
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: An account object has been returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountAll'
+    delete:
+      tags: 
+        - AccountManagement
+      summary: Deletes an account by ID
+      operationId: deleteAccountById
+      parameters: 
+      - in: path
+        name: id
+        description: Account ID
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: The account object has been deleted
+          
+    put:
+      tags:
+        - AccountManagement
+      summary: Updates an existing account
+      operationId: updateAccountById
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountAll'
+      parameters: 
+      - in: path
+        name: id
+        description: Account ID
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: An account object has been updated
+
+                
+  /Accounts/{id}/{type}:
+    summary: Represents an account type
+    description: >
+      This resource represents and individual account type in the system.
+      Each account is identified by a number id.
+    post:
+      tags:
+        - AccountType
+      summary: Changes account type
+      operationId: changeAccountType
+      parameters: 
+        - in: path
+          name: id
+          description: Account ID
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+        - in: path
+          name: type
+          description: The new type
+          required: true
+          schema:
+            type: string
+            enum: [saving, current]
+      responses:
+        '200':
+          description: The account type has been changed
+
+  /Accounts:
+    summary: Represents an account object
+    description: >
+      This resource represents and individual account object in the system.
+      Each account is identified by a number id.
+    post:
+      tags: 
+        - AccountManagement
+      summary: Adds a new Account
+      operationId: addANewAccount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Account'
+      responses:
+        '201':
+          description: New account has been created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+    get:
+      tags: 
+        - AccountManagement
+      summary: Gets all accounts
+      operationId: getAllAccounts
+      parameters: 
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          description: Paginated accounts have been returned
+      
+  /Accounts/{id}/addBalance/{amount}:
+    summary: Represents an account balance and the amount that needs to be added
+    description: >
+      This resource represents an amount and the amount that needs to be added to an account.
+      Each account is identified by a number id.
+    post:
+      tags:
+        - AccountBalance
+      summary: Adds specified amount
+      operationId: addBalance
+      parameters: 
+        - in: path
+          name: id
+          description: Account ID
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+        - in: path
+          name: amount
+          description: Balance to be added
+          required: true
+          schema:
+            type: number
+            minimum: 0
+      responses:
+        '200':
+          description: The amount has been added to the account
+
+  /Accounts/{id}/subtractBalance/{amount}:
+    summary: Represents an account balance and the amount that needs to be subtracted
+    description: >
+      This resource represents the amount that needs to be subtracted to added to an account.
+      Each account is identified by a number id.
+    post:
+      tags:
+        - AccountBalance
+      summary: Subtracts specified amount
+      operationId: subtractBalance
+      parameters: 
+        - in: path
+          name: id
+          description: Account ID
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+        - in: path
+          name: amount
+          description: Balance to be subtracted
+          required: true
+          schema:
+            type: number
+            minimum: 0
+      responses:
+        '200':
+          description: The amount has been subtracted from the account
+    
+  /Accounts/{id}/getBalance:
+    summary: Represents an account balance 
+    description: >
+      This resource represents an account's balance.
+      Each account is identified by a number id.
+    get:
+      tags:
+        - AccountBalance
+      summary: Gets an account balance by ID.
+      operationId: getAccountBalanceById
+      parameters:
+      - in: path
+        name: id
+        description: Account ID
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Balance of the account has been returned
+          
+components:
+  schemas:
+    User:
+      type: object
+      required:
+      - id
+      - username
+      - password
+      - email
+      - phoneNumber
+      - accounts
+      properties:
+        id:
+          type: string
+          example: 12e0nBank
+        username:
+          type: string
+          example: mads
+        password:
+          type: string
+          example: GetMyP@ss1
+        email:
+          type: string
+          example: mads@gmail.com
+        accounts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Account"
+            
+
+    Transaction:
+      type: object
+      required:
+        - accountTo
+        - accountFrom
+        - amount
+        - performedBy
+      properties:
+        transactionId:
+          type: number
+          example: 123456
+          description: The ID of the created Transaction
+
+        accountTo:
+          type: string
+          example: NL04INHO6818968668
+          description: IBAN of the account receiving the money
+
+        accountFrom:
+          type: string
+          example: NL01INHO0000579848
+          description: IBAN of the account sending the money
+
+        transactionDate:
+          type: string
+          example: 2021/12/01 16:02:06
+          description: Timestamp of the transaction
+
+        amount:
+          type: number
+          example: 123.45
+          description: The amonut of the transaction in EURO
+
+        performedBy:
+          type: integer
+          example: 123
+          description: ID of the user performing the transaction
+
+    Deposit:
+      type: object
+      required:
+        - accountTo
+        - transactionDate
+        - amount
+        - performedBy
+      properties:
+        accountTo:
+          type: string
+          example: NL04INHO6818968668
+          description: IBAN of the account receiving the money
+
+        transactionDate:
+          type: string
+          example: 2021/12/01 16:02:06
+          description: Timestamp of the transaction
+
+        amount:
+          type: number
+          example: 123.45
+          description: The amonut of the transaction in EURO
+
+        performedBy:
+          type: integer
+          example: 123
+          description: ID of the user performing the transaction
+
+    Withdrawal:
+      type: object
+      required:
+        - accountFrom
+        - transactionDate
+        - amount
+        - performedBy
+
+      properties:
+        accountFrom:
+          type: string
+          example: NL04INHO6818968668
+          description: IBAN of the account withdrawing the money
+
+        transactionDate:
+          type: string
+          example: 2021/12/01 16:02:06
+          description: Timestamp of the transaction
+
+        amount:
+          type: number
+          example: 123.45
+          description: The amonut of the transaction in EURO
+
+        performedBy:
+          type: integer
+          example: 123
+          description: ID of the user performing the transaction
+
+    TransactionList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Transaction'
+      example:
+        - transactionId: 123456
+          accountTo: NL04INHO6818968668
+          accountFrom: NL01INHO0000579848
+          transactionDate: 2021/12/01 16:02:06
+          amount: 123.45
+          performedBy: Dan
+
+        - transactionId: 123500
+          accountTo: NL04INHO6868186817
+          accountFrom: NL01INHO0000579848
+          transactionDate: 2021/12/01 16:02:06
+          amount: 123.45
+          performedBy: Dan
+
+        - transactionId: 123525
+          accountTo: NL09INHO6891486186
+          accountFrom: NL01INHO0000579848
+          transactionDate: 2021/12/01 16:02:06
+          amount: 123.45
+          performedBy: Alice
+
+    Account:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+          description: The unique id of the account
+          example: 3
+        iban:
+          type: string
+          description: IBAN number of the account
+          example: NL03INHO0033576852
+          not:
+            default: NL01INHO0000000001 # this address is reserved for the bank itself
+        accountType:
+          type: string
+          enum: [saving, current]
+          default: current
+          description: Type of the account, can be either saving or current
+        balance:
+          type: number
+          format: float
+          default: 0
+          minimum: 0
+      required:
+        - id
+        - password
+        - iban
+        - accountType
+        - balance
+        
+    AccountAll:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+          description: The unique id of the account
+          example: 3
+        iban:
+          type: string
+          description: IBAN number of the account
+          example: NL03INHO0033576852
+        accountType:
+          type: string
+          enum: [saving, current]
+          default: current
+          description: Type of the account, can be either saving or current
+        balance:
+          type: number
+          format: float
+          default: 0
+          minimum: 0
+      required:
+        - id
+        - password
+        - iban
+        - accountType
+        - balance
+
+# Parameters are for paginated enddpoint
+  parameters:
+    limitParam:
+      name: max
+      in: query
+      required: false
+      description: The Maximum number of items to return
+      schema:
+        type: integer
+        minimum: 10
+        maximum: 50
+        example: 15
+        default: 10
+    ibanParam:
+      name: IBAN
+      required: true
+      in: query
+      description: The account to perform action on
+      schema:
+        type: string
+        example: NL01INHO0000579848
+    offsetParam:  
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+      description: The number of items to skip before starting to collect the result set.
+        
+# Implementing bearer authentication
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      
+# Applying the security globally to all operations
+security:
+  - bearerAuth: []
