@@ -18,6 +18,6 @@ Students will participate in a project in the structured development of a bankin
 
 ### Deliverables ###
 * Week 1: Git repository access for examiners  :white_check_mark:
-* Week 4: Feature complete Swagger specification in the form of a Swagger UI URL, along with a list of endpoints each individual team member will implement.
+* Week 4: Feature complete Swagger specification in the form of a Swagger UI URL, along with a list of endpoints each individual team member will implement. :white_check_mark:
 *	Week 7: First submission.
 *	Week 9: Second submission (retake).
