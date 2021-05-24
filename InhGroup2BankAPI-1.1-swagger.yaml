@@ -32,17 +32,17 @@ paths:
         "200":
           description: users returned
         "400":
-          $ref: "#/components/responses/badRequest"
+          $ref: "#/components/responses/BadRequest"
         "401":
-          $ref: "#/components/responses/unauthorized"
+          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/forbidden"
+          $ref: "#/components/responses/Forbidden"
         "404":
-          $ref: "#/components/responses/notFound"
+          $ref: "#/components/responses/NotFound"
         "429":
-          $ref: "#/components/responses/tooManyRequests"
+          $ref: "#/components/responses/TooManyRequests"
         default:
-          $ref: "#/components/responses/default"
+          $ref: "#/components/responses/Default"
 
   /users/{id}:
     get:
@@ -62,17 +62,18 @@ paths:
         "200":
           description: succesful
         "400":
-          $ref: "#/components/responses/badRequest"
+          $ref: "#/components/responses/BadRequest"
         "401":
-          $ref: "#/components/responses/unauthorized"
+          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/forbidden"
+          $ref: "#/components/responses/Forbidden"
         "404":
-          $ref: "#/components/responses/notFound"
+          $ref: "#/components/responses/NotFound"
         "429":
-          $ref: "#/components/responses/tooManyRequests"
+          $ref: "#/components/responses/TooManyRequests"
         default:
-          $ref: "#/components/responses/default"
+          $ref: "#/components/responses/Default"
+
   /user/register:
     post:
       tags:
@@ -93,15 +94,15 @@ paths:
         "409":
           description: an existing user already exists
         "401":
-          $ref: "#/components/responses/unauthorized"
+          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/forbidden"
+          $ref: "#/components/responses/Forbidden"
         "404":
-          $ref: "#/components/responses/notFound"
+          $ref: "#/components/responses/NotFound"
         "429":
-          $ref: "#/components/responses/tooManyRequests"
+          $ref: "#/components/responses/TooManyRequests"
         default:
-          $ref: "#/components/responses/default"
+          $ref: "#/components/responses/Default"
 
   /user/login/{username},{password}:
     post:
@@ -129,15 +130,15 @@ paths:
         404:
           description: invalid input.
         "401":
-          $ref: "#/components/responses/unauthorized"
+          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/forbidden"
+          $ref: "#/components/responses/Forbidden"
         "415":
-          $ref:  "#/components/responses/unsupportedMediaType"
+          $ref: "#/components/responses/UnsupportedMediaType"
         "429":
-          $ref: "#/components/responses/tooManyRequests"
+          $ref: "#/components/responses/TooManyRequests"
         default:
-          $ref: "#/components/responses/default"
+          $ref: "#/components/responses/Default"
 
   /user/update/{userid}:
     put:
@@ -156,17 +157,17 @@ paths:
         202:
           description: information updated.
         "400":
-          $ref: "#/components/responses/badRequest"
+          $ref: "#/components/responses/BadRequest"
         "401":
-          $ref: "#/components/responses/unauthorized"
+          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/forbidden"
+          $ref: "#/components/responses/Forbidden"
         "404":
-          $ref: "#/components/responses/notFound"
+          $ref: "#/components/responses/NotFound"
         "429":
-          $ref: "#/components/responses/tooManyRequests"
+          $ref: "#/components/responses/TooManyRequests"
         default:
-          $ref: "#/components/responses/default"
+          $ref: "#/components/responses/Default"
 
   /Transactions:
     post:
@@ -174,38 +175,44 @@ paths:
         - Transaction
       summary: Create a new Transaction
       description: Create a new Transaction
-      operationId: transactionPost
+      operationId: createTransaction
+
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/Transaction"
+
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Transaction"
         "400":
-          $ref: "#/components/responses/badRequest"
+          $ref: "#/components/responses/BadRequest"
         "401":
-          $ref: "#/components/responses/unauthorized"
+          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/forbidden"
+          $ref: "#/components/responses/Forbidden"
         "429":
-          $ref: "#/components/responses/tooManyRequests"
+          $ref: "#/components/responses/TooManyRequests"
         default:
-          $ref: "#/components/responses/default"
+          $ref: "#/components/responses/Default"
 
     get:
       tags:
         - Transaction
       summary: Return a list of Transactions
       description: Returns a list of Transactions for current user from most recent to oldest
+      operationId: getTransactionsByUser
+
       parameters:
         - $ref: "#/components/parameters/limitParam"
+        - $ref: "#/components/parameters/offsetParam"
+
       responses:
         "200":
           description: OK
@@ -214,51 +221,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/TransactionList"
         "400":
-          $ref: "#/components/responses/badRequest"
+          $ref: "#/components/responses/BadRequest"
         "401":
-          $ref: "#/components/responses/unauthorized"
+          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/forbidden"
+          $ref: "#/components/responses/Forbidden"
         "404":
-          $ref: "#/components/responses/notFound"
+          $ref: "#/components/responses/NotFound"
         "429":
-          $ref: "#/components/responses/tooManyRequests"
+          $ref: "#/components/responses/TooManyRequests"
         default:
-          $ref: "#/components/responses/default"
-
-    put:
-      tags:
-        - Transaction
-      summary: Edit a transaction
-      description: Edit a transaction
-      operationId: editTransaction
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Transaction"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  transactionId:
-                    type: number
-                    format: uuid
-                    example: 789012
-                    description: The ID of the altered Transaction
-        "401":
-          $ref: "#/components/responses/unauthorized"
-        "403":
-          $ref: "#/components/responses/forbidden"
-        "429":
-          $ref: "#/components/responses/tooManyRequests"
-        default:
-          $ref: "#/components/responses/default"
+          $ref: "#/components/responses/Default"
 
   /Transactions/Deposit:
     post:
@@ -266,90 +239,15 @@ paths:
         - Transaction
       summary: Deposit money into an account
       description: Deposit money into an account
-      operationId: depositPost
+      operationId: depositMoney
+
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/Deposit"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  transactionId:
-                    type: number
-                    format: uuid
-                    example: 123456
-                    description: The ID of the created Transaction
-        "400":
-          $ref: "#/components/responses/badRequest"
-        "401":
-          $ref: "#/components/responses/unauthorized"
-        "403":
-          $ref: "#/components/responses/forbidden"
-        "429":
-          $ref: "#/components/responses/tooManyRequests"
-        default:
-          $ref: "#/components/responses/default"
 
-  /Transactions/Withdraw:
-    post:
-      tags:
-        - Transaction
-      summary: Withdraw money from an account
-      description: Withdraw money from an account
-      operationId: withdrawPost
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Withdrawal"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  transactionId:
-                    type: number
-                    format: uuid
-                    example: 123456
-                    description: The ID of the created Transaction
-        "400":
-          $ref: "#/components/responses/badRequest"
-        "401":
-          $ref: "#/components/responses/unauthorized"
-        "403":
-          $ref: "#/components/responses/forbidden"
-        "429":
-          $ref: "#/components/responses/tooManyRequests"
-        default:
-          $ref: "#/components/responses/default"
-
-  /Transactions/{id}:
-    get:
-      tags:
-        - Transaction
-      summary: Return a Transaction with the specified ID
-      description: Get a specific transaction by its ID
-      operationId: transactionIdGet
-      parameters:
-        - in: path
-          name: id
-          description: Transaction ID
-          required: true
-          schema:
-            type: integer
-            format: int32
-            example: 124875
       responses:
         "200":
           description: OK
@@ -358,47 +256,142 @@ paths:
               schema:
                 $ref: "#/components/schemas/Transaction"
         "400":
-          $ref: "#/components/responses/badRequest"
+          $ref: "#/components/responses/BadRequest"
         "401":
-          $ref: "#/components/responses/unauthorized"
+          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/forbidden"
-        "404":
-          $ref: "#/components/responses/notFound"
+          $ref: "#/components/responses/Forbidden"
         "429":
-          $ref: "#/components/responses/tooManyRequests"
+          $ref: "#/components/responses/TooManyRequests"
         default:
-          $ref: "#/components/responses/default"
+          $ref: "#/components/responses/Default"
+
+  /Transactions/Withdraw:
+    post:
+      tags:
+        - Transaction
+      summary: Withdraw money from an account
+      description: Withdraw money from an account
+      operationId: withdrawMoney
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Withdrawal"
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaction"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        default:
+          $ref: "#/components/responses/Default"
+
+  /Transactions/{id}:
+    get:
+      tags:
+        - Transaction
+      summary: Return a Transaction with the specified ID
+      description: Get a specific transaction by its ID
+      operationId: getTransactionById
+
+      parameters:
+        - $ref: "#/components/parameters/transactionIdParam"
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaction"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        default:
+          $ref: "#/components/responses/Default"
+
     delete:
       tags:
         - Transaction
       summary: Delete a scheduled transaction
-      description: Delete a scheduled transaction by it's ID
+      description: >
+        Delete a scheduled transaction by it's ID.
+
+        You cannot delete a transaction that has already been processed
       operationId: deleteTransactionById
+
       parameters:
-        - in: path
-          name: id
-          description: Transaction ID
-          required: true
-          schema:
-            type: integer
-            format: int32
-            example: 124875
+        - $ref: "#/components/parameters/transactionIdParam"
+
+      responses:
+        "204":
+          description: OK
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        default:
+          $ref: "#/components/responses/Default"
+
+    put:
+      tags:
+        - Transaction
+      summary: Edit a transaction
+      description: Edit a transaction
+      operationId: editTransactionById
+
+      parameters:
+        - $ref: "#/components/parameters/transactionIdParam"
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Transaction"
+
       responses:
         "200":
           description: OK
-        "400":
-          $ref: "#/components/responses/badRequest"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaction"
+
         "401":
-          $ref: "#/components/responses/unauthorized"
+          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/forbidden"
-        "404":
-          $ref: "#/components/responses/notFound"
+          $ref: "#/components/responses/Forbidden"
         "429":
-          $ref: "#/components/responses/tooManyRequests"
+          $ref: "#/components/responses/TooManyRequests"
         default:
-          $ref: "#/components/responses/default"
+          $ref: "#/components/responses/Default"
 
   /Transactions/ByAccountNumber:
     get:
@@ -406,9 +399,13 @@ paths:
         - Transaction
       summary: Return a list of Transactions from IBAN
       description: Return a list of transactions from the account with the specified IBAN
-      operationId: transactionByAccountNo
+      operationId: getTransactionByIBAN
+
       parameters:
         - $ref: "#/components/parameters/ibanParam"
+        - $ref: "#/components/parameters/limitParam"
+        - $ref: "#/components/parameters/offsetParam"
+
       responses:
         "200":
           description: OK
@@ -417,18 +414,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/TransactionList"
         "400":
-          $ref: "#/components/responses/badRequest"
+          $ref: "#/components/responses/BadRequest"
         "401":
-          $ref: "#/components/responses/unauthorized"
+          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/forbidden"
+          $ref: "#/components/responses/Forbidden"
         "404":
-          $ref: "#/components/responses/notFound"
+          $ref: "#/components/responses/NotFound"
         "429":
-          $ref: "#/components/responses/tooManyRequests"
+          $ref: "#/components/responses/TooManyRequests"
         default:
-          $ref: "#/components/responses/default"
-
+          $ref: "#/components/responses/Default"
 
   /Accounts/{id}:
     summary: Represents an account
@@ -457,17 +453,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/AccountAll"
         "400":
-          $ref: "#/components/responses/badRequest"
+          $ref: "#/components/responses/BadRequest"
         "401":
-          $ref: "#/components/responses/unauthorized"
+          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/forbidden"
+          $ref: "#/components/responses/Forbidden"
         "404":
-          $ref: "#/components/responses/notFound"
+          $ref: "#/components/responses/NotFound"
         "429":
-          $ref: "#/components/responses/tooManyRequests"
+          $ref: "#/components/responses/TooManyRequests"
         default:
-          $ref: "#/components/responses/default"
+          $ref: "#/components/responses/Default"
     delete:
       tags:
         - AccountManagement
@@ -486,17 +482,17 @@ paths:
         "200":
           description: The account object has been deleted
         "400":
-          $ref: "#/components/responses/badRequest"
+          $ref: "#/components/responses/BadRequest"
         "401":
-          $ref: "#/components/responses/unauthorized"
+          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/forbidden"
+          $ref: "#/components/responses/Forbidden"
         "404":
-          $ref: "#/components/responses/notFound"
+          $ref: "#/components/responses/NotFound"
         "429":
-          $ref: "#/components/responses/tooManyRequests"
+          $ref: "#/components/responses/TooManyRequests"
         default:
-          $ref: "#/components/responses/default"
+          $ref: "#/components/responses/Default"
 
     put:
       tags:
@@ -522,17 +518,17 @@ paths:
         "200":
           description: An account object has been updated
         "400":
-          $ref: "#/components/responses/badRequest"
+          $ref: "#/components/responses/BadRequest"
         "401":
-          $ref: "#/components/responses/unauthorized"
+          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/forbidden"
+          $ref: "#/components/responses/Forbidden"
         "404":
-          $ref: "#/components/responses/notFound"
+          $ref: "#/components/responses/NotFound"
         "429":
-          $ref: "#/components/responses/tooManyRequests"
+          $ref: "#/components/responses/TooManyRequests"
         default:
-          $ref: "#/components/responses/default"
+          $ref: "#/components/responses/Default"
 
   /Accounts/{id}/{type}:
     summary: Represents an account type
@@ -564,13 +560,13 @@ paths:
         "200":
           description: The account type has been changed
         "401":
-          $ref: "#/components/responses/unauthorized"
+          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/forbidden"
+          $ref: "#/components/responses/Forbidden"
         "429":
-          $ref: "#/components/responses/tooManyRequests"
+          $ref: "#/components/responses/TooManyRequests"
         default:
-          $ref: "#/components/responses/default"
+          $ref: "#/components/responses/Default"
 
   /Accounts:
     summary: Represents an account object
@@ -596,17 +592,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/Account"
         "400":
-          $ref: "#/components/responses/badRequest"
+          $ref: "#/components/responses/BadRequest"
         "401":
-          $ref: "#/components/responses/unauthorized"
+          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/forbidden"
+          $ref: "#/components/responses/Forbidden"
         "404":
-          $ref: "#/components/responses/notFound"
+          $ref: "#/components/responses/NotFound"
         "429":
-          $ref: "#/components/responses/tooManyRequests"
+          $ref: "#/components/responses/TooManyRequests"
         default:
-          $ref: "#/components/responses/default"
+          $ref: "#/components/responses/Default"
 
     get:
       tags:
@@ -620,17 +616,17 @@ paths:
         "200":
           description: Paginated accounts have been returned
         "400":
-          $ref: "#/components/responses/badRequest"
+          $ref: "#/components/responses/BadRequest"
         "401":
-          $ref: "#/components/responses/unauthorized"
+          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/forbidden"
+          $ref: "#/components/responses/Forbidden"
         "404":
-          $ref: "#/components/responses/notFound"
+          $ref: "#/components/responses/NotFound"
         "429":
-          $ref: "#/components/responses/tooManyRequests"
+          $ref: "#/components/responses/TooManyRequests"
         default:
-          $ref: "#/components/responses/default"
+          $ref: "#/components/responses/Default"
 
   /Accounts/{id}/addBalance/{amount}:
     summary: Represents an account balance and the amount that needs to be added
@@ -663,17 +659,17 @@ paths:
         "200":
           description: The amount has been added to the account
         "400":
-          $ref: "#/components/responses/badRequest"
+          $ref: "#/components/responses/BadRequest"
         "401":
-          $ref: "#/components/responses/unauthorized"
+          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/forbidden"
+          $ref: "#/components/responses/Forbidden"
         "404":
-          $ref: "#/components/responses/notFound"
+          $ref: "#/components/responses/NotFound"
         "429":
-          $ref: "#/components/responses/tooManyRequests"
+          $ref: "#/components/responses/TooManyRequests"
         default:
-          $ref: "#/components/responses/default"
+          $ref: "#/components/responses/Default"
 
   /Accounts/{id}/subtractBalance/{amount}:
     summary: Represents an account balance and the amount that needs to be subtracted
@@ -706,13 +702,13 @@ paths:
         "200":
           description: The amount has been subtracted from the account
         "401":
-          $ref: "#/components/responses/unauthorized"
+          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/forbidden"
+          $ref: "#/components/responses/Forbidden"
         "429":
-          $ref: "#/components/responses/tooManyRequests"
+          $ref: "#/components/responses/TooManyRequests"
         default:
-          $ref: "#/components/responses/default"
+          $ref: "#/components/responses/Default"
 
   /Accounts/{id}/getBalance:
     summary: Represents an account balance
@@ -736,17 +732,17 @@ paths:
         "200":
           description: Balance of the account has been returned
         "400":
-          $ref: "#/components/responses/badRequest"
+          $ref: "#/components/responses/BadRequest"
         "401":
-          $ref: "#/components/responses/unauthorized"
+          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/forbidden"
+          $ref: "#/components/responses/Forbidden"
         "404":
-          $ref: "#/components/responses/notFound"
+          $ref: "#/components/responses/NotFound"
         "429":
-          $ref: "#/components/responses/tooManyRequests"
+          $ref: "#/components/responses/TooManyRequests"
         default:
-          $ref: "#/components/responses/default"
+          $ref: "#/components/responses/Default"
 
 components:
   schemas:
@@ -793,10 +789,10 @@ components:
         - performedBy
       properties:
         transactionId:
-          type: number
+          type: string
           format: uuid
-          example: 123456
           description: The ID of the created Transaction
+          readOnly: true
 
         accountTo:
           type: string
@@ -812,6 +808,7 @@ components:
 
         transactionDate:
           type: string
+          format: date-time
           example: 2021/12/01 16:02:06
           description: Timestamp of the transaction
 
@@ -819,13 +816,14 @@ components:
           type: number
           format: double
           example: 123.45
+          minimum: 0
           description: The amonut of the transaction in EURO
 
         performedBy:
-          type: integer
-          format: int32
-          example: 123
+          type: string
+          format: uuid
           description: ID of the user performing the transaction
+          readOnly: true
 
     Deposit:
       type: object
@@ -836,6 +834,12 @@ components:
         - amount
         - performedBy
       properties:
+        transactionId:
+          type: string
+          format: uuid
+          description: The ID of the created Transaction
+          readOnly: true
+
         accountTo:
           type: string
           example: NL04INHO6818968668
@@ -843,6 +847,7 @@ components:
 
         transactionDate:
           type: string
+          format: date-time
           example: 2021/12/01 16:02:06
           description: Timestamp of the transaction
 
@@ -851,12 +856,13 @@ components:
           format: double
           example: 123.45
           description: The amonut of the transaction in EURO
+          minimum: 0
 
         performedBy:
-          type: integer
-          format: int32
-          example: 123
+          type: string
+          format: uuid
           description: ID of the user performing the transaction
+          readOnly: true
 
     Withdrawal:
       additionalProperties: false
@@ -868,15 +874,21 @@ components:
         - performedBy
 
       properties:
+        transactionId:
+          type: string
+          format: uuid
+          description: The ID of the created Transaction
+          readOnly: true
+
         accountFrom:
           type: string
           example: NL04INHO6818968668
           description: IBAN of the account withdrawing the money
-          readOnly: false
           maxLength: 34
 
         transactionDate:
           type: string
+          format: date-time
           example: 2021/12/01 16:02:06
           description: Timestamp of the transaction
 
@@ -887,10 +899,10 @@ components:
           description: The amonut of the transaction in EURO
 
         performedBy:
-          type: integer
-          format: int32
-          example: 123
+          type: string
+          format: uuid
           description: ID of the user performing the transaction
+          readOnly: true
 
     TransactionList:
       additionalProperties: false
@@ -899,26 +911,26 @@ components:
         $ref: "#/components/schemas/Transaction"
       maxItems: 100
       example:
-        - transactionId: 123456
+        - transactionId: 3fa85f64-5717-4562-b3fc-2c963f66afa6
           accountTo: NL04INHO6818968668
           accountFrom: NL01INHO0000579848
           transactionDate: 2021/12/01 16:02:06
           amount: 123.45
-          performedBy: Dan
+          performedBy: 3fa85f64-5717-4562-b3fc-2c963f66afa6
 
-        - transactionId: 123500
+        - transactionId: 3fa85f64-5717-4562-b3fc-2c963f66afa6
           accountTo: NL04INHO6868186817
           accountFrom: NL01INHO0000579848
           transactionDate: 2021/12/01 16:02:06
           amount: 123.45
-          performedBy: Dan
+          performedBy: 3fa85f64-5717-4562-b3fc-2c963f66afa6
 
-        - transactionId: 123525
+        - transactionId: 3fa85f64-5717-4562-b3fc-2c963f66afa6
           accountTo: NL09INHO6891486186
           accountFrom: NL01INHO0000579848
           transactionDate: 2021/12/01 16:02:06
           amount: 123.45
-          performedBy: Alice
+          performedBy: 3fa85f64-5717-4562-b3fc-2c963f66afa6
 
     Account:
       additionalProperties: false
@@ -983,6 +995,7 @@ components:
         - iban
         - accountType
         - balance
+
     Error:
       additionalProperties: false
       type: object
@@ -991,6 +1004,8 @@ components:
           type: integer
           format: int32
           example: 404
+          maximum: 600
+          minimum: 400
         error:
           type: string
           maxLength: 100
@@ -1002,6 +1017,7 @@ components:
 
   # Parameters are for paginated enddpoint
   parameters:
+
     limitParam:
       name: max
       in: query
@@ -1014,6 +1030,7 @@ components:
         maximum: 50
         example: 15
         default: 10
+
     ibanParam:
       name: IBAN
       required: true
@@ -1023,69 +1040,72 @@ components:
         type: string
         example: NL01INHO0000579848
         maxLength: 34
+
     offsetParam:
       in: query
-      name: offset
       required: false
+      name: offset
+      description: The number of items to skip before starting to collect the result set.
       schema:
         type: integer
         format: int32
+        example: 60
         minimum: 0
-      description: The number of items to skip before starting to collect the result set.
 
     transactionIdParam:
-      name: accountId
+      name: id
       in: path
       required: true
       schema:
         type: string
         format: UUID
+        example: 4a090b27-5300-456a-8041-4c63a5e31436
 
   responses:
     #Generic Error Responses
-    badRequest:
+    BadRequest:
       description: Bad Reqeust
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
 
-    unauthorized:
+    Unauthorized:
       description: Credentials invalid or incorrect
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
 
-    forbidden:
+    Forbidden:
       description: Forbidden from performing this operation
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
 
-    notFound:
+    NotFound:
       description: Not Found
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
 
-    unsupportedMediaType:
+    UnsupportedMediaType:
       description: Invalid JSON format
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
 
-    tooManyRequests:
+    TooManyRequests:
       description: Too many requests. Try again in 300 seconds
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
 
-    default:
+    Default:
       description: An unknown error has occured
       content:
         application/json:
