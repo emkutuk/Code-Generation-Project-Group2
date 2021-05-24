@@ -1,6 +1,6 @@
 openapi: "3.0.2"
 info:
-  version: '1.1'
+  version: "1.1"
   title: Inholland Bank API
   description: API for the Inholland banking application
   termsOfService: n/a
@@ -10,28 +10,40 @@ info:
     email: 638931@student.inholland.nl
   license:
     name: Apache 2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
 servers:
   - url: https://api.server.test/v1
     description: Test server
 
   - url: https://api.server.real/v1
     description: Live Server
-    
+
 paths:
   /users:
     get:
-      tags: 
+      tags:
         - User
       summary: Get All users
       operationId: getAllUsers
-      parameters: 
-        - $ref: '#/components/parameters/offsetParam'
-        - $ref: '#/components/parameters/limitParam'
+      parameters:
+        - $ref: "#/components/parameters/offsetParam"
+        - $ref: "#/components/parameters/limitParam"
       responses:
-        '200':
+        "200":
           description: users returned
-          
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+        default:
+          $ref: "#/components/responses/default"
+
   /users/{id}:
     get:
       tags:
@@ -46,31 +58,53 @@ paths:
           schema:
             type: integer
       responses:
-        400:
+        "200":
           description: succesful
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+        default:
+          $ref: "#/components/responses/default"
   /user/register:
     post:
-      tags: 
+      tags:
         - User
       description: register
       requestBody:
         required: true
         content:
           application/json:
-            schema: 
-              $ref: '#/components/schemas/User'
+            schema:
+              $ref: "#/components/schemas/User"
 
       responses:
-        201:
+        "201":
           description: user created
-        400:
+        "400":
           description: invalid input, user invalid
-        409:
+        "409":
           description: an existing user already exists
-          
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+        default:
+          $ref: "#/components/responses/default"
+
   /user/login/{username},{password}:
     post:
-      tags: 
+      tags:
         - User
       description: login
       parameters:
@@ -94,22 +128,34 @@ paths:
   /user/update/{userid}:
     put:
       tags:
-      - User
+        - User
       description: User(customer - employee) can update his info.
       operationId: updateUser
       parameters:
-      - name: userid
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: userid
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         202:
           description: information updated.
-          
-  /Transaction:
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+        default:
+          $ref: "#/components/responses/default"
+
+  /Transactions:
     post:
-      tags: 
+      tags:
         - Transaction
       summary: Create a new Transaction
       description: Create a new Transaction
@@ -119,7 +165,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Transaction'
+              $ref: "#/components/schemas/Transaction"
       responses:
         "200":
           description: OK
@@ -132,25 +178,47 @@ paths:
                     type: number
                     example: 123456
                     description: The ID of the created Transaction
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+        default:
+          $ref: "#/components/responses/default"
 
     get:
-      tags: 
+      tags:
         - Transaction
       summary: Return a list of Transactions
       description: Returns a list of Transactions for current user from most recent to oldest
       parameters:
-        - $ref: '#/components/parameters/limitParam'
+        - $ref: "#/components/parameters/limitParam"
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TransactionList'
+                $ref: "#/components/schemas/TransactionList"
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+        default:
+          $ref: "#/components/responses/default"
 
   /Transaction/Deposit:
     post:
-      tags: 
+      tags:
         - Transaction
       summary: Deposit money into an account
       description: Deposit money into an account
@@ -160,7 +228,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Deposit'
+              $ref: "#/components/schemas/Deposit"
       responses:
         "200":
           description: OK
@@ -173,10 +241,20 @@ paths:
                     type: number
                     example: 123456
                     description: The ID of the created Transaction
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+        default:
+          $ref: "#/components/responses/default"
 
   /Transaction/Withdraw:
     post:
-      tags: 
+      tags:
         - Transaction
       summary: Withdraw money from an account
       description: Withdraw money from an account
@@ -186,7 +264,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Withdrawal'
+              $ref: "#/components/schemas/Withdrawal"
       responses:
         "200":
           description: OK
@@ -199,10 +277,20 @@ paths:
                     type: number
                     example: 123456
                     description: The ID of the created Transaction
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+        default:
+          $ref: "#/components/responses/default"
 
   /Transaction/{id}:
     get:
-      tags: 
+      tags:
         - Transaction
       summary: Return a Transaction with the specified ID
       description: Get a specific transaction by its ID
@@ -221,9 +309,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref:  "#/components/schemas/Transaction"
+                $ref: "#/components/schemas/Transaction"
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+        default:
+          $ref: "#/components/responses/default"
     delete:
-      tags: 
+      tags:
         - Transaction
       summary: Delete a scheduled transaction
       description: Delete a scheduled transaction by it's ID
@@ -236,30 +336,54 @@ paths:
           schema:
             type: integer
             example: 124875
-      responses:  
+      responses:
         "200":
           description: OK
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+        default:
+          $ref: "#/components/responses/default"
 
   /Transaction/ByAccountNumber:
-    get:  
-      tags: 
+    get:
+      tags:
         - Transaction
       summary: Return a list of Transactions from IBAN
       description: Return a list of transactions from the account with the specified IBAN
       operationId: transactionByAccountNo
       parameters:
-        - $ref: '#/components/parameters/ibanParam'
+        - $ref: "#/components/parameters/ibanParam"
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TransactionList'
+                $ref: "#/components/schemas/TransactionList"
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+        default:
+          $ref: "#/components/responses/default"
 
   /Transaction/Edit:
     post:
-      tags: 
+      tags:
         - Transaction
       summary: Edit a transaction
       description: Edit a transaction
@@ -269,7 +393,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Transaction'
+              $ref: "#/components/schemas/Transaction"
       responses:
         "200":
           description: OK
@@ -289,42 +413,66 @@ paths:
       This resource represents and individual account in the system.
       Each account is identified by a number id.
     get:
-      tags: 
+      tags:
         - AccountManagement
       summary: Gets an account by ID.
       operationId: getAccountById
       parameters:
-      - in: path
-        name: id
-        description: Account ID
-        required: true
-        schema:
-          type: integer
-          minimum: 1
+        - in: path
+          name: id
+          description: Account ID
+          required: true
+          schema:
+            type: integer
+            minimum: 1
       responses:
-        '200':
+        "200":
           description: An account object has been returned
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccountAll'
+                $ref: "#/components/schemas/AccountAll"
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+        default:
+          $ref: "#/components/responses/default"
     delete:
-      tags: 
+      tags:
         - AccountManagement
       summary: Deletes an account by ID
       operationId: deleteAccountById
-      parameters: 
-      - in: path
-        name: id
-        description: Account ID
-        required: true
-        schema:
-          type: integer
-          minimum: 1
+      parameters:
+        - in: path
+          name: id
+          description: Account ID
+          required: true
+          schema:
+            type: integer
+            minimum: 1
       responses:
-        '200':
+        "200":
           description: The account object has been deleted
-          
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+        default:
+          $ref: "#/components/responses/default"
+
     put:
       tags:
         - AccountManagement
@@ -335,20 +483,31 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AccountAll'
-      parameters: 
-      - in: path
-        name: id
-        description: Account ID
-        required: true
-        schema:
-          type: integer
-          minimum: 1
+              $ref: "#/components/schemas/AccountAll"
+      parameters:
+        - in: path
+          name: id
+          description: Account ID
+          required: true
+          schema:
+            type: integer
+            minimum: 1
       responses:
-        '200':
+        "200":
           description: An account object has been updated
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+        default:
+          $ref: "#/components/responses/default"
 
-                
   /Accounts/{id}/{type}:
     summary: Represents an account type
     description: >
@@ -359,7 +518,7 @@ paths:
         - AccountType
       summary: Changes account type
       operationId: changeAccountType
-      parameters: 
+      parameters:
         - in: path
           name: id
           description: Account ID
@@ -375,7 +534,7 @@ paths:
             type: string
             enum: [saving, current]
       responses:
-        '200':
+        "200":
           description: The account type has been changed
 
   /Accounts:
@@ -384,7 +543,7 @@ paths:
       This resource represents and individual account object in the system.
       Each account is identified by a number id.
     post:
-      tags: 
+      tags:
         - AccountManagement
       summary: Adds a new Account
       operationId: addANewAccount
@@ -393,26 +552,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Account'
+              $ref: "#/components/schemas/Account"
       responses:
-        '201':
+        "201":
           description: New account has been created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Account'
+                $ref: "#/components/schemas/Account"
     get:
-      tags: 
+      tags:
         - AccountManagement
       summary: Gets all accounts
       operationId: getAllAccounts
-      parameters: 
-        - $ref: '#/components/parameters/offsetParam'
-        - $ref: '#/components/parameters/limitParam'
+      parameters:
+        - $ref: "#/components/parameters/offsetParam"
+        - $ref: "#/components/parameters/limitParam"
       responses:
-        '200':
+        "200":
           description: Paginated accounts have been returned
-      
+
   /Accounts/{id}/addBalance/{amount}:
     summary: Represents an account balance and the amount that needs to be added
     description: >
@@ -423,7 +582,7 @@ paths:
         - AccountBalance
       summary: Adds specified amount
       operationId: addBalance
-      parameters: 
+      parameters:
         - in: path
           name: id
           description: Account ID
@@ -439,7 +598,7 @@ paths:
             type: number
             minimum: 0
       responses:
-        '200':
+        "200":
           description: The amount has been added to the account
 
   /Accounts/{id}/subtractBalance/{amount}:
@@ -452,7 +611,7 @@ paths:
         - AccountBalance
       summary: Subtracts specified amount
       operationId: subtractBalance
-      parameters: 
+      parameters:
         - in: path
           name: id
           description: Account ID
@@ -468,11 +627,11 @@ paths:
             type: number
             minimum: 0
       responses:
-        '200':
+        "200":
           description: The amount has been subtracted from the account
-    
+
   /Accounts/{id}/getBalance:
-    summary: Represents an account balance 
+    summary: Represents an account balance
     description: >
       This resource represents an account's balance.
       Each account is identified by a number id.
@@ -482,28 +641,28 @@ paths:
       summary: Gets an account balance by ID.
       operationId: getAccountBalanceById
       parameters:
-      - in: path
-        name: id
-        description: Account ID
-        required: true
-        schema:
-          type: integer
-          minimum: 1
+        - in: path
+          name: id
+          description: Account ID
+          required: true
+          schema:
+            type: integer
+            minimum: 1
       responses:
-        '200':
+        "200":
           description: Balance of the account has been returned
-          
+
 components:
   schemas:
     User:
       type: object
       required:
-      - id
-      - username
-      - password
-      - email
-      - phoneNumber
-      - accounts
+        - id
+        - username
+        - password
+        - email
+        - phoneNumber
+        - accounts
       properties:
         id:
           type: string
@@ -511,6 +670,9 @@ components:
         username:
           type: string
           example: mads
+        phoneNumber:
+          type: string
+          example: 321123527
         password:
           type: string
           example: GetMyP@ss1
@@ -521,7 +683,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Account"
-            
+          maxItems: 100
 
     Transaction:
       type: object
@@ -602,6 +764,7 @@ components:
           type: string
           example: NL04INHO6818968668
           description: IBAN of the account withdrawing the money
+          readOnly: false
 
         transactionDate:
           type: string
@@ -621,7 +784,8 @@ components:
     TransactionList:
       type: array
       items:
-        $ref: '#/components/schemas/Transaction'
+        $ref: "#/components/schemas/Transaction"
+      maxItems: 100
       example:
         - transactionId: 123456
           accountTo: NL04INHO6818968668
@@ -671,11 +835,10 @@ components:
           minimum: 0
       required:
         - id
-        - password
         - iban
         - accountType
         - balance
-        
+
     AccountAll:
       type: object
       properties:
@@ -701,12 +864,19 @@ components:
           minimum: 0
       required:
         - id
-        - password
         - iban
         - accountType
         - balance
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
 
-# Parameters are for paginated enddpoint
+  # Parameters are for paginated enddpoint
   parameters:
     limitParam:
       name: max
@@ -727,7 +897,7 @@ components:
       schema:
         type: string
         example: NL01INHO0000579848
-    offsetParam:  
+    offsetParam:
       in: query
       name: offset
       required: false
@@ -735,14 +905,32 @@ components:
         type: integer
         minimum: 0
       description: The number of items to skip before starting to collect the result set.
-        
-# Implementing bearer authentication
+
+
+  responses:
+    #Generic Error Responses
+    badRequest:
+      description: Bad Reqeust
+    unauthorized:
+      description: Credentials invalid or incorrect
+    forbidden:
+      description: Forbidden from performing this operation
+    notFound:
+      description: Not Found
+    unsupportedMediaType:
+      description: Invalid JSON format
+    tooManyRequests:
+      description: Too many requests. Try again in 300 seconds
+    default:
+      description: An unknown error has occured
+
+  # Implementing bearer authentication
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      
+
 # Applying the security globally to all operations
 security:
   - bearerAuth: []
