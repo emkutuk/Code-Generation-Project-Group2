@@ -57,6 +57,7 @@ paths:
           required: true
           schema:
             type: integer
+            format: int32
       responses:
         "200":
           description: succesful
@@ -114,17 +115,30 @@ paths:
           required: true
           schema:
             type: string
+            maxLength: 50
         - in: path
           name: password
           description: password
           required: true
           schema:
             type: string
+            maxLength: 256
       responses:
         200:
           description: user logged in
         404:
           description: invalid input.
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "415":
+          $ref:  "#/components/responses/unsupportedMediaType"
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+        default:
+          $ref: "#/components/responses/default"
+
   /user/update/{userid}:
     put:
       tags:
@@ -137,6 +151,7 @@ paths:
           required: true
           schema:
             type: string
+            maxLength: 50
       responses:
         202:
           description: information updated.
@@ -172,12 +187,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  transactionId:
-                    type: number
-                    example: 123456
-                    description: The ID of the created Transaction
+                $ref: "#/components/schemas/Transaction"
         "400":
           $ref: "#/components/responses/badRequest"
         "401":
@@ -239,6 +249,7 @@ paths:
                 properties:
                   transactionId:
                     type: number
+                    format: uuid
                     example: 123456
                     description: The ID of the created Transaction
         "400":
@@ -275,6 +286,7 @@ paths:
                 properties:
                   transactionId:
                     type: number
+                    format: uuid
                     example: 123456
                     description: The ID of the created Transaction
         "400":
@@ -302,6 +314,7 @@ paths:
           required: true
           schema:
             type: integer
+            format: int32
             example: 124875
       responses:
         "200":
@@ -335,6 +348,7 @@ paths:
           required: true
           schema:
             type: integer
+            format: int32
             example: 124875
       responses:
         "200":
@@ -404,8 +418,17 @@ paths:
                 properties:
                   transactionId:
                     type: number
+                    format: uuid
                     example: 789012
                     description: The ID of the altered Transaction
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+        default:
+          $ref: "#/components/responses/default"
 
   /Accounts/{id}:
     summary: Represents an account
@@ -424,6 +447,7 @@ paths:
           required: true
           schema:
             type: integer
+            format: int32
             minimum: 1
       responses:
         "200":
@@ -456,6 +480,7 @@ paths:
           required: true
           schema:
             type: integer
+            format: int32
             minimum: 1
       responses:
         "200":
@@ -491,6 +516,7 @@ paths:
           required: true
           schema:
             type: integer
+            format: int32
             minimum: 1
       responses:
         "200":
@@ -525,6 +551,7 @@ paths:
           required: true
           schema:
             type: integer
+            format: int32
             minimum: 1
         - in: path
           name: type
@@ -536,6 +563,14 @@ paths:
       responses:
         "200":
           description: The account type has been changed
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+        default:
+          $ref: "#/components/responses/default"
 
   /Accounts:
     summary: Represents an account object
@@ -560,6 +595,19 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Account"
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+        default:
+          $ref: "#/components/responses/default"
+
     get:
       tags:
         - AccountManagement
@@ -571,6 +619,18 @@ paths:
       responses:
         "200":
           description: Paginated accounts have been returned
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+        default:
+          $ref: "#/components/responses/default"
 
   /Accounts/{id}/addBalance/{amount}:
     summary: Represents an account balance and the amount that needs to be added
@@ -589,6 +649,7 @@ paths:
           required: true
           schema:
             type: integer
+            format: int32
             minimum: 1
         - in: path
           name: amount
@@ -596,10 +657,23 @@ paths:
           required: true
           schema:
             type: number
+            format: double
             minimum: 0
       responses:
         "200":
           description: The amount has been added to the account
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+        default:
+          $ref: "#/components/responses/default"
 
   /Accounts/{id}/subtractBalance/{amount}:
     summary: Represents an account balance and the amount that needs to be subtracted
@@ -618,6 +692,7 @@ paths:
           required: true
           schema:
             type: integer
+            format: int32
             minimum: 1
         - in: path
           name: amount
@@ -625,10 +700,19 @@ paths:
           required: true
           schema:
             type: number
+            format: double
             minimum: 0
       responses:
         "200":
           description: The amount has been subtracted from the account
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+        default:
+          $ref: "#/components/responses/default"
 
   /Accounts/{id}/getBalance:
     summary: Represents an account balance
@@ -647,14 +731,27 @@ paths:
           required: true
           schema:
             type: integer
-            minimum: 1
+            format: int32
       responses:
         "200":
           description: Balance of the account has been returned
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+        default:
+          $ref: "#/components/responses/default"
 
 components:
   schemas:
     User:
+      additionalProperties: false
       type: object
       required:
         - id
@@ -676,6 +773,7 @@ components:
         password:
           type: string
           example: GetMyP@ss1
+          maxLength: 256
         email:
           type: string
           example: mads@gmail.com
@@ -687,6 +785,7 @@ components:
 
     Transaction:
       type: object
+      additionalProperties: false
       required:
         - accountTo
         - accountFrom
@@ -695,6 +794,7 @@ components:
       properties:
         transactionId:
           type: number
+          format: uuid
           example: 123456
           description: The ID of the created Transaction
 
@@ -702,11 +802,13 @@ components:
           type: string
           example: NL04INHO6818968668
           description: IBAN of the account receiving the money
+          maxLength: 34
 
         accountFrom:
           type: string
           example: NL01INHO0000579848
           description: IBAN of the account sending the money
+          maxLength: 34
 
         transactionDate:
           type: string
@@ -715,16 +817,19 @@ components:
 
         amount:
           type: number
+          format: double
           example: 123.45
           description: The amonut of the transaction in EURO
 
         performedBy:
           type: integer
+          format: int32
           example: 123
           description: ID of the user performing the transaction
 
     Deposit:
       type: object
+      additionalProperties: false
       required:
         - accountTo
         - transactionDate
@@ -743,15 +848,18 @@ components:
 
         amount:
           type: number
+          format: double
           example: 123.45
           description: The amonut of the transaction in EURO
 
         performedBy:
           type: integer
+          format: int32
           example: 123
           description: ID of the user performing the transaction
 
     Withdrawal:
+      additionalProperties: false
       type: object
       required:
         - accountFrom
@@ -765,6 +873,7 @@ components:
           example: NL04INHO6818968668
           description: IBAN of the account withdrawing the money
           readOnly: false
+          maxLength: 34
 
         transactionDate:
           type: string
@@ -773,15 +882,18 @@ components:
 
         amount:
           type: number
+          format: double
           example: 123.45
           description: The amonut of the transaction in EURO
 
         performedBy:
           type: integer
+          format: int32
           example: 123
           description: ID of the user performing the transaction
 
     TransactionList:
+      additionalProperties: false
       type: array
       items:
         $ref: "#/components/schemas/Transaction"
@@ -809,6 +921,7 @@ components:
           performedBy: Alice
 
     Account:
+      additionalProperties: false
       type: object
       properties:
         id:
@@ -823,6 +936,7 @@ components:
           example: NL03INHO0033576852
           not:
             default: NL01INHO0000000001 # this address is reserved for the bank itself
+          maxLength: 34
         accountType:
           type: string
           enum: [saving, current]
@@ -830,7 +944,7 @@ components:
           description: Type of the account, can be either saving or current
         balance:
           type: number
-          format: float
+          format: double
           default: 0
           minimum: 0
       required:
@@ -840,6 +954,7 @@ components:
         - balance
 
     AccountAll:
+      additionalProperties: false
       type: object
       properties:
         id:
@@ -852,6 +967,7 @@ components:
           type: string
           description: IBAN number of the account
           example: NL03INHO0033576852
+          maxLength: 34
         accountType:
           type: string
           enum: [saving, current]
@@ -859,7 +975,7 @@ components:
           description: Type of the account, can be either saving or current
         balance:
           type: number
-          format: float
+          format: double
           default: 0
           minimum: 0
       required:
@@ -868,13 +984,21 @@ components:
         - accountType
         - balance
     Error:
+      additionalProperties: false
       type: object
       properties:
         code:
           type: integer
           format: int32
-        message:
+          example: 404
+        error:
           type: string
+          maxLength: 100
+          example: Not Found
+        description:
+          type: string
+          maxLength: 500
+          example: The requested resource was not found on the server
 
   # Parameters are for paginated enddpoint
   parameters:
@@ -885,6 +1009,7 @@ components:
       description: The Maximum number of items to return
       schema:
         type: integer
+        format: int32
         minimum: 10
         maximum: 50
         example: 15
@@ -897,32 +1022,67 @@ components:
       schema:
         type: string
         example: NL01INHO0000579848
+        maxLength: 34
     offsetParam:
       in: query
       name: offset
       required: false
       schema:
         type: integer
+        format: int32
         minimum: 0
       description: The number of items to skip before starting to collect the result set.
-
 
   responses:
     #Generic Error Responses
     badRequest:
       description: Bad Reqeust
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
     unauthorized:
       description: Credentials invalid or incorrect
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
     forbidden:
       description: Forbidden from performing this operation
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
     notFound:
       description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
     unsupportedMediaType:
       description: Invalid JSON format
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
     tooManyRequests:
       description: Too many requests. Try again in 300 seconds
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
     default:
       description: An unknown error has occured
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
 
   # Implementing bearer authentication
   securitySchemes:
