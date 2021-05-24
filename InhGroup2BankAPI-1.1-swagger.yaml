@@ -226,7 +226,41 @@ paths:
         default:
           $ref: "#/components/responses/default"
 
-  /Transaction/Deposit:
+    put:
+      tags:
+        - Transaction
+      summary: Edit a transaction
+      description: Edit a transaction
+      operationId: editTransaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Transaction"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactionId:
+                    type: number
+                    format: uuid
+                    example: 789012
+                    description: The ID of the altered Transaction
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+        default:
+          $ref: "#/components/responses/default"
+
+  /Transactions/Deposit:
     post:
       tags:
         - Transaction
@@ -263,7 +297,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
 
-  /Transaction/Withdraw:
+  /Transactions/Withdraw:
     post:
       tags:
         - Transaction
@@ -300,7 +334,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
 
-  /Transaction/{id}:
+  /Transactions/{id}:
     get:
       tags:
         - Transaction
@@ -366,7 +400,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
 
-  /Transaction/ByAccountNumber:
+  /Transactions/ByAccountNumber:
     get:
       tags:
         - Transaction
@@ -395,40 +429,6 @@ paths:
         default:
           $ref: "#/components/responses/default"
 
-  /Transaction/Edit:
-    post:
-      tags:
-        - Transaction
-      summary: Edit a transaction
-      description: Edit a transaction
-      operationId: editTransaction
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Transaction"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  transactionId:
-                    type: number
-                    format: uuid
-                    example: 789012
-                    description: The ID of the altered Transaction
-        "401":
-          $ref: "#/components/responses/unauthorized"
-        "403":
-          $ref: "#/components/responses/forbidden"
-        "429":
-          $ref: "#/components/responses/tooManyRequests"
-        default:
-          $ref: "#/components/responses/default"
 
   /Accounts/{id}:
     summary: Represents an account
@@ -1032,6 +1032,14 @@ components:
         format: int32
         minimum: 0
       description: The number of items to skip before starting to collect the result set.
+
+    transactionIdParam:
+      name: accountId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: UUID
 
   responses:
     #Generic Error Responses
