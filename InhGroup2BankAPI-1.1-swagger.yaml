@@ -2,7 +2,7 @@ openapi: "3.0.2"
 info:
   version: "1.1"
   title: Inholland Bank API
-  description: API for the Inholland banking application
+  description: API for the Inholland banking application.
   termsOfService: n/a
   contact:
     name: Group2
@@ -23,7 +23,8 @@ paths:
     get:
       tags:
         - User
-      summary: Get All users
+      summary: Get all users registered on the system.
+      description: Fetches the entire list of users stored on the system.
       operationId: getAllUsers
       parameters:
         - $ref: "#/components/parameters/offsetParam"
@@ -48,7 +49,8 @@ paths:
     get:
       tags:
         - User
-      summary: get a user by id
+      summary: Get a user by their ID.
+      description: Fetches a user from the system by the ID provided.
       operationId: getUserById
       parameters:
         - name: id
@@ -78,7 +80,8 @@ paths:
     post:
       tags:
         - User
-      description: register
+      summary: Registers a user.
+      description: Register a user to the system.
       requestBody:
         required: true
         content:
@@ -88,11 +91,11 @@ paths:
 
       responses:
         "201":
-          description: user created
+          description: The user has been created.
         "400":
-          description: invalid input, user invalid
+          description: Invalid input, user invalid.
         "409":
-          description: an existing user already exists
+          description: This user already exists.
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -126,9 +129,9 @@ paths:
             maxLength: 256
       responses:
         200:
-          description: user logged in
+          description: User logged in.
         404:
-          description: invalid input.
+          description: Invalid input.
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -144,7 +147,7 @@ paths:
     put:
       tags:
         - User
-      description: User(customer - employee) can update his info.
+      description: User(customer - employee) can update their information.
       operationId: updateUser
       parameters:
         - name: userid
@@ -155,7 +158,7 @@ paths:
             maxLength: 50
       responses:
         202:
-          description: information updated.
+          description: Your information has been updated.
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -173,8 +176,8 @@ paths:
     post:
       tags:
         - Transaction
-      summary: Create a new Transaction
-      description: Create a new Transaction
+      summary: Create a new Transaction.
+      description: Create a new Transaction.
       operationId: createTransaction
 
       requestBody:
@@ -205,8 +208,8 @@ paths:
     get:
       tags:
         - Transaction
-      summary: Return a list of Transactions
-      description: Returns a list of Transactions for current user from most recent to oldest
+      summary: Return a list of Transactions.
+      description: Returns an ordered list of Transactions for current user from most recent to oldest.
       operationId: getTransactionsByUser
 
       parameters:
@@ -237,8 +240,8 @@ paths:
     post:
       tags:
         - Transaction
-      summary: Deposit money into an account
-      description: Deposit money into an account
+      summary: Deposit money into an account.
+      description: Deposit money into an account.
       operationId: depositMoney
 
       requestBody:
@@ -270,8 +273,8 @@ paths:
     post:
       tags:
         - Transaction
-      summary: Withdraw money from an account
-      description: Withdraw money from an account
+      summary: Withdraw money from an account.
+      description: Withdraw money from the given account.
       operationId: withdrawMoney
 
       requestBody:
@@ -303,8 +306,8 @@ paths:
     get:
       tags:
         - Transaction
-      summary: Return a Transaction with the specified ID
-      description: Get a specific transaction by its ID
+      summary: Return a Transaction with the specified ID.
+      description: Get a specific transaction by its ID.
       operationId: getTransactionById
 
       parameters:
@@ -337,7 +340,7 @@ paths:
       description: >
         Delete a scheduled transaction by it's ID.
 
-        You cannot delete a transaction that has already been processed
+        You cannot delete a transaction that has already been processed.
       operationId: deleteTransactionById
 
       parameters:
@@ -363,7 +366,7 @@ paths:
       tags:
         - Transaction
       summary: Edit a transaction
-      description: Edit a transaction
+      description: Edits the specified transaction, given the ID.
       operationId: editTransactionById
 
       parameters:
@@ -397,8 +400,8 @@ paths:
     get:
       tags:
         - Transaction
-      summary: Return a list of Transactions from IBAN
-      description: Return a list of transactions from the account with the specified IBAN
+      summary: Return a list of Transactions from IBAN.
+      description: Return a list of transactions from the account with the specified IBAN.
       operationId: getTransactionByIBAN
 
       parameters:
@@ -430,7 +433,7 @@ paths:
     summary: Represents an account
     description: >
       This resource represents and individual account in the system.
-      Each account is identified by a number id.
+      Each account is identified by a unique number ID.
     get:
       tags:
         - AccountManagement
@@ -447,7 +450,7 @@ paths:
             minimum: 1
       responses:
         "200":
-          description: An account object has been returned
+          description: An account object has been returned.
           content:
             application/json:
               schema:
@@ -467,7 +470,7 @@ paths:
     delete:
       tags:
         - AccountManagement
-      summary: Deletes an account by ID
+      summary: Deletes an account by ID.
       operationId: deleteAccountById
       parameters:
         - in: path
@@ -480,7 +483,7 @@ paths:
             minimum: 1
       responses:
         "200":
-          description: The account object has been deleted
+          description: The account object has been deleted.
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -497,7 +500,7 @@ paths:
     put:
       tags:
         - AccountManagement
-      summary: Updates an existing account
+      summary: Updates an existing account.
       operationId: updateAccountById
       requestBody:
         required: true
@@ -516,7 +519,7 @@ paths:
             minimum: 1
       responses:
         "200":
-          description: An account object has been updated
+          description: An account object has been updated.
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -531,14 +534,14 @@ paths:
           $ref: "#/components/responses/Default"
 
   /Accounts/{id}/{type}:
-    summary: Represents an account type
+    summary: Represents an account type.
     description: >
       This resource represents and individual account type in the system.
-      Each account is identified by a number id.
+      Each account is identified by a unique number ID.
     post:
       tags:
         - AccountType
-      summary: Changes account type
+      summary: Changes account type.
       operationId: changeAccountType
       parameters:
         - in: path
@@ -551,14 +554,14 @@ paths:
             minimum: 1
         - in: path
           name: type
-          description: The new type
+          description: The new type for the account to be changed into.
           required: true
           schema:
             type: string
             enum: [saving, current]
       responses:
         "200":
-          description: The account type has been changed
+          description: The account type has been changed.
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -572,7 +575,7 @@ paths:
     summary: Represents an account object
     description: >
       This resource represents and individual account object in the system.
-      Each account is identified by a number id.
+      Each account is identified by a unique number ID.
     post:
       tags:
         - AccountManagement
@@ -586,7 +589,7 @@ paths:
               $ref: "#/components/schemas/Account"
       responses:
         "201":
-          description: New account has been created
+          description: The new account has been created.
           content:
             application/json:
               schema:
@@ -614,7 +617,7 @@ paths:
         - $ref: "#/components/parameters/limitParam"
       responses:
         "200":
-          description: Paginated accounts have been returned
+          description: Paginated accounts have been returned.
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -629,19 +632,19 @@ paths:
           $ref: "#/components/responses/Default"
 
   /Accounts/{id}/addBalance/{amount}:
-    summary: Represents an account balance and the amount that needs to be added
+    summary: Represents an account balance and the amount that needs to be added.
     description: >
       This resource represents an amount and the amount that needs to be added to an account.
-      Each account is identified by a number id.
+      Each account is identified by a unique number ID.
     post:
       tags:
         - AccountBalance
-      summary: Adds specified amount
+      summary: Adds specified amount.
       operationId: addBalance
       parameters:
         - in: path
           name: id
-          description: Account ID
+          description: Account ID.
           required: true
           schema:
             type: integer
@@ -649,7 +652,7 @@ paths:
             minimum: 1
         - in: path
           name: amount
-          description: Balance to be added
+          description: Balance to be added.
           required: true
           schema:
             type: number
@@ -657,7 +660,7 @@ paths:
             minimum: 0
       responses:
         "200":
-          description: The amount has been added to the account
+          description: The amount has been added to the account.
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -672,10 +675,10 @@ paths:
           $ref: "#/components/responses/Default"
 
   /Accounts/{id}/subtractBalance/{amount}:
-    summary: Represents an account balance and the amount that needs to be subtracted
+    summary: Represents an account balance and the amount that needs to be subtracted.
     description: >
       This resource represents the amount that needs to be subtracted to added to an account.
-      Each account is identified by a number id.
+      Each account is identified by a unique number ID.
     post:
       tags:
         - AccountBalance
@@ -692,7 +695,7 @@ paths:
             minimum: 1
         - in: path
           name: amount
-          description: Balance to be subtracted
+          description: Balance to be subtracted.
           required: true
           schema:
             type: number
@@ -700,7 +703,7 @@ paths:
             minimum: 0
       responses:
         "200":
-          description: The amount has been subtracted from the account
+          description: The amount has been subtracted from the account.
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -714,7 +717,7 @@ paths:
     summary: Represents an account balance
     description: >
       This resource represents an account's balance.
-      Each account is identified by a number id.
+      Each account is identified by a unique number ID.
     get:
       tags:
         - AccountBalance
@@ -730,7 +733,7 @@ paths:
             format: int32
       responses:
         "200":
-          description: Balance of the account has been returned
+          description: Balance of the account has been returned.
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -791,38 +794,38 @@ components:
         transactionId:
           type: string
           format: uuid
-          description: The ID of the created Transaction
+          description: The ID of the created Transaction.
           readOnly: true
 
         accountTo:
           type: string
           example: NL04INHO6818968668
-          description: IBAN of the account receiving the money
+          description: IBAN of the account receiving the money.
           maxLength: 34
 
         accountFrom:
           type: string
           example: NL01INHO0000579848
-          description: IBAN of the account sending the money
+          description: IBAN of the account sending the money.
           maxLength: 34
 
         transactionDate:
           type: string
           format: date-time
           example: 2021/12/01 16:02:06
-          description: Timestamp of the transaction
+          description: Timestamp of the transaction.
 
         amount:
           type: number
           format: double
           example: 123.45
           minimum: 0
-          description: The amonut of the transaction in EURO
+          description: The amonut of the transaction in EURO.
 
         performedBy:
           type: string
           format: uuid
-          description: ID of the user performing the transaction
+          description: ID of the user performing the transaction.
           readOnly: true
 
     Deposit:
@@ -837,31 +840,31 @@ components:
         transactionId:
           type: string
           format: uuid
-          description: The ID of the created Transaction
+          description: The ID of the created Transaction.
           readOnly: true
 
         accountTo:
           type: string
           example: NL04INHO6818968668
-          description: IBAN of the account receiving the money
+          description: IBAN of the account receiving the money.
 
         transactionDate:
           type: string
           format: date-time
           example: 2021/12/01 16:02:06
-          description: Timestamp of the transaction
+          description: Timestamp of the transaction.
 
         amount:
           type: number
           format: double
           example: 123.45
-          description: The amonut of the transaction in EURO
+          description: The amonut of the transaction in EURO.
           minimum: 0
 
         performedBy:
           type: string
           format: uuid
-          description: ID of the user performing the transaction
+          description: ID of the user performing the transaction.
           readOnly: true
 
     Withdrawal:
@@ -877,31 +880,31 @@ components:
         transactionId:
           type: string
           format: uuid
-          description: The ID of the created Transaction
+          description: The ID of the created Transaction.
           readOnly: true
 
         accountFrom:
           type: string
           example: NL04INHO6818968668
-          description: IBAN of the account withdrawing the money
+          description: IBAN of the account withdrawing the money.
           maxLength: 34
 
         transactionDate:
           type: string
           format: date-time
           example: 2021/12/01 16:02:06
-          description: Timestamp of the transaction
+          description: Timestamp of the transaction.
 
         amount:
           type: number
           format: double
           example: 123.45
-          description: The amonut of the transaction in EURO
+          description: The amount of the transaction in EURO.
 
         performedBy:
           type: string
           format: uuid
-          description: ID of the user performing the transaction
+          description: ID of the user performing the transaction. #might need to be changed to iban instead of id
           readOnly: true
 
     TransactionList:
@@ -940,11 +943,11 @@ components:
           type: integer
           format: int64
           minimum: 1
-          description: The unique id of the account
+          description: The unique ID of the account.
           example: 3
         iban:
           type: string
-          description: IBAN number of the account
+          description: IBAN number of the account.
           example: NL03INHO0033576852
           not:
             default: NL01INHO0000000001 # this address is reserved for the bank itself
@@ -953,7 +956,7 @@ components:
           type: string
           enum: [saving, current]
           default: current
-          description: Type of the account, can be either saving or current
+          description: The type of the account. This can be either saving or current.
         balance:
           type: number
           format: double
@@ -973,18 +976,18 @@ components:
           type: integer
           format: int64
           minimum: 1
-          description: The unique id of the account
+          description: The unique ID of the account.
           example: 3
         iban:
           type: string
-          description: IBAN number of the account
+          description: IBAN number of the account.
           example: NL03INHO0033576852
           maxLength: 34
         accountType:
           type: string
           enum: [saving, current]
           default: current
-          description: Type of the account, can be either saving or current
+          description: The type of the account. This can be either saving or current.
         balance:
           type: number
           format: double
@@ -1009,11 +1012,11 @@ components:
         error:
           type: string
           maxLength: 100
-          example: Not Found
+          example: Not Found.
         description:
           type: string
           maxLength: 500
-          example: The requested resource was not found on the server
+          example: The requested resource was not found on the server.
 
   # Parameters are for paginated enddpoint
   parameters:
@@ -1022,7 +1025,7 @@ components:
       name: max
       in: query
       required: false
-      description: The Maximum number of items to return
+      description: The maximum number of items to return.
       schema:
         type: integer
         format: int32
@@ -1035,7 +1038,7 @@ components:
       name: IBAN
       required: true
       in: query
-      description: The account to perform action on
+      description: The account to perform the action on.
       schema:
         type: string
         example: NL01INHO0000579848
@@ -1064,49 +1067,49 @@ components:
   responses:
     #Generic Error Responses
     BadRequest:
-      description: Bad Reqeust
+      description: Bad Reqeust. Please try again.
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
 
     Unauthorized:
-      description: Credentials invalid or incorrect
+      description: The entered credentials are invalid or incorrect. Please try again.
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
 
     Forbidden:
-      description: Forbidden from performing this operation
+      description: You do not have access to perform this action. Forbidden.
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
 
     NotFound:
-      description: Not Found
+      description: Not Found.
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
 
     UnsupportedMediaType:
-      description: Invalid JSON format
+      description: This media type is unsupported or it is an invalid JSON format.
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
 
     TooManyRequests:
-      description: Too many requests. Try again in 300 seconds
+      description: You have sent too many requests. Please try again in at least 300 seconds.
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
 
     Default:
-      description: An unknown error has occured
+      description: An unknown error has occured.
       content:
         application/json:
           schema:
