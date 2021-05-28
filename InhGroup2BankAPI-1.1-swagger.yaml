@@ -302,44 +302,42 @@ paths:
                     example: 789012
                     description: The ID of the altered Transaction
 
-  /Accounts/{id}:
+  /Accounts/{iban}:
     summary: Represents an account
     description: >
       This resource represents and individual account in the system.
-      Each account is identified by a number id.
+      Each account is identified by an Iban number.
     get:
       tags: 
         - AccountManagement
-      summary: Gets an account by ID.
-      operationId: getAccountById
+      summary: Gets an account by Iban.
+      operationId: getAccountByIban
       parameters:
       - in: path
-        name: id
-        description: Account ID
+        name: iban
+        description: Account Iban
         required: true
         schema:
-          type: integer
-          minimum: 1
+          type: string
       responses:
         '200':
           description: An account object has been returned
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccountAll'
+                $ref: '#/components/schemas/Account'
     delete:
       tags: 
         - AccountManagement
-      summary: Deletes an account by ID
-      operationId: deleteAccountById
+      summary: Deletes an account by Iban
+      operationId: deleteAccountByIban
       parameters: 
       - in: path
-        name: id
-        description: Account ID
+        name: iban
+        description: Account Iban
         required: true
         schema:
-          type: integer
-          minimum: 1
+          type: string
       responses:
         '200':
           description: The account object has been deleted
@@ -348,31 +346,30 @@ paths:
       tags:
         - AccountManagement
       summary: Updates an existing account
-      operationId: updateAccountById
+      operationId: updateAccountByIban
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AccountAll'
+              $ref: '#/components/schemas/Account'
       parameters: 
       - in: path
-        name: id
-        description: Account ID
+        name: iban
+        description: Account Iban
         required: true
         schema:
-          type: integer
-          minimum: 1
+          type: string
       responses:
         '200':
           description: An account object has been updated
 
                 
-  /Accounts/{id}/{type}:
+  /Accounts/{iban}/{type}:
     summary: Represents an account type
     description: >
       This resource represents and individual account type in the system.
-      Each account is identified by a number id.
+      Each account is identified by an Iban number.
     post:
       tags:
         - AccountType
@@ -380,12 +377,11 @@ paths:
       operationId: changeAccountType
       parameters: 
         - in: path
-          name: id
-          description: Account ID
+          name: iban
+          description: Account Iban
           required: true
           schema:
-            type: integer
-            minimum: 1
+            type: string
         - in: path
           name: type
           description: The new type
@@ -401,7 +397,7 @@ paths:
     summary: Represents an account object
     description: >
       This resource represents and individual account object in the system.
-      Each account is identified by a number id.
+      Each account is identified by an Iban number.
     post:
       tags: 
         - AccountManagement
@@ -431,83 +427,24 @@ paths:
       responses:
         '200':
           description: Paginated accounts have been returned
-      
-  /Accounts/{id}/addBalance/{amount}:
-    summary: Represents an account balance and the amount that needs to be added
-    description: >
-      This resource represents an amount and the amount that needs to be added to an account.
-      Each account is identified by a number id.
-    post:
-      tags:
-        - AccountBalance
-      summary: Adds specified amount
-      operationId: addBalance
-      parameters: 
-        - in: path
-          name: id
-          description: Account ID
-          required: true
-          schema:
-            type: integer
-            minimum: 1
-        - in: path
-          name: amount
-          description: Balance to be added
-          required: true
-          schema:
-            type: number
-            minimum: 0
-      responses:
-        '200':
-          description: The amount has been added to the account
 
-  /Accounts/{id}/subtractBalance/{amount}:
-    summary: Represents an account balance and the amount that needs to be subtracted
-    description: >
-      This resource represents the amount that needs to be subtracted to added to an account.
-      Each account is identified by a number id.
-    post:
-      tags:
-        - AccountBalance
-      summary: Subtracts specified amount
-      operationId: subtractBalance
-      parameters: 
-        - in: path
-          name: id
-          description: Account ID
-          required: true
-          schema:
-            type: integer
-            minimum: 1
-        - in: path
-          name: amount
-          description: Balance to be subtracted
-          required: true
-          schema:
-            type: number
-            minimum: 0
-      responses:
-        '200':
-          description: The amount has been subtracted from the account
-    
-  /Accounts/{id}/getBalance:
+  /Accounts/{iban}/getBalance:
     summary: Represents an account balance 
     description: >
       This resource represents an account's balance.
-      Each account is identified by a number id.
+      Each account is identified by an Iban number.
     get:
       tags:
         - AccountBalance
-      summary: Gets an account balance by ID.
-      operationId: getAccountBalanceById
+      summary: Gets an account balance by Iban.
+      operationId: getAccountBalanceByIban
       parameters:
       - in: path
-        name: id
-        description: Account ID
+        name: iban
+        description: Account Iban
         required: true
         schema:
-          type: integer
-          minimum: 1
+          type: string
       responses:
         '200':
           description: Balance of the account has been returned
@@ -674,18 +611,10 @@ components:
     Account:
       type: object
       properties:
-        id:
-          type: integer
-          format: int64
-          minimum: 1
-          description: The unique id of the account
-          example: 3
         iban:
           type: string
           description: IBAN number of the account
           example: NL03INHO0033576852
-          not:
-            default: NL01INHO0000000001 # this address is reserved for the bank itself
         accountType:
           type: string
           enum: [saving, current]
@@ -697,42 +626,10 @@ components:
           default: 0
           minimum: 0
       required:
-        - id
-        - password
         - iban
         - accountType
         - balance
         
-    AccountAll:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          minimum: 1
-          description: The unique id of the account
-          example: 3
-        iban:
-          type: string
-          description: IBAN number of the account
-          example: NL03INHO0033576852
-        accountType:
-          type: string
-          enum: [saving, current]
-          default: current
-          description: Type of the account, can be either saving or current
-        balance:
-          type: number
-          format: float
-          default: 0
-          minimum: 0
-      required:
-        - id
-        - password
-        - iban
-        - accountType
-        - balance
-
 # Parameters are for paginated enddpoint
   parameters:
     limitParam:
