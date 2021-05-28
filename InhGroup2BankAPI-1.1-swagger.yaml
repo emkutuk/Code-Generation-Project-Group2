@@ -110,6 +110,21 @@ paths:
       responses:
         200:
           description: information updated.
+  /user/delete/{userid}:
+    put:
+      tags:
+      - User
+      description: Change user accountStatus to Inactive.
+      operationId: deleteUser
+      parameters:
+      - name: userid
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: account deleted.
           
   /Transaction:
     post:
@@ -509,6 +524,7 @@ components:
       - phoneNumber
       - accounts
       - role
+      - accountStatus
       properties:
         id:
           type: string
@@ -529,6 +545,9 @@ components:
         role:
           type: string
           example: employee
+        accountStatus:
+          type: string
+          example: "Active or Inactive"
             
 
     Transaction:
