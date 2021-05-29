@@ -1,8 +1,8 @@
 openapi: "3.0.2"
 info:
-  version: '1.1'
+  version: "1.1"
   title: Inholland Bank API
-  description: API for the Inholland banking application
+  description: API for the Inholland banking application.
   termsOfService: n/a
   contact:
     name: Group2
@@ -10,33 +10,47 @@ info:
     email: 638931@student.inholland.nl
   license:
     name: Apache 2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
 servers:
   - url: https://api.server.test/v1
     description: Test server
 
   - url: https://api.server.real/v1
     description: Live Server
-    
+
 paths:
-  /users:
-    get:
-      tags: 
-        - User
-      summary: Get All users
-      operationId: getAllUsers
-      parameters: 
-        - $ref: '#/components/parameters/offsetParam'
-        - $ref: '#/components/parameters/limitParam'
-      responses:
-        '200':
-          description: users returned
-          
-  /users/{id}:
+  /Users:
     get:
       tags:
         - User
-      summary: get a user by id
+      summary: Get all users registered on the system.
+      description: Fetches the entire list of users stored on the system.
+      operationId: getAllUsers
+      parameters:
+        - $ref: "#/components/parameters/offsetParam"
+        - $ref: "#/components/parameters/limitParam"
+      responses:
+        "200":
+          description: users returned
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        default:
+          $ref: "#/components/responses/Default"
+
+  /Users/{id}:
+    get:
+      tags:
+        - User
+      summary: Get a user by their ID.
+      description: Fetches a user from the system by the ID provided.
       operationId: getUserById
       parameters:
         - name: id
@@ -45,36 +59,65 @@ paths:
           required: true
           schema:
             type: integer
+            format: int32
       responses:
-        200:
+        "200":
           description: succesful
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'          
-  /user/register:
+                $ref: '#/components/schemas/User'
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        default:
+          $ref: "#/components/responses/Default"
+
+  /User/Register:
     post:
-      tags: 
+      tags:
         - User
-      description: register
+      summary: Registers a user.
+      description: Register a user to the system.
       requestBody:
         required: true
         content:
           application/json:
-            schema: 
-              $ref: '#/components/schemas/User'
+            schema:
+              $ref: "#/components/schemas/User"
 
       responses:
-        200:
+        "200":
           description: user created
-        401:
+        "201":
+          description: The user has been created.
+        "400":
+          description: Invalid input, user invalid.
+        "409":
+          description: This user already exists.
+        "401":
           description: invalid input, user invalid
-        404:
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
           description: an existing user already exists
-          
-  /user/login/{username},{password}:
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        default:
+          $ref: "#/components/responses/Default"
+
+  /User/Login/{username},{password}:
     post:
-      tags: 
+      tags:
         - User
       description: login
       parameters:
@@ -84,33 +127,60 @@ paths:
           required: true
           schema:
             type: string
+            maxLength: 50
         - in: path
           name: password
           description: password
           required: true
           schema:
             type: string
+            maxLength: 256
       responses:
         200:
-          description: user logged in
-        401:
-          description: invalid input.
-  /user/update/{userid}:
+          description: User logged in.
+        404:
+          description: Invalid input.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "415":
+          $ref: "#/components/responses/UnsupportedMediaType"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        default:
+          $ref: "#/components/responses/Default"
+
+  /User/Update/{userid}:
     put:
       tags:
-      - User
-      description: User(customer - employee) can update his info.
+        - User
+      description: User(customer - employee) can update their information.
       operationId: updateUser
       parameters:
-      - name: userid
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: userid
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 50
       responses:
-        200:
-          description: information updated.
-  /user/delete/{userid}:
+        202:
+          description: Your information has been updated.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        default:
+          $ref: "#/components/responses/Default"
+
+  /User/Delete/{userid}:
     put:
       tags:
       - User
@@ -125,182 +195,263 @@ paths:
       responses:
         200:
           description: account deleted.
-          
+
   /Transaction:
     post:
-      tags: 
+      tags:
         - Transaction
-      summary: Create a new Transaction
-      description: Create a new Transaction
-      operationId: transactionPost
+      summary: Create a new Transaction.
+      description: Create a new Transaction.
+      operationId: createTransaction
+
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Transaction'
+              $ref: "#/components/schemas/Transaction"
+
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  transactionId:
-                    type: number
-                    example: 123456
-                    description: The ID of the created Transaction
+                $ref: "#/components/schemas/Transaction"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        default:
+          $ref: "#/components/responses/Default"
 
     get:
-      tags: 
+      tags:
         - Transaction
-      summary: Return a list of Transactions
-      description: Returns a list of Transactions for current user from most recent to oldest
+      summary: Return a list of Transactions.
+      description: Returns an ordered list of Transactions for current user from most recent to oldest.
+      operationId: getTransactionsByUser
+
       parameters:
-        - $ref: '#/components/parameters/limitParam'
+        - $ref: "#/components/parameters/limitParam"
+        - $ref: "#/components/parameters/offsetParam"
+
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TransactionList'
+                $ref: "#/components/schemas/TransactionList"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        default:
+          $ref: "#/components/responses/Default"
 
-  /Transaction/Deposit:
+  /Transactions/Deposit:
     post:
-      tags: 
+      tags:
         - Transaction
-      summary: Deposit money into an account
-      description: Deposit money into an account
-      operationId: depositPost
+      summary: Deposit money into an account.
+      description: Deposit money into an account.
+      operationId: depositMoney
+
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Deposit'
+              $ref: "#/components/schemas/Deposit"
+
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  transactionId:
-                    type: number
-                    example: 123456
-                    description: The ID of the created Transaction
+                $ref: "#/components/schemas/Transaction"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        default:
+          $ref: "#/components/responses/Default"
 
-  /Transaction/Withdraw:
+  /Transactions/Withdraw:
     post:
-      tags: 
+      tags:
         - Transaction
-      summary: Withdraw money from an account
-      description: Withdraw money from an account
-      operationId: withdrawPost
+      summary: Withdraw money from an account.
+      description: Withdraw money from the given account.
+      operationId: withdrawMoney
+
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Withdrawal'
+              $ref: "#/components/schemas/Withdrawal"
+
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  transactionId:
-                    type: number
-                    example: 123456
-                    description: The ID of the created Transaction
+                $ref: "#/components/schemas/Transaction"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        default:
+          $ref: "#/components/responses/Default"
 
-  /Transaction/{id}:
+  /Transactions/{id}:
     get:
-      tags: 
+      tags:
         - Transaction
-      summary: Return a Transaction with the specified ID
-      description: Get a specific transaction by its ID
-      operationId: transactionIdGet
+      summary: Return a Transaction with the specified ID.
+      description: Get a specific transaction by its ID.
+      operationId: getTransactionById
+
       parameters:
-        - in: path
-          name: id
-          description: Transaction ID
-          required: true
-          schema:
-            type: integer
-            example: 124875
+        - $ref: "#/components/parameters/transactionIdParam"
+
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref:  "#/components/schemas/Transaction"
+                $ref: "#/components/schemas/Transaction"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        default:
+          $ref: "#/components/responses/Default"
+
     delete:
-      tags: 
+      tags:
         - Transaction
       summary: Delete a scheduled transaction
-      description: Delete a scheduled transaction by it's ID
+      description: >
+        Delete a scheduled transaction by it's ID.
+
+        You cannot delete a transaction that has already been processed.
       operationId: deleteTransactionById
-      parameters:
-        - in: path
-          name: id
-          description: Transaction ID
-          required: true
-          schema:
-            type: integer
-            example: 124875
-      responses:  
-        "200":
-          description: OK
 
-  /Transaction/ByAccountNumber:
-    get:  
-      tags: 
-        - Transaction
-      summary: Return a list of Transactions from IBAN
-      description: Return a list of transactions from the account with the specified IBAN
-      operationId: transactionByAccountNo
       parameters:
-        - $ref: '#/components/parameters/ibanParam'
+        - $ref: "#/components/parameters/transactionIdParam"
+
       responses:
-        "200":
+        "204":
           description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TransactionList'
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        default:
+          $ref: "#/components/responses/Default"
 
-  /Transaction/Edit:
-    post:
-      tags: 
+    put:
+      tags:
         - Transaction
       summary: Edit a transaction
-      description: Edit a transaction
-      operationId: editTransaction
+      description: Edits the specified transaction, given the ID.
+      operationId: editTransactionById
+
+      parameters:
+        - $ref: "#/components/parameters/transactionIdParam"
+
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Transaction'
+              $ref: "#/components/schemas/Transaction"
+
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  transactionId:
-                    type: number
-                    example: 789012
-                    description: The ID of the altered Transaction
+                $ref: "#/components/schemas/Transaction"
+
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        default:
+          $ref: "#/components/responses/Default"
+
+  /Transactions/ByAccountNumber:
+    get:
+      tags:
+        - Transaction
+      summary: Return a list of Transactions from IBAN.
+      description: Return a list of transactions from the account with the specified IBAN.
+      operationId: getTransactionByIBAN
+
+      parameters:
+        - $ref: "#/components/parameters/ibanParam"
+        - $ref: "#/components/parameters/limitParam"
+        - $ref: "#/components/parameters/offsetParam"
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionList"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        default:
+          $ref: "#/components/responses/Default"
 
   /Accounts/{iban}:
     summary: Represents an account
@@ -308,7 +459,7 @@ paths:
       This resource represents and individual account in the system.
       Each account is identified by an Iban number.
     get:
-      tags: 
+      tags:
         - AccountManagement
       summary: Gets an account by Iban.
       operationId: getAccountByIban
@@ -320,18 +471,31 @@ paths:
         schema:
           type: string
       responses:
-        '200':
-          description: An account object has been returned
+        "200":
+          description: An account object has been returned.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Account'
+                $ref: "#/components/schemas/Account"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        default:
+          $ref: '#/components/responses/Default'
+
     delete:
-      tags: 
+      tags:
         - AccountManagement
       summary: Deletes an account by Iban
       operationId: deleteAccountByIban
-      parameters: 
+      parameters:
       - in: path
         name: iban
         description: Account Iban
@@ -339,9 +503,21 @@ paths:
         schema:
           type: string
       responses:
-        '200':
-          description: The account object has been deleted
-          
+        "200":
+          description: The account object has been deleted.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        default:
+          $ref: "#/components/responses/Default"
+
     put:
       tags:
         - AccountManagement
@@ -353,7 +529,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Account'
-      parameters: 
+      parameters:
       - in: path
         name: iban
         description: Account Iban
@@ -361,10 +537,22 @@ paths:
         schema:
           type: string
       responses:
-        '200':
-          description: An account object has been updated
+        "200":
+          description: An account object has been updated.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        default:
+          $ref: "#/components/responses/Default"
 
-                
+
   /Accounts/{iban}/{type}:
     summary: Represents an account type
     description: >
@@ -373,9 +561,9 @@ paths:
     post:
       tags:
         - AccountType
-      summary: Changes account type
+      summary: Changes account type.
       operationId: changeAccountType
-      parameters: 
+      parameters:
         - in: path
           name: iban
           description: Account Iban
@@ -384,22 +572,30 @@ paths:
             type: string
         - in: path
           name: type
-          description: The new type
+          description: The new type for the account to be changed into.
           required: true
           schema:
             type: string
             enum: [saving, current]
       responses:
-        '200':
-          description: The account type has been changed
+        "200":
+          description: The account type has been changed.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        default:
+          $ref: "#/components/responses/Default"
 
   /Accounts:
     summary: Represents an account object
     description: >
       This resource represents and individual account object in the system.
-      Each account is identified by an Iban number.
+      Each account is identified by a unique Iban number.
     post:
-      tags: 
+      tags:
         - AccountManagement
       summary: Adds a new Account
       operationId: addANewAccount
@@ -408,28 +604,41 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Account'
+              $ref: "#/components/schemas/Account"
       responses:
-        '201':
-          description: New account has been created
+        "201":
+          description: The new account has been created.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Account'
+                $ref: "#/components/schemas/Account"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        default:
+          $ref: "#/components/responses/Default"
+
     get:
-      tags: 
+      tags:
         - AccountManagement
       summary: Gets all accounts
       operationId: getAllAccounts
-      parameters: 
-        - $ref: '#/components/parameters/offsetParam'
-        - $ref: '#/components/parameters/limitParam'
+      parameters:
+        - $ref: "#/components/parameters/offsetParam"
+        - $ref: "#/components/parameters/limitParam"
       responses:
         '200':
           description: Paginated accounts have been returned
 
   /Accounts/{iban}/getBalance:
-    summary: Represents an account balance 
+    summary: Represents an account balance
     description: >
       This resource represents an account's balance.
       Each account is identified by an Iban number.
@@ -446,12 +655,25 @@ paths:
         schema:
           type: string
       responses:
-        '200':
-          description: Balance of the account has been returned
-          
+        "200":
+          description: Balance of the account has been returned.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        default:
+          $ref: "#/components/responses/Default"
+
 components:
   schemas:
     User:
+      additionalProperties: false
       type: object
       required:
       - id
@@ -469,9 +691,13 @@ components:
         username:
           type: string
           example: mads
+        phoneNumber:
+          type: string
+          example: 321123527
         password:
           type: string
           example: GetMyP@ss1
+          maxLength: 256
         email:
           type: string
           example: mads@gmail.com
@@ -479,16 +705,18 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Account"
+          maxItems: 100
         role:
           type: string
           example: employee
         accountStatus:
           type: string
           example: "Active or Inactive"
-            
+
 
     Transaction:
       type: object
+      additionalProperties: false
       required:
         - accountTo
         - accountFrom
@@ -496,64 +724,83 @@ components:
         - performedBy
       properties:
         transactionId:
-          type: number
-          example: 123456
-          description: The ID of the created Transaction
+          type: string
+          format: uuid
+          description: The ID of the created Transaction.
+          readOnly: true
 
         accountTo:
           type: string
           example: NL04INHO6818968668
-          description: IBAN of the account receiving the money
+          description: IBAN of the account receiving the money.
+          maxLength: 34
 
         accountFrom:
           type: string
           example: NL01INHO0000579848
-          description: IBAN of the account sending the money
+          description: IBAN of the account sending the money.
+          maxLength: 34
 
         transactionDate:
           type: string
+          format: date-time
           example: 2021/12/01 16:02:06
-          description: Timestamp of the transaction
+          description: Timestamp of the transaction.
 
         amount:
           type: number
+          format: double
           example: 123.45
-          description: The amonut of the transaction in EURO
+          minimum: 0
+          description: The amonut of the transaction in EURO.
 
         performedBy:
-          type: integer
-          example: 123
-          description: ID of the user performing the transaction
+          type: string
+          format: uuid
+          description: ID of the user performing the transaction.
+          readOnly: true
 
     Deposit:
       type: object
+      additionalProperties: false
       required:
         - accountTo
         - transactionDate
         - amount
         - performedBy
       properties:
+        transactionId:
+          type: string
+          format: uuid
+          description: The ID of the created Transaction.
+          readOnly: true
+
         accountTo:
           type: string
           example: NL04INHO6818968668
-          description: IBAN of the account receiving the money
+          description: IBAN of the account receiving the money.
 
         transactionDate:
           type: string
+          format: date-time
           example: 2021/12/01 16:02:06
-          description: Timestamp of the transaction
+          description: Timestamp of the transaction.
 
         amount:
           type: number
+          format: double
           example: 123.45
-          description: The amonut of the transaction in EURO
+          description: The amonut of the transaction in EURO.
+          minimum: 0
 
         performedBy:
-          type: integer
-          example: 123
-          description: ID of the user performing the transaction
+          type: string
+          format: uuid
+          description: ID of the user performing the transaction.
+          readOnly: true
 
     Withdrawal:
+      additionalProperties: false
       type: object
       required:
         - accountFrom
@@ -562,111 +809,251 @@ components:
         - performedBy
 
       properties:
+        transactionId:
+          type: string
+          format: uuid
+          description: The ID of the created Transaction.
+          readOnly: true
+
         accountFrom:
           type: string
           example: NL04INHO6818968668
-          description: IBAN of the account withdrawing the money
+          description: IBAN of the account withdrawing the money.
+          maxLength: 34
 
         transactionDate:
           type: string
+          format: date-time
           example: 2021/12/01 16:02:06
-          description: Timestamp of the transaction
+          description: Timestamp of the transaction.
 
         amount:
           type: number
+          format: double
           example: 123.45
-          description: The amonut of the transaction in EURO
+          description: The amount of the transaction in EURO.
 
         performedBy:
-          type: integer
-          example: 123
-          description: ID of the user performing the transaction
+          type: string
+          format: uuid
+          description: ID of the user performing the transaction. #might need to be changed to iban instead of id
+          readOnly: true
 
     TransactionList:
+      additionalProperties: false
       type: array
       items:
-        $ref: '#/components/schemas/Transaction'
+        $ref: "#/components/schemas/Transaction"
+      maxItems: 100
       example:
-        - transactionId: 123456
+        - transactionId: 3fa85f64-5717-4562-b3fc-2c963f66afa6
           accountTo: NL04INHO6818968668
           accountFrom: NL01INHO0000579848
           transactionDate: 2021/12/01 16:02:06
           amount: 123.45
-          performedBy: Dan
+          performedBy: 3fa85f64-5717-4562-b3fc-2c963f66afa6
 
-        - transactionId: 123500
+        - transactionId: 3fa85f64-5717-4562-b3fc-2c963f66afa6
           accountTo: NL04INHO6868186817
           accountFrom: NL01INHO0000579848
           transactionDate: 2021/12/01 16:02:06
           amount: 123.45
-          performedBy: Dan
+          performedBy: 3fa85f64-5717-4562-b3fc-2c963f66afa6
 
-        - transactionId: 123525
+        - transactionId: 3fa85f64-5717-4562-b3fc-2c963f66afa6
           accountTo: NL09INHO6891486186
           accountFrom: NL01INHO0000579848
           transactionDate: 2021/12/01 16:02:06
           amount: 123.45
-          performedBy: Alice
+          performedBy: 3fa85f64-5717-4562-b3fc-2c963f66afa6
 
     Account:
+      additionalProperties: false
       type: object
       properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+          description: The unique ID of the account.
+          example: 3
         iban:
           type: string
-          description: IBAN number of the account
+          description: IBAN number of the account.
           example: NL03INHO0033576852
+          not:
+            default: NL01INHO0000000001 # this address is reserved for the bank itself
+          maxLength: 34
         accountType:
           type: string
           enum: [saving, current]
           default: current
-          description: Type of the account, can be either saving or current
+          description: The type of the account. This can be either saving or current.
         balance:
           type: number
-          format: float
+          format: double
           default: 0
           minimum: 0
       required:
+        - id
         - iban
         - accountType
         - balance
-        
-# Parameters are for paginated enddpoint
+
+    AccountAll:
+      additionalProperties: false
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+          description: The unique ID of the account.
+          example: 3
+        iban:
+          type: string
+          description: IBAN number of the account.
+          example: NL03INHO0033576852
+          maxLength: 34
+        accountType:
+          type: string
+          enum: [saving, current]
+          default: current
+          description: The type of the account. This can be either saving or current.
+        balance:
+          type: number
+          format: double
+          default: 0
+          minimum: 0
+      required:
+        - id
+        - iban
+        - accountType
+        - balance
+
+    Error:
+      additionalProperties: false
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+          example: 404
+          maximum: 600
+          minimum: 400
+        error:
+          type: string
+          maxLength: 100
+          example: Not Found.
+        description:
+          type: string
+          maxLength: 500
+          example: The requested resource was not found on the server.
+
+  # Parameters are for paginated enddpoint
   parameters:
+
     limitParam:
       name: max
       in: query
       required: false
-      description: The Maximum number of items to return
+      description: The maximum number of items to return.
       schema:
         type: integer
+        format: int32
         minimum: 10
         maximum: 50
         example: 15
         default: 10
+
     ibanParam:
       name: IBAN
       required: true
       in: query
-      description: The account to perform action on
+      description: The account to perform the action on.
       schema:
         type: string
         example: NL01INHO0000579848
-    offsetParam:  
+        maxLength: 34
+
+    offsetParam:
       in: query
-      name: offset
       required: false
+      name: offset
+      description: The number of items to skip before starting to collect the result set.
       schema:
         type: integer
+        format: int32
+        example: 60
         minimum: 0
-      description: The number of items to skip before starting to collect the result set.
-        
-# Implementing bearer authentication
+
+    transactionIdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: UUID
+        example: 4a090b27-5300-456a-8041-4c63a5e31436
+
+  responses:
+    #Generic Error Responses
+    BadRequest:
+      description: Bad Reqeust. Please try again.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+    Unauthorized:
+      description: The entered credentials are invalid or incorrect. Please try again.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+    Forbidden:
+      description: You do not have access to perform this action. Forbidden.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+    NotFound:
+      description: Not Found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+    UnsupportedMediaType:
+      description: This media type is unsupported or it is an invalid JSON format.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+    TooManyRequests:
+      description: You have sent too many requests. Please try again in at least 300 seconds.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+    Default:
+      description: An unknown error has occured.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+  # Implementing bearer authentication
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      
+
 # Applying the security globally to all operations
 security:
   - bearerAuth: []
