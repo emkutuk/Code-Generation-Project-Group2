@@ -19,7 +19,7 @@ servers:
     description: Live Server
 
 paths:
-  /users:
+  /Users:
     get:
       tags:
         - User
@@ -45,7 +45,7 @@ paths:
         default:
           $ref: "#/components/responses/Default"
 
-  /users/{id}:
+  /Users/{id}:
     get:
       tags:
         - User
@@ -80,7 +80,7 @@ paths:
         default:
           $ref: "#/components/responses/Default"
 
-  /user/register:
+  /User/Register:
     post:
       tags:
         - User
@@ -115,7 +115,7 @@ paths:
         default:
           $ref: "#/components/responses/Default"
 
-  /user/login/{username},{password}:
+  /User/Login/{username},{password}:
     post:
       tags:
         - User
@@ -151,7 +151,7 @@ paths:
         default:
           $ref: "#/components/responses/Default"
 
-  /user/update/{userid}:
+  /User/Update/{userid}:
     put:
       tags:
         - User
@@ -180,7 +180,7 @@ paths:
         default:
           $ref: "#/components/responses/Default"
 
-  /user/delete/{userid}:
+  /User/Delete/{userid}:
     put:
       tags:
       - User
@@ -476,7 +476,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AccountAll"
+                $ref: "#/components/schemas/Account"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -488,7 +488,7 @@ paths:
         "429":
           $ref: "#/components/responses/TooManyRequests"
         default:
-          $ref: '#/components/schemas/Account'
+          $ref: '#/components/responses/Default'
 
     delete:
       tags:
