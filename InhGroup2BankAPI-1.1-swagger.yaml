@@ -63,6 +63,10 @@ paths:
       responses:
         "200":
           description: succesful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -90,6 +94,8 @@ paths:
               $ref: "#/components/schemas/User"
 
       responses:
+        "200":
+          description: user created
         "201":
           description: The user has been created.
         "400":
@@ -97,10 +103,12 @@ paths:
         "409":
           description: This user already exists.
         "401":
+          description: invalid input, user invalid
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
         "404":
+          description: an existing user already exists
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/TooManyRequests"
@@ -172,7 +180,23 @@ paths:
         default:
           $ref: "#/components/responses/Default"
 
-  /Transactions:
+  /user/delete/{userid}:
+    put:
+      tags:
+      - User
+      description: Change user accountStatus to Inactive.
+      operationId: deleteUser
+      parameters:
+      - name: userid
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: account deleted.
+
+  /Transaction:
     post:
       tags:
         - Transaction
@@ -429,25 +453,23 @@ paths:
         default:
           $ref: "#/components/responses/Default"
 
-  /Accounts/{id}:
+  /Accounts/{iban}:
     summary: Represents an account
     description: >
       This resource represents and individual account in the system.
-      Each account is identified by a unique number ID.
+      Each account is identified by an Iban number.
     get:
       tags:
         - AccountManagement
-      summary: Gets an account by ID.
-      operationId: getAccountById
+      summary: Gets an account by Iban.
+      operationId: getAccountByIban
       parameters:
-        - in: path
-          name: id
-          description: Account ID
-          required: true
-          schema:
-            type: integer
-            format: int32
-            minimum: 1
+      - in: path
+        name: iban
+        description: Account Iban
+        required: true
+        schema:
+          type: string
       responses:
         "200":
           description: An account object has been returned.
@@ -466,21 +488,20 @@ paths:
         "429":
           $ref: "#/components/responses/TooManyRequests"
         default:
-          $ref: "#/components/responses/Default"
+          $ref: '#/components/schemas/Account'
+
     delete:
       tags:
         - AccountManagement
-      summary: Deletes an account by ID.
-      operationId: deleteAccountById
+      summary: Deletes an account by Iban
+      operationId: deleteAccountByIban
       parameters:
-        - in: path
-          name: id
-          description: Account ID
-          required: true
-          schema:
-            type: integer
-            format: int32
-            minimum: 1
+      - in: path
+        name: iban
+        description: Account Iban
+        required: true
+        schema:
+          type: string
       responses:
         "200":
           description: The account object has been deleted.
@@ -500,23 +521,21 @@ paths:
     put:
       tags:
         - AccountManagement
-      summary: Updates an existing account.
-      operationId: updateAccountById
+      summary: Updates an existing account
+      operationId: updateAccountByIban
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AccountAll"
+              $ref: '#/components/schemas/Account'
       parameters:
-        - in: path
-          name: id
-          description: Account ID
-          required: true
-          schema:
-            type: integer
-            format: int32
-            minimum: 1
+      - in: path
+        name: iban
+        description: Account Iban
+        required: true
+        schema:
+          type: string
       responses:
         "200":
           description: An account object has been updated.
@@ -533,11 +552,12 @@ paths:
         default:
           $ref: "#/components/responses/Default"
 
-  /Accounts/{id}/{type}:
-    summary: Represents an account type.
+
+  /Accounts/{iban}/{type}:
+    summary: Represents an account type
     description: >
       This resource represents and individual account type in the system.
-      Each account is identified by a unique number ID.
+      Each account is identified by an Iban number.
     post:
       tags:
         - AccountType
@@ -545,13 +565,11 @@ paths:
       operationId: changeAccountType
       parameters:
         - in: path
-          name: id
-          description: Account ID
+          name: iban
+          description: Account Iban
           required: true
           schema:
-            type: integer
-            format: int32
-            minimum: 1
+            type: string
         - in: path
           name: type
           description: The new type for the account to be changed into.
@@ -575,7 +593,7 @@ paths:
     summary: Represents an account object
     description: >
       This resource represents and individual account object in the system.
-      Each account is identified by a unique number ID.
+      Each account is identified by a unique Iban number.
     post:
       tags:
         - AccountManagement
@@ -616,121 +634,26 @@ paths:
         - $ref: "#/components/parameters/offsetParam"
         - $ref: "#/components/parameters/limitParam"
       responses:
-        "200":
-          description: Paginated accounts have been returned.
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "429":
-          $ref: "#/components/responses/TooManyRequests"
-        default:
-          $ref: "#/components/responses/Default"
+        '200':
+          description: Paginated accounts have been returned
 
-  /Accounts/{id}/addBalance/{amount}:
-    summary: Represents an account balance and the amount that needs to be added.
-    description: >
-      This resource represents an amount and the amount that needs to be added to an account.
-      Each account is identified by a unique number ID.
-    post:
-      tags:
-        - AccountBalance
-      summary: Adds specified amount.
-      operationId: addBalance
-      parameters:
-        - in: path
-          name: id
-          description: Account ID.
-          required: true
-          schema:
-            type: integer
-            format: int32
-            minimum: 1
-        - in: path
-          name: amount
-          description: Balance to be added.
-          required: true
-          schema:
-            type: number
-            format: double
-            minimum: 0
-      responses:
-        "200":
-          description: The amount has been added to the account.
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "429":
-          $ref: "#/components/responses/TooManyRequests"
-        default:
-          $ref: "#/components/responses/Default"
-
-  /Accounts/{id}/subtractBalance/{amount}:
-    summary: Represents an account balance and the amount that needs to be subtracted.
-    description: >
-      This resource represents the amount that needs to be subtracted to added to an account.
-      Each account is identified by a unique number ID.
-    post:
-      tags:
-        - AccountBalance
-      summary: Subtracts specified amount
-      operationId: subtractBalance
-      parameters:
-        - in: path
-          name: id
-          description: Account ID
-          required: true
-          schema:
-            type: integer
-            format: int32
-            minimum: 1
-        - in: path
-          name: amount
-          description: Balance to be subtracted.
-          required: true
-          schema:
-            type: number
-            format: double
-            minimum: 0
-      responses:
-        "200":
-          description: The amount has been subtracted from the account.
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "429":
-          $ref: "#/components/responses/TooManyRequests"
-        default:
-          $ref: "#/components/responses/Default"
-
-  /Accounts/{id}/getBalance:
+  /Accounts/{iban}/getBalance:
     summary: Represents an account balance
     description: >
       This resource represents an account's balance.
-      Each account is identified by a unique number ID.
+      Each account is identified by an Iban number.
     get:
       tags:
         - AccountBalance
-      summary: Gets an account balance by ID.
-      operationId: getAccountBalanceById
+      summary: Gets an account balance by Iban.
+      operationId: getAccountBalanceByIban
       parameters:
-        - in: path
-          name: id
-          description: Account ID
-          required: true
-          schema:
-            type: integer
-            format: int32
+      - in: path
+        name: iban
+        description: Account Iban
+        required: true
+        schema:
+          type: string
       responses:
         "200":
           description: Balance of the account has been returned.
@@ -753,12 +676,14 @@ components:
       additionalProperties: false
       type: object
       required:
-        - id
-        - username
-        - password
-        - email
-        - phoneNumber
-        - accounts
+      - id
+      - username
+      - password
+      - email
+      - phoneNumber
+      - accounts
+      - role
+      - accountStatus
       properties:
         id:
           type: string
@@ -781,6 +706,13 @@ components:
           items:
             $ref: "#/components/schemas/Account"
           maxItems: 100
+        role:
+          type: string
+          example: employee
+        accountStatus:
+          type: string
+          example: "Active or Inactive"
+
 
     Transaction:
       type: object
