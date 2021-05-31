@@ -23,4 +23,4 @@ Students will participate in a project in the structured development of a bankin
 *	Week 9: Second submission (retake).
 
 #### Link to swagger specification ####
-https://app.swaggerhub.com/apis/644851/InhGroup2BankAPI/1.1
+https://app.swaggerhub.com/apis/644851/InhGroup2BankAPI/1.2
