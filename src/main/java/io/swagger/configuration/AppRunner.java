@@ -21,13 +21,12 @@ public class AppRunner implements ApplicationRunner
     @Override
     public void run(ApplicationArguments args) throws Exception
     {
-        accountService.createAccount(account);
+        accountService.addANewAccount(account);
 
         for(Account a : accountService.getAllAccounts())
         {
             System.out.println(a.toString());
         }
 
-        System.out.println("Hi");
     }
 }
