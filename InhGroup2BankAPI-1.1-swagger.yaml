@@ -1,6 +1,6 @@
 openapi: "3.0.2"
 info:
-  version: "1.1"
+  version: '1.2'
   title: Inholland Bank API
   description: API for the Inholland banking application.
   termsOfService: n/a
@@ -103,12 +103,10 @@ paths:
         "409":
           description: This user already exists.
         "401":
-          description: invalid input, user invalid
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
         "404":
-          description: an existing user already exists
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/TooManyRequests"
@@ -883,37 +881,6 @@ components:
           example: NL03INHO0033576852
           not:
             default: NL01INHO0000000001 # this address is reserved for the bank itself
-          maxLength: 34
-        accountType:
-          type: string
-          enum: [saving, current]
-          default: current
-          description: The type of the account. This can be either saving or current.
-        balance:
-          type: number
-          format: double
-          default: 0
-          minimum: 0
-      required:
-        - id
-        - iban
-        - accountType
-        - balance
-
-    AccountAll:
-      additionalProperties: false
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          minimum: 1
-          description: The unique ID of the account.
-          example: 3
-        iban:
-          type: string
-          description: IBAN number of the account.
-          example: NL03INHO0033576852
           maxLength: 34
         accountType:
           type: string
