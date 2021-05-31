@@ -6,6 +6,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
@@ -15,11 +20,14 @@ import javax.validation.constraints.*;
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-30T19:31:26.554Z[GMT]")
 
-
+@Entity
 public class Account   {
   @JsonProperty("id")
+  @Id
+  @GeneratedValue
   private Long id = null;
 
+  @Column(name = "iban")
   @JsonProperty("iban")
   private String iban = null;
 
@@ -184,5 +192,12 @@ public class Account   {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");
+  }
+
+  public Account(String iban, AccountTypeEnum accountType, Double balance)
+  {
+    this.iban = iban;
+    this.accountType = accountType;
+    this.balance = balance;
   }
 }
