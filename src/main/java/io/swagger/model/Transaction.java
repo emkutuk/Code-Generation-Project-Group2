@@ -1,40 +1,55 @@
 package io.swagger.model;
 
-import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.UUID;
-import org.threeten.bp.OffsetDateTime;
 import org.springframework.validation.annotation.Validated;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.validation.Valid;
-import javax.validation.constraints.*;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Transaction
  */
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-30T19:31:26.554Z[GMT]")
-
-
-public class Transaction   {
+@Entity
+public class Transaction {
+  @Id
   @JsonProperty("transactionId")
   private UUID transactionId = null;
 
+  @Column(name = "accountTo")
   @JsonProperty("accountTo")
   private String accountTo = null;
 
+  @Column(name = "accountFrom")
   @JsonProperty("accountFrom")
   private String accountFrom = null;
 
+  @Column(name = "transactionDate")
   @JsonProperty("transactionDate")
-  private OffsetDateTime transactionDate = null;
+  private LocalDateTime transactionDate = null;
 
+  @Column(name = "double")
   @JsonProperty("amount")
   private Double amount = null;
 
   @JsonProperty("performedBy")
+  @Column(name = "amount")
   private UUID performedBy = null;
+
+  public Transaction() {
+    this.transactionId = UUID.randomUUID();
+    this.transactionDate = LocalDateTime.now();
+  }
 
   public Transaction transactionId(UUID transactionId) {
     this.transactionId = transactionId;
@@ -43,12 +58,12 @@ public class Transaction   {
 
   /**
    * The ID of the created Transaction.
+   *
    * @return transactionId
    **/
   @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "The ID of the created Transaction.")
-  
-    @Valid
-    public UUID getTransactionId() {
+  @Valid
+  public UUID getTransactionId() {
     return transactionId;
   }
 
@@ -63,12 +78,13 @@ public class Transaction   {
 
   /**
    * IBAN of the account receiving the money.
+   *
    * @return accountTo
    **/
   @Schema(example = "NL04INHO6818968668", required = true, description = "IBAN of the account receiving the money.")
-      @NotNull
-
-  @Size(max=34)   public String getAccountTo() {
+  @NotNull
+  @Size(max = 34)
+  public String getAccountTo() {
     return accountTo;
   }
 
@@ -83,12 +99,14 @@ public class Transaction   {
 
   /**
    * IBAN of the account sending the money.
+   *
    * @return accountFrom
    **/
-  @Schema(example = "NL01INHO0000579848", required = true, description = "IBAN of the account sending the money.")
-      @NotNull
 
-  @Size(max=34)   public String getAccountFrom() {
+  @Schema(example = "NL01INHO0000579848", required = true, description = "IBAN of the account sending the money.")
+  @NotNull
+  @Size(max = 34)
+  public String getAccountFrom() {
     return accountFrom;
   }
 
@@ -96,23 +114,23 @@ public class Transaction   {
     this.accountFrom = accountFrom;
   }
 
-  public Transaction transactionDate(OffsetDateTime transactionDate) {
+  public Transaction transactionDate(LocalDateTime transactionDate) {
     this.transactionDate = transactionDate;
     return this;
   }
 
   /**
    * Timestamp of the transaction.
+   *
    * @return transactionDate
    **/
   @Schema(description = "Timestamp of the transaction.")
-  
-    @Valid
-    public OffsetDateTime getTransactionDate() {
+  @Valid
+  public LocalDateTime getTransactionDate() {
     return transactionDate;
   }
 
-  public void setTransactionDate(OffsetDateTime transactionDate) {
+  public void setTransactionDate(LocalDateTime transactionDate) {
     this.transactionDate = transactionDate;
   }
 
@@ -124,12 +142,13 @@ public class Transaction   {
   /**
    * The amonut of the transaction in EURO.
    * minimum: 0
+   *
    * @return amount
    **/
   @Schema(example = "123.45", required = true, description = "The amonut of the transaction in EURO.")
-      @NotNull
-
-  @DecimalMin("0")  public Double getAmount() {
+  @NotNull
+  @DecimalMin("0")
+  public Double getAmount() {
     return amount;
   }
 
@@ -144,13 +163,13 @@ public class Transaction   {
 
   /**
    * ID of the user performing the transaction.
+   *
    * @return performedBy
    **/
   @Schema(required = true, accessMode = Schema.AccessMode.READ_ONLY, description = "ID of the user performing the transaction.")
-      @NotNull
-
-    @Valid
-    public UUID getPerformedBy() {
+  @NotNull
+  @Valid
+  public UUID getPerformedBy() {
     return performedBy;
   }
 
@@ -169,11 +188,11 @@ public class Transaction   {
     }
     Transaction transaction = (Transaction) o;
     return Objects.equals(this.transactionId, transaction.transactionId) &&
-        Objects.equals(this.accountTo, transaction.accountTo) &&
-        Objects.equals(this.accountFrom, transaction.accountFrom) &&
-        Objects.equals(this.transactionDate, transaction.transactionDate) &&
-        Objects.equals(this.amount, transaction.amount) &&
-        Objects.equals(this.performedBy, transaction.performedBy);
+            Objects.equals(this.accountTo, transaction.accountTo) &&
+            Objects.equals(this.accountFrom, transaction.accountFrom) &&
+            Objects.equals(this.transactionDate, transaction.transactionDate) &&
+            Objects.equals(this.amount, transaction.amount) &&
+            Objects.equals(this.performedBy, transaction.performedBy);
   }
 
   @Override
@@ -185,7 +204,7 @@ public class Transaction   {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class Transaction {\n");
-    
+
     sb.append("    transactionId: ").append(toIndentedString(transactionId)).append("\n");
     sb.append("    accountTo: ").append(toIndentedString(accountTo)).append("\n");
     sb.append("    accountFrom: ").append(toIndentedString(accountFrom)).append("\n");
