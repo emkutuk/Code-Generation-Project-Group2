@@ -57,7 +57,7 @@ public interface AccountsApi {
         produces = { "application/json" }, 
         consumes = { "application/json" }, 
         method = RequestMethod.POST)
-    ResponseEntity<Account> addANewAccount(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Account body);
+    ResponseEntity<Account> addANewAccount(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Account body) throws Exception;
 
 
     @Operation(summary = "Changes account type.", description = "", security = {
@@ -120,7 +120,7 @@ public interface AccountsApi {
     @RequestMapping(value = "/Accounts/{iban}/getBalance",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<Void> getAccountBalanceByIban(@Parameter(in = ParameterIn.PATH, description = "Account Iban", required=true, schema=@Schema()) @PathVariable("iban") String iban);
+    ResponseEntity<Double> getAccountBalanceByIban(@Parameter(in = ParameterIn.PATH, description = "Account Iban", required=true, schema=@Schema()) @PathVariable("iban") String iban);
 
 
     @Operation(summary = "Gets an account by Iban.", description = "", security = {
@@ -151,7 +151,7 @@ public interface AccountsApi {
         @ApiResponse(responseCode = "200", description = "Paginated accounts have been returned") })
     @RequestMapping(value = "/Accounts",
         method = RequestMethod.GET)
-    ResponseEntity<Void> getAllAccounts(@Min(0)@Parameter(in = ParameterIn.QUERY, description = "The number of items to skip before starting to collect the result set." ,schema=@Schema(allowableValues={  }
+    ResponseEntity<List<Account>> getAllAccounts(@Min(0)@Parameter(in = ParameterIn.QUERY, description = "The number of items to skip before starting to collect the result set." ,schema=@Schema(allowableValues={  }
 )) @Valid @RequestParam(value = "offset", required = false) Integer offset, @Min(10) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The maximum number of items to return." ,schema=@Schema(allowableValues={  }, minimum="10", maximum="50"
 , defaultValue="10")) @Valid @RequestParam(value = "max", required = false, defaultValue="10") Integer max);
 

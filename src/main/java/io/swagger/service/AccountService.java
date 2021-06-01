@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class AccountService
@@ -79,18 +80,19 @@ public class AccountService
             {
                 try
                 {
-                    accountRepo.delete(a);
-                    accountRepo.save(account);
+                    a.setIban(account.getIban());
+                    a.setAccountType(account.getAccountType());
+                    a.setBalance(account.getBalance());
+                    accountRepo.save(a);
                 } catch (Exception e)
                 {
                     throw new Exception(e.getMessage());
                 }
-
             }
         }
     }
 
-    public void changeAccountType(String iban, Account.AccountTypeEnum typeEnum) throws Exception
+    public void changeAccountType(String iban, String typeEnum) throws Exception
     {
         List<Account> allAccounts = (List<Account>) accountRepo.findAll();
 
@@ -102,7 +104,7 @@ public class AccountService
                 try
                 {
                     accountRepo.delete(a);
-                    a.setAccountType(typeEnum);
+                    a.setAccountType(Account.AccountTypeEnum.valueOf(typeEnum.toUpperCase(Locale.ROOT)));
                     accountRepo.save(a);
                 } catch (Exception e)
                 {

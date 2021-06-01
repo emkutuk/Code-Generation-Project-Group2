@@ -31,9 +31,15 @@ public class Account   {
   @JsonProperty("iban")
   private String iban = null;
 
+  //Its here to prevent no default constructor error
+  public Account()
+  {
+  }
+
   /**
    * The type of the account. This can be either saving or current.
    */
+
   public enum AccountTypeEnum {
     SAVING("saving"),
     
@@ -61,9 +67,12 @@ public class Account   {
       return null;
     }
   }
+
+  @Column(name = "accountType")
   @JsonProperty("accountType")
   private AccountTypeEnum accountType = AccountTypeEnum.CURRENT;
 
+  @Column(name = "balance")
   @JsonProperty("balance")
   private Double balance = 0d;
 
