@@ -3,7 +3,6 @@ package io.swagger.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.model.Deposit;
 import io.swagger.model.Transaction;
-import io.swagger.model.TransactionList;
 import io.swagger.model.Withdrawal;
 import io.swagger.service.TransactionService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -25,6 +24,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.IOException;
+import java.util.List;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-30T19:31:26.554Z[GMT]")
 @RestController
@@ -60,25 +60,25 @@ public class TransactionsApiController implements TransactionsApi {
       }
     }
 
-    // Validate transaction etc.
-
-    return new ResponseEntity<Transaction>(body ,HttpStatus.CREATED);
+    return new ResponseEntity<Transaction>(body, HttpStatus.CREATED);
   }
 
-  public ResponseEntity<TransactionList> getTransactionsByUser(@Min(10) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The maximum number of items to return.", schema = @Schema(allowableValues = {}, minimum = "10", maximum = "50"
+  public ResponseEntity<List<Transaction>> getTransactionsByUser(@Min(10) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The maximum number of items to return.", schema = @Schema(allowableValues = {}, minimum = "10", maximum = "50"
           , defaultValue = "10")) @Valid @RequestParam(value = "max", required = false, defaultValue = "10") Integer max, @Min(0) @Parameter(in = ParameterIn.QUERY, description = "The number of items to skip before starting to collect the result set.", schema = @Schema(allowableValues = {}
   )) @Valid @RequestParam(value = "offset", required = false) Integer offset) {
     String accept = request.getHeader("Accept");
     if (accept != null && accept.contains("application/json")) {
       try {
-        return new ResponseEntity<TransactionList>(objectMapper.readValue("[ {\n  \"transactionId\" : \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"accountTo\" : \"NL04INHO6818968668\",\n  \"accountFrom\" : \"NL01INHO0000579848\",\n  \"transactionDate\" : \"2021/12/01 16:02:06\",\n  \"amount\" : 123.45,\n  \"performedBy\" : \"3fa85f64-5717-4562-b3fc-2c963f66afa6\"\n}, {\n  \"transactionId\" : \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"accountTo\" : \"NL04INHO6868186817\",\n  \"accountFrom\" : \"NL01INHO0000579848\",\n  \"transactionDate\" : \"2021/12/01 16:02:06\",\n  \"amount\" : 123.45,\n  \"performedBy\" : \"3fa85f64-5717-4562-b3fc-2c963f66afa6\"\n}, {\n  \"transactionId\" : \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"accountTo\" : \"NL09INHO6891486186\",\n  \"accountFrom\" : \"NL01INHO0000579848\",\n  \"transactionDate\" : \"2021/12/01 16:02:06\",\n  \"amount\" : 123.45,\n  \"performedBy\" : \"3fa85f64-5717-4562-b3fc-2c963f66afa6\"\n} ]", TransactionList.class), HttpStatus.NOT_IMPLEMENTED);
-      } catch (IOException e) {
+
+        return new ResponseEntity<List<Transaction>>(transactionService.getTransactions(), HttpStatus.OK);
+
+      } catch (Exception e) {
         log.error("Couldn't serialize response for content type application/json", e);
-        return new ResponseEntity<TransactionList>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<List<Transaction>>(HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
 
-    return new ResponseEntity<TransactionList>(HttpStatus.NOT_IMPLEMENTED);
+    return new ResponseEntity<List<Transaction>>(HttpStatus.NOT_IMPLEMENTED);
   }
 
   public ResponseEntity<Void> deleteTransactionById(@Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema()) @PathVariable("id") String id) {
@@ -114,20 +114,21 @@ public class TransactionsApiController implements TransactionsApi {
     return new ResponseEntity<Transaction>(HttpStatus.NOT_IMPLEMENTED);
   }
 
-  public ResponseEntity<TransactionList> getTransactionByIBAN(@NotNull @Size(max = 34) @Parameter(in = ParameterIn.QUERY, description = "The account to perform the action on.", required = true, schema = @Schema()) @Valid @RequestParam(value = "IBAN", required = true) String IBAN, @Min(10) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The maximum number of items to return.", schema = @Schema(allowableValues = {}, minimum = "10", maximum = "50"
+  public ResponseEntity<List<Transaction>> getTransactionByIBAN(@NotNull @Size(max = 34) @Parameter(in = ParameterIn.QUERY, description = "The account to perform the action on.", required = true, schema = @Schema()) @Valid @RequestParam(value = "IBAN", required = true) String IBAN, @Min(10) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The maximum number of items to return.", schema = @Schema(allowableValues = {}, minimum = "10", maximum = "50"
           , defaultValue = "10")) @Valid @RequestParam(value = "max", required = false, defaultValue = "10") Integer max, @Min(0) @Parameter(in = ParameterIn.QUERY, description = "The number of items to skip before starting to collect the result set.", schema = @Schema(allowableValues = {}
   )) @Valid @RequestParam(value = "offset", required = false) Integer offset) {
     String accept = request.getHeader("Accept");
-    if (accept != null && accept.contains("application/json")) {
+    if (accept != null && accept.contains("application/json"))
+    {
       try {
-        return new ResponseEntity<TransactionList>(objectMapper.readValue("[ {\n  \"transactionId\" : \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"accountTo\" : \"NL04INHO6818968668\",\n  \"accountFrom\" : \"NL01INHO0000579848\",\n  \"transactionDate\" : \"2021/12/01 16:02:06\",\n  \"amount\" : 123.45,\n  \"performedBy\" : \"3fa85f64-5717-4562-b3fc-2c963f66afa6\"\n}, {\n  \"transactionId\" : \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"accountTo\" : \"NL04INHO6868186817\",\n  \"accountFrom\" : \"NL01INHO0000579848\",\n  \"transactionDate\" : \"2021/12/01 16:02:06\",\n  \"amount\" : 123.45,\n  \"performedBy\" : \"3fa85f64-5717-4562-b3fc-2c963f66afa6\"\n}, {\n  \"transactionId\" : \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"accountTo\" : \"NL09INHO6891486186\",\n  \"accountFrom\" : \"NL01INHO0000579848\",\n  \"transactionDate\" : \"2021/12/01 16:02:06\",\n  \"amount\" : 123.45,\n  \"performedBy\" : \"3fa85f64-5717-4562-b3fc-2c963f66afa6\"\n} ]", TransactionList.class), HttpStatus.NOT_IMPLEMENTED);
-      } catch (IOException e) {
+        return null;
+      } catch (Exception e) {
         log.error("Couldn't serialize response for content type application/json", e);
-        return new ResponseEntity<TransactionList>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<List<Transaction>>(HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
 
-    return new ResponseEntity<TransactionList>(HttpStatus.NOT_IMPLEMENTED);
+    return new ResponseEntity<List<Transaction>>(HttpStatus.NOT_IMPLEMENTED);
   }
 
   public ResponseEntity<Transaction> getTransactionById(@Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema()) @PathVariable("id") String id) {

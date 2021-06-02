@@ -5,8 +5,10 @@
  */
 package io.swagger.api;
 
+import io.swagger.model.Deposit;
 import io.swagger.model.Error;
-import io.swagger.model.*;
+import io.swagger.model.Transaction;
+import io.swagger.model.Withdrawal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -24,6 +26,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-30T19:31:26.554Z[GMT]")
 @Validated
@@ -69,26 +72,23 @@ public interface TransactionsApi {
                   required = true,
                   schema = @Schema()) @Valid @RequestBody Transaction body);
 
-  @Operation(summary = "Return a list of Transactions.", description = "Returns an ordered list of Transactions for current user from most recent to oldest.", security = {
-          @SecurityRequirement(name = "bearerAuth")}, tags = {"Transaction"})
+  @Operation(
+          summary = "Return a list of Transactions.",
+          description = "Returns an ordered list of Transactions for current user from most recent to oldest.",
+          security = {
+                  @SecurityRequirement(name = "bearerAuth")}, tags = {"Transaction"})
   @ApiResponses(value = {
-          @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = TransactionList.class))),
-
+          @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(allowableValues = {}))),
           @ApiResponse(responseCode = "400", description = "Bad Reqeust. Please try again.", content = @Content(schema = @Schema(implementation = Error.class))),
-
           @ApiResponse(responseCode = "401", description = "The entered credentials are invalid or incorrect. Please try again.", content = @Content(schema = @Schema(implementation = Error.class))),
-
           @ApiResponse(responseCode = "403", description = "You do not have access to perform this action. Forbidden.", content = @Content(schema = @Schema(implementation = Error.class))),
-
           @ApiResponse(responseCode = "404", description = "Not Found.", content = @Content(schema = @Schema(implementation = Error.class))),
-
           @ApiResponse(responseCode = "429", description = "You have sent too many requests. Please try again in at least 300 seconds.", content = @Content(schema = @Schema(implementation = Error.class))),
-
           @ApiResponse(responseCode = "200", description = "An unknown error has occured.", content = @Content(schema = @Schema(implementation = Error.class)))})
   @RequestMapping(value = "/Transactions",
           produces = {"application/json"},
           method = RequestMethod.GET)
-  ResponseEntity<TransactionList> getTransactionsByUser(@Min(10) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The maximum number of items to return.", schema = @Schema(allowableValues = {}, minimum = "10", maximum = "50"
+  ResponseEntity<List<Transaction>> getTransactionsByUser(@Min(10) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The maximum number of items to return.", schema = @Schema(allowableValues = {}, minimum = "10", maximum = "50"
           , defaultValue = "10")) @Valid @RequestParam(value = "max", required = false, defaultValue = "10") Integer max, @Min(0) @Parameter(in = ParameterIn.QUERY, description = "The number of items to skip before starting to collect the result set.", schema = @Schema(allowableValues = {}
   )) @Valid @RequestParam(value = "offset", required = false) Integer offset);
 
@@ -169,7 +169,7 @@ public interface TransactionsApi {
   @Operation(summary = "Return a list of Transactions from IBAN.", description = "Return a list of transactions from the account with the specified IBAN.", security = {
           @SecurityRequirement(name = "bearerAuth")}, tags = {"Transaction"})
   @ApiResponses(value = {
-          @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = TransactionList.class))),
+          @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema=@Schema(allowableValues={  }))),
           @ApiResponse(responseCode = "400", description = "Bad Reqeust. Please try again.", content = @Content(schema = @Schema(implementation = Error.class))),
           @ApiResponse(responseCode = "401", description = "The entered credentials are invalid or incorrect. Please try again.", content = @Content(schema = @Schema(implementation = Error.class))),
           @ApiResponse(responseCode = "403", description = "You do not have access to perform this action. Forbidden.", content = @Content(schema = @Schema(implementation = Error.class))),
@@ -177,7 +177,7 @@ public interface TransactionsApi {
           @ApiResponse(responseCode = "429", description = "You have sent too many requests. Please try again in at least 300 seconds.", content = @Content(schema = @Schema(implementation = Error.class))),
           @ApiResponse(responseCode = "200", description = "An unknown error has occured.", content = @Content(schema = @Schema(implementation = Error.class)))})
   @RequestMapping(value = "/Transactions/ByAccountNumber", produces = {"application/json"}, method = RequestMethod.GET)
-  ResponseEntity<TransactionList> getTransactionByIBAN(@NotNull @Size(max = 34) @Parameter(in = ParameterIn.QUERY, description = "The account to perform the action on.", required = true, schema = @Schema()) @Valid @RequestParam(value = "IBAN", required = true) String IBAN, @Min(10) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The maximum number of items to return.", schema = @Schema(allowableValues = {}, minimum = "10", maximum = "50"
+  ResponseEntity<List<Transaction>> getTransactionByIBAN(@NotNull @Size(max = 34) @Parameter(in = ParameterIn.QUERY, description = "The account to perform the action on.", required = true, schema = @Schema()) @Valid @RequestParam(value = "IBAN", required = true) String IBAN, @Min(10) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The maximum number of items to return.", schema = @Schema(allowableValues = {}, minimum = "10", maximum = "50"
           , defaultValue = "10")) @Valid @RequestParam(value = "max", required = false, defaultValue = "10") Integer max, @Min(0) @Parameter(in = ParameterIn.QUERY, description = "The number of items to skip before starting to collect the result set.", schema = @Schema(allowableValues = {}
   )) @Valid @RequestParam(value = "offset", required = false) Integer offset);
 
@@ -218,7 +218,8 @@ public interface TransactionsApi {
           @ApiResponse(responseCode = "429", description = "You have sent too many requests. Please try again in at least 300 seconds.", content = @Content(schema = @Schema(implementation = Error.class))),
 
           @ApiResponse(responseCode = "200", description = "An unknown error has occured.", content = @Content(schema = @Schema(implementation = Error.class)))})
-  @RequestMapping(value = "/Transactions/Withdraw",
+  @RequestMapping(
+          value = "/Transactions/Withdraw",
           produces = {"application/json"},
           consumes = {"application/json"},
           method = RequestMethod.POST)

@@ -3,10 +3,12 @@ package io.swagger.service;
 import io.swagger.model.Transaction;
 import io.swagger.repo.TransactionRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import javax.transaction.NotSupportedException;
 import java.util.List;
 
+@Service
 public class TransactionService {
 
   @Autowired
@@ -21,11 +23,12 @@ public class TransactionService {
     throw new NotSupportedException();
   }
 
-  public List<Transaction> getTransactionByUserId() throws NotSupportedException {
+  public List<Transaction> getTransactionsByUserId() throws NotSupportedException {
     throw new NotSupportedException();
   }
 
-  public Transaction createTransaction(Transaction transaction) {
+  public Transaction createTransaction(Transaction transaction)
+  {
     repo.save(transaction);
     return transaction;
   }
@@ -50,4 +53,12 @@ public class TransactionService {
     throw new NotSupportedException();
   }
 
+  public void AddAccounts(List<Transaction> transactionList)
+  {
+    try{
+      repo.saveAll(transactionList);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
 }

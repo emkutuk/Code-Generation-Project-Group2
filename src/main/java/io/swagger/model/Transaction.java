@@ -1,5 +1,6 @@
 package io.swagger.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
@@ -12,6 +13,8 @@ import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -36,6 +39,7 @@ public class Transaction {
 
   @Column(name = "transactionDate")
   @JsonProperty("transactionDate")
+  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
   private LocalDateTime transactionDate = null;
 
   @Column(name = "double")
@@ -47,8 +51,37 @@ public class Transaction {
   private UUID performedBy = null;
 
   public Transaction() {
+
+  }
+
+  // New Transaction
+  public Transaction(String accountTo, String accountFrom, Double amount, UUID performedBy) {
     this.transactionId = UUID.randomUUID();
     this.transactionDate = LocalDateTime.now();
+    this.accountTo = accountTo;
+    this.accountFrom = accountFrom;
+    this.amount = amount;
+    this.performedBy = performedBy;
+  }
+
+  //New Transaction from db
+  public Transaction(UUID transactionId, String accountTo, String accountFrom, LocalDateTime transactionDate, Double amount, UUID performedBy) {
+    this.transactionId = transactionId;
+    this.accountTo = accountTo;
+    this.accountFrom = accountFrom;
+    this.transactionDate = transactionDate;
+    this.amount = amount;
+    this.performedBy = performedBy;
+  }
+
+  // Future Transaction
+  public Transaction(String accountTo, String accountFrom, LocalDateTime transactionDate, Double amount, UUID performedBy) {
+    this.transactionId = UUID.randomUUID();
+    this.accountTo = accountTo;
+    this.accountFrom = accountFrom;
+    this.transactionDate = transactionDate;
+    this.amount = amount;
+    this.performedBy = performedBy;
   }
 
   public Transaction transactionId(UUID transactionId) {
@@ -65,10 +98,6 @@ public class Transaction {
   @Valid
   public UUID getTransactionId() {
     return transactionId;
-  }
-
-  public void setTransactionId(UUID transactionId) {
-    this.transactionId = transactionId;
   }
 
   public Transaction accountTo(String accountTo) {
