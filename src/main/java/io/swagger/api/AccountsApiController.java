@@ -78,8 +78,6 @@ public class AccountsApiController implements AccountsApi
             e.printStackTrace();
             return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-
     }
 
     //Works
