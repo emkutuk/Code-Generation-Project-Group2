@@ -25,8 +25,10 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-30T19:31:26.554Z[GMT]")
 @RestController
@@ -86,7 +88,19 @@ public class TransactionsApiController implements TransactionsApi {
 
   public ResponseEntity<Void> deleteTransactionById(@Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema()) @PathVariable("id") String id) {
     String accept = request.getHeader("Accept");
-    return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+    //Converting string to UUID because inbuilt UUID function returns a 'non valid UUID'
+    String UUID = id.toString();
+    String UUID2 = UUID.replace("-", "");
+    UUID uuid = new UUID(
+            new BigInteger(UUID2.substring(0, 16), 16).longValue(),
+            new BigInteger(UUID2.substring(16), 16).longValue());
+    try{
+      transactionService.deleteTransactionById(uuid);
+      return new ResponseEntity<Void>(HttpStatus.ACCEPTED);
+    }
+    catch (Exception e) {
+      return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+    }
   }
 
   public ResponseEntity<Transaction> depositMoney(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Deposit body) {

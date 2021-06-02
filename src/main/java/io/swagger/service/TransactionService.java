@@ -7,14 +7,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.NotSupportedException;
+import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class TransactionService {
 
   @Autowired
   private TransactionRepo repo;
+
+  AccountService accountService;
 
   public List<Transaction> getTransactions() {
     return (List<Transaction>) repo.findAll();
@@ -56,8 +62,31 @@ public class TransactionService {
   }
 
   //omar
-  public Transaction depositMoney() throws NotSupportedException {
-    throw new NotSupportedException();
+  public Transaction depositMoney(String accountTo, String accountFrom, Double amount, UUID performedBy) throws Exception {
+    Transaction transaction =
+        new Transaction(
+            UUID.randomUUID(), accountTo, accountFrom, LocalDateTime.now(), amount, performedBy);
+    try{
+      Account account1 = accountService.getAccountByIban(accountTo);
+      Account account2 = accountService.getAccountByIban(accountFrom);
+      if(account1.equals(account2)){
+        //putting money through an atm, for example
+        account1.setBalance(account1.getBalance() + amount);
+      }
+      else if (account2.getBalance() < amount) {
+        //if the account you want to send from doesnt have enough balance
+        return null;
+      }
+      else{
+        //normal case
+        account1.setBalance(account1.getBalance() + amount);
+        account2.setBalance(account2.getBalance() - amount);
+      }
+    }
+    catch (Exception e){
+      throw new Exception(e.getMessage());
+    }
+    return transaction;
   }
 
   //omar
@@ -66,8 +95,15 @@ public class TransactionService {
   }
 
   //omar
-  public void deleteTransactionById() throws NotSupportedException {
-    throw new NotSupportedException();
+  public void deleteTransactionById(UUID id) throws Exception {
+    try{
+      Transaction toDelete = repo.getTransactionByTransactionId(id);
+      System.out.println(toDelete);
+      repo.delete(toDelete);
+    }
+    catch (Exception e){
+      throw new Exception(e.getMessage());
+    }
   }
 
   public Transaction editTransactionById() throws NotSupportedException {

@@ -19,6 +19,7 @@ import javax.validation.constraints.*;
 
 
 public class User   {
+  //change to INT
   @JsonProperty("id")
   private String id = null;
 
