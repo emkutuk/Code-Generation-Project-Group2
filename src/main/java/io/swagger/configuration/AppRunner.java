@@ -4,6 +4,8 @@ import io.swagger.model.Account;
 import io.swagger.model.Transaction;
 import io.swagger.service.AccountService;
 import io.swagger.service.TransactionService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -27,6 +29,8 @@ public class AppRunner implements ApplicationRunner {
   @Autowired
   TransactionService transactionService;
 
+  private static final Logger log = LoggerFactory.getLogger(AppRunner.class);
+
   @Override
   public void run(ApplicationArguments args) throws Exception {
     accountService.addANewAccount(account);
@@ -34,9 +38,6 @@ public class AppRunner implements ApplicationRunner {
     for (Account a : accountService.getAllAccounts()) {
       System.out.println(a.toString());
     }
-
-    createTestTransactions();
-    // transactionService.getTransactions().forEach(System.out::println);
   }
 
   private void createTestTransactions() {
@@ -44,6 +45,7 @@ public class AppRunner implements ApplicationRunner {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     // From DB
+    log.info("Creating test transaction 1");
     Transaction transaction1 = new Transaction(
             UUID.fromString("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
             "NL04INHO6818968668",
@@ -53,6 +55,7 @@ public class AppRunner implements ApplicationRunner {
             UUID.fromString("43368da9-36bb-4cae-bf12-1169360e4ac4"));
 
     // New Transaction Now
+    log.info("Creating test transaction 2");
     Transaction transaction2 = new Transaction(
             "NL04INHO6868186817",
             "NL01INHO0000579848",
@@ -61,6 +64,7 @@ public class AppRunner implements ApplicationRunner {
     );
 
     // Future transaction
+    log.info("Creating test transaction 3");
     Transaction transaction3 = new Transaction(
             "NL09INHO6891486186",
             "NL01INHO0000579848",
@@ -74,7 +78,8 @@ public class AppRunner implements ApplicationRunner {
     transactionList.add(transaction2);
     transactionList.add(transaction3);
 
-    transactionService.AddAccounts(transactionList);
+    log.info("Storing test transactions");
+    transactionService.AddTransactions(transactionList);
 
   }
 }

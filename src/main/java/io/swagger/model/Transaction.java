@@ -3,10 +3,12 @@ package io.swagger.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.hibernate.annotations.GenericGenerator;
 import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.validation.Valid;
 import javax.validation.constraints.DecimalMin;
@@ -27,6 +29,12 @@ import java.util.UUID;
 public class Transaction {
   @Id
   @JsonProperty("transactionId")
+  @GeneratedValue(generator = "UUID")
+  @GenericGenerator(
+          name = "UUID",
+          strategy = "org.hibernate.id.UUIDGenerator"
+  )
+  @Column(name = "id", updatable = false, nullable = false)
   private UUID transactionId = null;
 
   @Column(name = "accountTo")
@@ -39,7 +47,7 @@ public class Transaction {
 
   @Column(name = "transactionDate")
   @JsonProperty("transactionDate")
-  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+  @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
   private LocalDateTime transactionDate = null;
 
   @Column(name = "double")
@@ -50,8 +58,9 @@ public class Transaction {
   @Column(name = "amount")
   private UUID performedBy = null;
 
-  public Transaction() {
-
+  public Transaction()
+  {
+    this.transactionId = UUID.randomUUID();
   }
 
   // New Transaction

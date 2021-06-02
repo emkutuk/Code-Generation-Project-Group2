@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,6 +37,7 @@ public class TransactionsApiController implements TransactionsApi {
 
   private final HttpServletRequest request;
 
+  @Autowired
   private TransactionService transactionService;
 
   @org.springframework.beans.factory.annotation.Autowired
@@ -44,23 +46,29 @@ public class TransactionsApiController implements TransactionsApi {
     this.request = request;
   }
 
-  public ResponseEntity<Transaction> createTransaction(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Transaction body) {
+  public ResponseEntity<Transaction> createTransaction(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Transaction transaction) {
 
     // Idk what this does
     String accept = request.getHeader("Accept");
 
     // Idk what this does
+    log.info("Creating transaction id: " + transaction.getTransactionId());
+    log.info(accept.toString());
 
+    // Should go into this
     if (accept != null && accept.contains("application/json")) {
       try {
-        return new ResponseEntity<Transaction>(objectMapper.readValue("{\n  \"accountTo\" : \"NL04INHO6818968668\",\n  \"amount\" : 123.45,\n  \"performedBy\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"transactionDate\" : \"2000-01-23T04:56:07.000+00:00\",\n  \"accountFrom\" : \"NL01INHO0000579848\",\n  \"transactionId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}", Transaction.class), HttpStatus.NOT_IMPLEMENTED);
-      } catch (IOException e) {
+        log.info("Creating transaction " + transaction);
+        return new ResponseEntity<Transaction>(transactionService.createTransaction(transaction), HttpStatus.CREATED);
+      } catch (Exception e) {
+
         log.error("Couldn't serialize response for content type application/json", e);
         return new ResponseEntity<Transaction>(HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
 
-    return new ResponseEntity<Transaction>(body, HttpStatus.CREATED);
+    log.error("Unable to create Transaction: " + transaction);
+    return new ResponseEntity<Transaction>(HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   public ResponseEntity<List<Transaction>> getTransactionsByUser(@Min(10) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The maximum number of items to return.", schema = @Schema(allowableValues = {}, minimum = "10", maximum = "50"
@@ -78,7 +86,9 @@ public class TransactionsApiController implements TransactionsApi {
       }
     }
 
-    return new ResponseEntity<List<Transaction>>(HttpStatus.NOT_IMPLEMENTED);
+    log.info("Trying to get Transactions");
+    transactionService.getTransactions().forEach(System.out::println);
+    return new ResponseEntity<List<Transaction>>(transactionService.getTransactions(), HttpStatus.NOT_IMPLEMENTED);
   }
 
   public ResponseEntity<Void> deleteTransactionById(@Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema()) @PathVariable("id") String id) {
@@ -118,8 +128,7 @@ public class TransactionsApiController implements TransactionsApi {
           , defaultValue = "10")) @Valid @RequestParam(value = "max", required = false, defaultValue = "10") Integer max, @Min(0) @Parameter(in = ParameterIn.QUERY, description = "The number of items to skip before starting to collect the result set.", schema = @Schema(allowableValues = {}
   )) @Valid @RequestParam(value = "offset", required = false) Integer offset) {
     String accept = request.getHeader("Accept");
-    if (accept != null && accept.contains("application/json"))
-    {
+    if (accept != null && accept.contains("application/json")) {
       try {
         return null;
       } catch (Exception e) {
