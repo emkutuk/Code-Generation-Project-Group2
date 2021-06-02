@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +25,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-30T19:31:26.554Z[GMT]")
@@ -36,7 +38,8 @@ public class TransactionsApiController implements TransactionsApi {
 
   private final HttpServletRequest request;
 
-  private TransactionService transactionService;
+  @Autowired
+  private TransactionService transactionService = new TransactionService();
 
   @org.springframework.beans.factory.annotation.Autowired
   public TransactionsApiController(ObjectMapper objectMapper, HttpServletRequest request) {
@@ -118,17 +121,24 @@ public class TransactionsApiController implements TransactionsApi {
           , defaultValue = "10")) @Valid @RequestParam(value = "max", required = false, defaultValue = "10") Integer max, @Min(0) @Parameter(in = ParameterIn.QUERY, description = "The number of items to skip before starting to collect the result set.", schema = @Schema(allowableValues = {}
   )) @Valid @RequestParam(value = "offset", required = false) Integer offset) {
     String accept = request.getHeader("Accept");
-    if (accept != null && accept.contains("application/json"))
-    {
-      try {
-        return null;
-      } catch (Exception e) {
-        log.error("Couldn't serialize response for content type application/json", e);
-        return new ResponseEntity<List<Transaction>>(HttpStatus.INTERNAL_SERVER_ERROR);
-      }
+    List<Transaction> transactions = new ArrayList<Transaction>();
+    try{
+      transactions = transactionService.getTransactionsByIban(IBAN);
     }
-
-    return new ResponseEntity<List<Transaction>>(HttpStatus.NOT_IMPLEMENTED);
+    catch (Exception e1){
+      log.error("Unable to call service", e1);
+    }
+      if (transactions.isEmpty()){
+        return new ResponseEntity<List<Transaction>>(HttpStatus.BAD_REQUEST);
+      }
+      else {
+        try {
+          return new ResponseEntity<List<Transaction>>(HttpStatus.OK).status(200).body(transactions);
+        } catch (Exception e) {
+          log.error("Couldn't serialize response for content type application/json", e);
+          return new ResponseEntity<List<Transaction>>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+      }
   }
 
   public ResponseEntity<Transaction> getTransactionById(@Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema()) @PathVariable("id") String id) {

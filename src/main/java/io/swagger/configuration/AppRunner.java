@@ -69,10 +69,19 @@ public class AppRunner implements ApplicationRunner {
             transaction1.getPerformedBy()
     );
 
+    // New Transaction Test
+    Transaction transaction4 = new Transaction(
+            "NL04INHO6868186899",
+            "NL01INHO0000579899",
+            12.00,
+            UUID.randomUUID()
+    );
+
     List<Transaction> transactionList = new ArrayList<Transaction>();
     transactionList.add(transaction1);
     transactionList.add(transaction2);
     transactionList.add(transaction3);
+    transactionList.add(transaction4);
 
     transactionService.AddAccounts(transactionList);
 
