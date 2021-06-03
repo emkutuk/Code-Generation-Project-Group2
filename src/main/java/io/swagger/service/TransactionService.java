@@ -4,9 +4,9 @@ import io.swagger.model.Transaction;
 import io.swagger.repo.TransactionRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.interceptor.TransactionInterceptor;
 
 import javax.transaction.NotSupportedException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,11 +39,9 @@ public class TransactionService {
   }
 
   public Transaction createTransaction(Transaction transaction) {
-    // check account balance
-    // check account type
+    // performTransaction(transaction);
 
-    performTransaction(transaction);
-    return transaction;
+    return repo.save(transaction);
   }
 
   public List<Transaction> getTransactionsByIban(String Iban) {
@@ -62,8 +60,37 @@ public class TransactionService {
     throw new NotSupportedException();
   }
 
-  public Transaction editTransactionById(Transaction transaction){
-    return repo.save(transaction);
+  public Transaction editTransactionById(UUID id,Transaction transaction)
+  {
+    Transaction transactionToUpdate = repo.getTransactionByTransactionId(id);
+    if ( transactionToUpdate != null)
+    {
+      String newAccountFrom = transaction.getAccountFrom();
+      String newAccountTo = transaction.getAccountTo();
+      UUID newPerformedBy = transaction.getPerformedBy();
+      double newAmount = transaction.getAmount();
+      LocalDateTime newDate = transaction.getTransactionDate();
+
+      if (newAccountTo != null)
+        transactionToUpdate.setAccountTo(newAccountTo);
+      if(newAccountFrom != null )
+        transactionToUpdate.setAccountFrom(newAccountFrom);
+      if(newPerformedBy != null)
+        transactionToUpdate.setPerformedBy(newPerformedBy);
+      if(true || validBalance(transaction))
+        transactionToUpdate.setAmount(newAmount);
+      if(newDate != null)
+        transactionToUpdate.setTransactionDate(newDate);
+
+      try {
+        //undoTransaction(transactionToUpdate);
+        //performTransaction(transaction);
+        return repo.save(transactionToUpdate);
+      }catch (Exception e){
+        e.printStackTrace();
+      }
+    }
+    return null;
   }
 
   public void AddTransactions(List<Transaction> transactionList) {
@@ -74,19 +101,16 @@ public class TransactionService {
     }
   }
 
-  private boolean validAccountTypes(Transaction t)
-  {
+  private boolean validAccountTypes(Transaction t) {
     // Same owner or current to current
-    return false;
+    return true;
   }
 
-  private boolean validBalance(Transaction t)
-  {
+  private boolean validBalance(Transaction t) {
     return accountService.getAccountBalanceByIban(t.getAccountFrom()) > t.getAmount();
   }
 
-  private void performTransaction(Transaction t)
-  {
+  private void performTransaction(Transaction t) {
     boolean isValidAccount = validAccountTypes(t);
     boolean isValidBalance = validBalance(t);
 
@@ -115,5 +139,11 @@ public class TransactionService {
     } else {
       //if whatever isn't valid show error
     }
+  }
+
+  public Transaction undoTransaction(Transaction transaction){
+
+    // Do stuff
+    return transaction;
   }
 }

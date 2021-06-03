@@ -26,6 +26,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-30T19:31:26.554Z[GMT]")
 @RestController
@@ -46,19 +47,15 @@ public class TransactionsApiController implements TransactionsApi {
     this.request = request;
   }
 
+
   public ResponseEntity<Transaction> createTransaction(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Transaction transaction) {
 
     // Idk what this does
     String accept = request.getHeader("Accept");
-
-    // Idk what this does
-    log.info("Creating transaction id: " + transaction.getTransactionId());
-    log.info(accept.toString());
-
     // Should go into this
     if (accept != null && accept.contains("application/json")) {
       try {
-        log.info("Creating transaction " + transaction);
+        log.info("Creating transaction id" + transaction.getTransactionId());
         return new ResponseEntity<Transaction>(transactionService.createTransaction(transaction), HttpStatus.CREATED);
       } catch (Exception e) {
 
@@ -110,12 +107,12 @@ public class TransactionsApiController implements TransactionsApi {
     return new ResponseEntity<Transaction>(HttpStatus.NOT_IMPLEMENTED);
   }
 
-  public ResponseEntity<Transaction> editTransactionById(@Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema()) @PathVariable("id") String id, @Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Transaction body) {
+  public ResponseEntity<Transaction> editTransactionById(@Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema()) @PathVariable("id") String id, @Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Transaction transaction) {
     String accept = request.getHeader("Accept");
     if (accept != null && accept.contains("application/json")) {
       try {
-        return new ResponseEntity<Transaction>(objectMapper.readValue("{\n  \"accountTo\" : \"NL04INHO6818968668\",\n  \"amount\" : 123.45,\n  \"performedBy\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"transactionDate\" : \"2000-01-23T04:56:07.000+00:00\",\n  \"accountFrom\" : \"NL01INHO0000579848\",\n  \"transactionId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}", Transaction.class), HttpStatus.NOT_IMPLEMENTED);
-      } catch (IOException e) {
+        return new ResponseEntity<Transaction>(transactionService.editTransactionById(UUID.fromString(id),transaction), HttpStatus.OK);
+      } catch (Exception e) {
         log.error("Couldn't serialize response for content type application/json", e);
         return new ResponseEntity<Transaction>(HttpStatus.INTERNAL_SERVER_ERROR);
       }
@@ -144,8 +141,9 @@ public class TransactionsApiController implements TransactionsApi {
     String accept = request.getHeader("Accept");
     if (accept != null && accept.contains("application/json")) {
       try {
-        return new ResponseEntity<Transaction>(objectMapper.readValue("{\n  \"accountTo\" : \"NL04INHO6818968668\",\n  \"amount\" : 123.45,\n  \"performedBy\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"transactionDate\" : \"2000-01-23T04:56:07.000+00:00\",\n  \"accountFrom\" : \"NL01INHO0000579848\",\n  \"transactionId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}", Transaction.class), HttpStatus.NOT_IMPLEMENTED);
-      } catch (IOException e) {
+        return new ResponseEntity<Transaction>(transactionService.getTransactionById(UUID.fromString(id)), HttpStatus.OK);
+      } catch (Exception e) {
+
         log.error("Couldn't serialize response for content type application/json", e);
         return new ResponseEntity<Transaction>(HttpStatus.INTERNAL_SERVER_ERROR);
       }

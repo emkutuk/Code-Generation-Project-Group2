@@ -38,6 +38,8 @@ public class AppRunner implements ApplicationRunner {
     for (Account a : accountService.getAllAccounts()) {
       System.out.println(a.toString());
     }
+
+    createTestTransactions();
   }
 
   private void createTestTransactions() {

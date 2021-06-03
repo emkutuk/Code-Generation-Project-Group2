@@ -15,8 +15,6 @@ import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -47,25 +45,23 @@ public class Transaction {
 
   @Column(name = "transactionDate")
   @JsonProperty("transactionDate")
-  @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
   private LocalDateTime transactionDate = null;
 
-  @Column(name = "double")
+  @Column(name = "amount")
   @JsonProperty("amount")
   private Double amount = null;
 
   @JsonProperty("performedBy")
-  @Column(name = "amount")
+  @Column(name = "performedBy")
   private UUID performedBy = null;
 
-  public Transaction()
-  {
-    this.transactionId = UUID.randomUUID();
+  public Transaction() {
   }
 
   // New Transaction
   public Transaction(String accountTo, String accountFrom, Double amount, UUID performedBy) {
-    this.transactionId = UUID.randomUUID();
+    // this.transactionId = UUID.randomUUID();
     this.transactionDate = LocalDateTime.now();
     this.accountTo = accountTo;
     this.accountFrom = accountFrom;
@@ -85,17 +81,12 @@ public class Transaction {
 
   // Future Transaction
   public Transaction(String accountTo, String accountFrom, LocalDateTime transactionDate, Double amount, UUID performedBy) {
-    this.transactionId = UUID.randomUUID();
+    // this.transactionId = UUID.randomUUID();
     this.accountTo = accountTo;
     this.accountFrom = accountFrom;
     this.transactionDate = transactionDate;
     this.amount = amount;
     this.performedBy = performedBy;
-  }
-
-  public Transaction transactionId(UUID transactionId) {
-    this.transactionId = transactionId;
-    return this;
   }
 
   /**
