@@ -132,7 +132,7 @@ public interface TransactionsApi {
           produces = {"application/json"},
           consumes = {"application/json"},
           method = RequestMethod.POST)
-  ResponseEntity<Transaction> depositMoney(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Deposit body);
+  ResponseEntity<Transaction> depositMoney(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Transaction body) throws Exception;
 
 
   @Operation(
@@ -223,7 +223,7 @@ public interface TransactionsApi {
           produces = {"application/json"},
           consumes = {"application/json"},
           method = RequestMethod.POST)
-  ResponseEntity<Transaction> withdrawMoney(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Withdrawal body);
+  ResponseEntity<Transaction> withdrawMoney(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Transaction body) throws Exception;
 
 }
 

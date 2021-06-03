@@ -193,7 +193,9 @@ public class Account   {
     }
     return o.toString().replace("\n", "\n    ");
   }
-
+  public Account()
+  {
+  }
   public Account(String iban, AccountTypeEnum accountType, Double balance)
   {
     this.iban = iban;

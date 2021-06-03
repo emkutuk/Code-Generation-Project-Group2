@@ -20,6 +20,7 @@ public class TransactionService {
   @Autowired
   private TransactionRepo repo;
 
+  @Autowired
   AccountService accountService;
 
   public List<Transaction> getTransactions() {
@@ -62,11 +63,10 @@ public class TransactionService {
   }
 
   //omar
-  public Transaction depositMoney(String accountTo, String accountFrom, Double amount, UUID performedBy) throws Exception {
+  public Transaction depositMoney(String accountTo, String accountFrom, Double amount, UUID performedBy) {
     Transaction transaction =
         new Transaction(
             UUID.randomUUID(), accountTo, accountFrom, LocalDateTime.now(), amount, performedBy);
-    try{
       Account account1 = accountService.getAccountByIban(accountTo);
       Account account2 = accountService.getAccountByIban(accountFrom);
       if(account1.equals(account2)){
@@ -82,16 +82,21 @@ public class TransactionService {
         account1.setBalance(account1.getBalance() + amount);
         account2.setBalance(account2.getBalance() - amount);
       }
-    }
-    catch (Exception e){
-      throw new Exception(e.getMessage());
-    }
+    repo.save(transaction);
     return transaction;
   }
 
   //omar
-  public Transaction withdrawMoney() throws NotSupportedException {
-    throw new NotSupportedException();
+  public Transaction withdrawMoney(String accountFrom, Double amount, UUID performedBy) {
+    Transaction transaction = new Transaction(
+            UUID.randomUUID(), accountFrom, accountFrom, LocalDateTime.now(), amount, performedBy);
+    Account account = accountService.getAccountByIban(accountFrom);
+    if (account.getBalance() < amount){
+      return null;
+    }
+    account.setBalance(account.getBalance() - amount);
+    repo.save(transaction);
+    return transaction;
   }
 
   //omar
