@@ -37,7 +37,7 @@ public class AccountsApiControllerTest
     @BeforeEach
     public void setup()
     {
-        account = new Account((long) 99, "testIban", Account.AccountTypeEnum.SAVING, 400.0);
+        account = new Account(999999L, "testIban", Account.AccountTypeEnum.SAVING, 400.0);
     }
 
     @Test

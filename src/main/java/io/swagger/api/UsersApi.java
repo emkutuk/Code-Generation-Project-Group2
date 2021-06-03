@@ -82,5 +82,83 @@ public interface UsersApi {
         method = RequestMethod.GET)
     ResponseEntity<User> getUserById(@Parameter(in = ParameterIn.PATH, description = "user id", required=true, schema=@Schema()) @PathVariable("id") Integer id);
 
+    @Operation(summary = "", description = "Change user accountStatus to Inactive.", security = {
+            @SecurityRequirement(name = "bearerAuth")    }, tags={ "User" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "account deleted.") })
+    @RequestMapping(value = "/User/Delete/{userid}",
+            method = RequestMethod.PUT)
+    ResponseEntity<Void> deleteUser(@Parameter(in = ParameterIn.PATH, description = "", required=true, schema=@Schema()) @PathVariable("userid") String userid);
+
+
+    @Operation(summary = "", description = "User(customer - employee) can update their information.", security = {
+            @SecurityRequirement(name = "bearerAuth")    }, tags={ "User" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "202", description = "Your information has been updated."),
+
+            @ApiResponse(responseCode = "400", description = "Bad Reqeust. Please try again.", content = @Content(schema = @Schema(implementation = Error.class))),
+
+            @ApiResponse(responseCode = "401", description = "The entered credentials are invalid or incorrect. Please try again.", content = @Content(schema = @Schema(implementation = Error.class))),
+
+            @ApiResponse(responseCode = "403", description = "You do not have access to perform this action. Forbidden.", content = @Content(schema = @Schema(implementation = Error.class))),
+
+            @ApiResponse(responseCode = "404", description = "Not Found.", content = @Content(schema = @Schema(implementation = Error.class))),
+
+            @ApiResponse(responseCode = "429", description = "You have sent too many requests. Please try again in at least 300 seconds.", content = @Content(schema = @Schema(implementation = Error.class))),
+
+            @ApiResponse(responseCode = "200", description = "An unknown error has occured.", content = @Content(schema = @Schema(implementation = Error.class))) })
+    @RequestMapping(value = "/User/Update/{userid}",
+            produces = { "application/json" },
+            method = RequestMethod.PUT)
+    ResponseEntity<Void> updateUser(@Size(max=50) @Parameter(in = ParameterIn.PATH, description = "", required=true, schema=@Schema()) @PathVariable("userid") String userid);
+
+
+    @Operation(summary = "", description = "login", security = {
+            @SecurityRequirement(name = "bearerAuth")    }, tags={ "User" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User logged in."),
+
+            @ApiResponse(responseCode = "401", description = "The entered credentials are invalid or incorrect. Please try again.", content = @Content(schema = @Schema(implementation = Error.class))),
+
+            @ApiResponse(responseCode = "403", description = "You do not have access to perform this action. Forbidden.", content = @Content(schema = @Schema(implementation = Error.class))),
+
+            @ApiResponse(responseCode = "404", description = "Invalid input."),
+
+            @ApiResponse(responseCode = "415", description = "This media type is unsupported or it is an invalid JSON format.", content = @Content(schema = @Schema(implementation = Error.class))),
+
+            @ApiResponse(responseCode = "429", description = "You have sent too many requests. Please try again in at least 300 seconds.", content = @Content(schema = @Schema(implementation = Error.class))),
+
+            @ApiResponse(responseCode = "200", description = "An unknown error has occured.", content = @Content(schema = @Schema(implementation = Error.class))) })
+    @RequestMapping(value = "/User/Login/{username},{password}",
+            produces = { "application/json" },
+            method = RequestMethod.POST)
+    ResponseEntity<Void> userLoginUsernamepasswordPost(@Size(max=50) @Parameter(in = ParameterIn.PATH, description = "username", required=true, schema=@Schema()) @PathVariable("username") String username, @Size(max=256) @Parameter(in = ParameterIn.PATH, description = "password", required=true, schema=@Schema()) @PathVariable("password") String password);
+
+
+    @Operation(summary = "Registers a user.", description = "Register a user to the system.", security = {
+            @SecurityRequirement(name = "bearerAuth")    }, tags={ "User" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "user created"),
+
+            @ApiResponse(responseCode = "201", description = "The user has been created."),
+
+            @ApiResponse(responseCode = "400", description = "Invalid input, user invalid."),
+
+            @ApiResponse(responseCode = "401", description = "The entered credentials are invalid or incorrect. Please try again.", content = @Content(schema = @Schema(implementation = Error.class))),
+
+            @ApiResponse(responseCode = "403", description = "You do not have access to perform this action. Forbidden.", content = @Content(schema = @Schema(implementation = Error.class))),
+
+            @ApiResponse(responseCode = "404", description = "Not Found.", content = @Content(schema = @Schema(implementation = Error.class))),
+
+            @ApiResponse(responseCode = "409", description = "This user already exists."),
+
+            @ApiResponse(responseCode = "429", description = "You have sent too many requests. Please try again in at least 300 seconds.", content = @Content(schema = @Schema(implementation = Error.class))),
+
+            @ApiResponse(responseCode = "200", description = "An unknown error has occured.", content = @Content(schema = @Schema(implementation = Error.class))) })
+    @RequestMapping(value = "/User/Register",
+            produces = { "application/json" },
+            consumes = { "application/json" },
+            method = RequestMethod.POST)
+    ResponseEntity<Void> userRegisterPost(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody User body);
 }
 

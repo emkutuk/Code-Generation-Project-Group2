@@ -5,8 +5,11 @@ import io.swagger.repo.AccountRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import static java.lang.Integer.parseInt;
 
 @Service
 public class AccountService
@@ -18,6 +21,10 @@ public class AccountService
     {
         try
         {
+            if (account.getIban() == "")
+            {
+                account.setIban(GenerateIban());
+            }
             accountRepo.save(account);
         } catch (Exception e)
         {
@@ -30,6 +37,7 @@ public class AccountService
         try
         {
             return (List<Account>) accountRepo.findAll();
+
         } catch (Exception e)
         {
             throw new Exception(e.getMessage());
@@ -124,5 +132,34 @@ public class AccountService
             if (a.getIban().equals(iban)) return a.getBalance();
         }
         return null;
+    }
+
+    public String GenerateIban()
+    {
+        //Format : NLxxINHO0xxxxxxxxx
+        // 2 digits - 9 digits
+
+        //Check what is the last iban in db
+        List<Account> allAccounts = (List<Account>) accountRepo.findAll();
+        String lastIban = allAccounts.get((int) allAccounts.stream().count() - 1).getIban();
+
+        //First check the last 9 digits to see if they are not all 9
+        String last9Digits = lastIban.substring(lastIban.length() - 9);
+        String first2Digits = lastIban.substring(3,4);
+
+        if (last9Digits != "999999999")
+        {
+            last9Digits =  String.format("%09d",(parseInt(last9Digits) + 1));
+        }
+        //If they are all 9es then first 2 digits needs to increase
+        else
+        {
+            last9Digits = String.format("%09d", 0);
+            first2Digits = String.format("%02d" ,(parseInt(first2Digits) +1));
+        }
+
+        //Combine all iban together and return the value
+        return "NL" + first2Digits + "INH0" + last9Digits;
+
     }
 }
