@@ -209,4 +209,13 @@ public class Account   {
     this.accountType = accountType;
     this.balance = balance;
   }
+
+  //This is for testing
+  public Account(Long id, String iban, AccountTypeEnum accountType, Double balance)
+  {
+    this.id = id;
+    this.iban = iban;
+    this.accountType = accountType;
+    this.balance = balance;
+  }
 }

@@ -59,14 +59,19 @@ public class AccountsApiController implements AccountsApi
         this.request = request;
     }
 
-    //Works
     public ResponseEntity<Account> addANewAccount(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Account account) throws Exception
     {
-        accountService.addANewAccount(account);
-        return new ResponseEntity<Account>(HttpStatus.CREATED).status(201).body(account);
+        try
+        {
+            accountService.addANewAccount(account);
+            return new ResponseEntity<Account>(HttpStatus.CREATED).status(201).body(account);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            return new ResponseEntity<Account>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    //Works
     public ResponseEntity<Void> changeAccountType(@Parameter(in = ParameterIn.PATH, description = "Account Iban", required = true, schema = @Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.PATH, description = "The new type for the account to be changed into.", required = true, schema = @Schema(allowableValues = {"saving", "current"})) @PathVariable("type") String type)
     {
         try
@@ -80,7 +85,6 @@ public class AccountsApiController implements AccountsApi
         }
     }
 
-    //Works
     public ResponseEntity<Void> deleteAccountByIban(@Parameter(in = ParameterIn.PATH, description = "Account Iban", required = true, schema = @Schema()) @PathVariable("iban") String iban)
     {
         try
@@ -96,21 +100,32 @@ public class AccountsApiController implements AccountsApi
 
     }
 
-    //Works
     public ResponseEntity<Double> getAccountBalanceByIban(@Parameter(in = ParameterIn.PATH, description = "Account Iban", required = true, schema = @Schema()) @PathVariable("iban") String iban)
     {
-        Double balance = accountService.getAccountBalanceByIban(iban);
-        return new ResponseEntity<Double>(HttpStatus.OK).status(200).body(balance);
+        try
+        {
+            Double balance = accountService.getAccountBalanceByIban(iban);
+            return new ResponseEntity<Double>(HttpStatus.OK).status(200).body(balance);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            return new ResponseEntity<Double>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    //Works
-    public ResponseEntity<Account> getAccountByIban(@Parameter(in = ParameterIn.PATH, description = "Account Iban", required = true, schema = @Schema()) @PathVariable("iban") String iban)
+    public ResponseEntity<Account> getAccountByIban(@Parameter(in = ParameterIn.PATH, description = "Account Iban", required = true, schema = @Schema()) @PathVariable("iban") String iban) throws Exception
     {
-        Account account = accountService.getAccountByIban(iban);
-        return new ResponseEntity<Account>(HttpStatus.CREATED).status(201).body(account);
+        try
+        {
+            Account account = accountService.getAccountByIban(iban);
+            return new ResponseEntity<Account>(HttpStatus.CREATED).status(200).body(account);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            return new ResponseEntity<Account>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    //Works
     public ResponseEntity<List<Account>> getAllAccounts(@Min(0) @Parameter(in = ParameterIn.QUERY, description = "The number of items to skip before starting to collect the result set.", schema = @Schema(allowableValues = {})) @Valid @RequestParam(value = "offset", required = false) Integer offset, @Min(10) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The maximum number of items to return.", schema = @Schema(allowableValues = {}, minimum = "10", maximum = "50", defaultValue = "10")) @Valid @RequestParam(value = "max", required = false, defaultValue = "10") Integer max)
     {
         if (max > 50)
@@ -131,16 +146,15 @@ public class AccountsApiController implements AccountsApi
                 for (int i = offset; i < maxValue; i++)
                     accountsList.add(allAccounts.get(i));
 
+                return new ResponseEntity<List<Account>>(HttpStatus.OK).status(200).body(accountsList);
             } catch (Exception e)
             {
                 e.printStackTrace();
+                return new ResponseEntity<List<Account>>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
-
-            return new ResponseEntity<List<Account>>(HttpStatus.OK).status(200).body(accountsList);
         }
     }
 
-    //Works
     public ResponseEntity<Void> updateAccountByIban(@Parameter(in = ParameterIn.PATH, description = "Account Iban", required = true, schema = @Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Account account)
     {
         try
@@ -153,5 +167,4 @@ public class AccountsApiController implements AccountsApi
             return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 }

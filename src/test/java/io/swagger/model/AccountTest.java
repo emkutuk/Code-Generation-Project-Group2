@@ -16,7 +16,6 @@ public class AccountTest
         account = new Account("testIban", Account.AccountTypeEnum.SAVING, 400.0);
     }
 
-
     @Test
     public void testGetIban()
     {

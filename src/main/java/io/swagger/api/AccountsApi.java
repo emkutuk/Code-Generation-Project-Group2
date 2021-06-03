@@ -142,7 +142,7 @@ public interface AccountsApi {
     @RequestMapping(value = "/Accounts/{iban}",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<Account> getAccountByIban(@Parameter(in = ParameterIn.PATH, description = "Account Iban", required=true, schema=@Schema()) @PathVariable("iban") String iban);
+    ResponseEntity<Account> getAccountByIban(@Parameter(in = ParameterIn.PATH, description = "Account Iban", required=true, schema=@Schema()) @PathVariable("iban") String iban) throws Exception;
 
 
     @Operation(summary = "Gets all accounts", description = "", security = {
