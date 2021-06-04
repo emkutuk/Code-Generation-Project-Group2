@@ -30,6 +30,7 @@ public class Deposit   {
   @JsonProperty("amount")
   private Double amount = null;
 
+  //userID, change to int
   @JsonProperty("performedBy")
   private UUID performedBy = null;
 

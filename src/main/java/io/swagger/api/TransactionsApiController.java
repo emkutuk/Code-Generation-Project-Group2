@@ -25,6 +25,8 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -90,21 +92,34 @@ public class TransactionsApiController implements TransactionsApi {
 
   public ResponseEntity<Void> deleteTransactionById(@Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema()) @PathVariable("id") String id) {
     String accept = request.getHeader("Accept");
-    return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+    //Converting string to UUID because inbuilt UUID function returns a 'non valid UUID'
+    String UUID = id.toString();
+    String UUID2 = UUID.replace("-", "");
+    UUID uuid = new UUID(
+            new BigInteger(UUID2.substring(0, 16), 16).longValue(),
+            new BigInteger(UUID2.substring(16), 16).longValue());
+    try{
+      transactionService.deleteTransactionById(uuid);
+      return new ResponseEntity<Void>(HttpStatus.ACCEPTED);
+    }
+    catch (Exception e) {
+      return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+    }
   }
 
-  public ResponseEntity<Transaction> depositMoney(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Deposit body) {
+  public ResponseEntity<Transaction> depositMoney(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Transaction body) throws Exception {
     String accept = request.getHeader("Accept");
-    if (accept != null && accept.contains("application/json")) {
-      try {
-        return new ResponseEntity<Transaction>(objectMapper.readValue("{\n  \"accountTo\" : \"NL04INHO6818968668\",\n  \"amount\" : 123.45,\n  \"performedBy\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"transactionDate\" : \"2000-01-23T04:56:07.000+00:00\",\n  \"accountFrom\" : \"NL01INHO0000579848\",\n  \"transactionId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}", Transaction.class), HttpStatus.NOT_IMPLEMENTED);
-      } catch (IOException e) {
-        log.error("Couldn't serialize response for content type application/json", e);
-        return new ResponseEntity<Transaction>(HttpStatus.INTERNAL_SERVER_ERROR);
+    try{
+      Transaction transaction = transactionService.depositMoney(body.getAccountTo(),body.getAccountFrom(),body.getAmount(), body.getPerformedBy());
+      if (transaction == null){
+        return new ResponseEntity<Transaction>(HttpStatus.BAD_REQUEST);
       }
+      return new ResponseEntity<Transaction>(HttpStatus.OK);
     }
-
-    return new ResponseEntity<Transaction>(HttpStatus.NOT_IMPLEMENTED);
+    catch (Exception e){
+      log.error(e.toString());
+    }
+    return new ResponseEntity<Transaction>(HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   public ResponseEntity<Transaction> editTransactionById(@Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema()) @PathVariable("id") String id, @Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Transaction transaction) {
@@ -125,16 +140,24 @@ public class TransactionsApiController implements TransactionsApi {
           , defaultValue = "10")) @Valid @RequestParam(value = "max", required = false, defaultValue = "10") Integer max, @Min(0) @Parameter(in = ParameterIn.QUERY, description = "The number of items to skip before starting to collect the result set.", schema = @Schema(allowableValues = {}
   )) @Valid @RequestParam(value = "offset", required = false) Integer offset) {
     String accept = request.getHeader("Accept");
-    if (accept != null && accept.contains("application/json")) {
-      try {
-        return null;
-      } catch (Exception e) {
-        log.error("Couldn't serialize response for content type application/json", e);
-        return new ResponseEntity<List<Transaction>>(HttpStatus.INTERNAL_SERVER_ERROR);
-      }
+    List<Transaction> transactions = new ArrayList<Transaction>();
+    try{
+      transactions = transactionService.getTransactionsByIban(IBAN);
     }
-
-    return new ResponseEntity<List<Transaction>>(HttpStatus.NOT_IMPLEMENTED);
+    catch (Exception e1){
+      log.error("Unable to call service", e1);
+    }
+      if (transactions.isEmpty()){
+        return new ResponseEntity<List<Transaction>>(HttpStatus.BAD_REQUEST);
+      }
+      else {
+        try {
+          return new ResponseEntity<List<Transaction>>(HttpStatus.OK).status(200).body(transactions);
+        } catch (Exception e) {
+          log.error("Couldn't serialize response for content type application/json", e);
+          return new ResponseEntity<List<Transaction>>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+      }
   }
 
   public ResponseEntity<Transaction> getTransactionById(@Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema()) @PathVariable("id") String id) {
@@ -152,17 +175,20 @@ public class TransactionsApiController implements TransactionsApi {
     return new ResponseEntity<Transaction>(HttpStatus.NOT_IMPLEMENTED);
   }
 
-  public ResponseEntity<Transaction> withdrawMoney(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Withdrawal body) {
+  public ResponseEntity<Transaction> withdrawMoney(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Transaction body) throws Exception {
     String accept = request.getHeader("Accept");
     if (accept != null && accept.contains("application/json")) {
       try {
-        return new ResponseEntity<Transaction>(objectMapper.readValue("{\n  \"accountTo\" : \"NL04INHO6818968668\",\n  \"amount\" : 123.45,\n  \"performedBy\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"transactionDate\" : \"2000-01-23T04:56:07.000+00:00\",\n  \"accountFrom\" : \"NL01INHO0000579848\",\n  \"transactionId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}", Transaction.class), HttpStatus.NOT_IMPLEMENTED);
-      } catch (IOException e) {
+        Transaction transaction = transactionService.withdrawMoney(body.getAccountFrom(),body.getAmount(), body.getPerformedBy());
+        if (transaction == null){
+          return new ResponseEntity<Transaction>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<Transaction>(HttpStatus.OK);
+      } catch (Exception e) {
         log.error("Couldn't serialize response for content type application/json", e);
         return new ResponseEntity<Transaction>(HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
-
     return new ResponseEntity<Transaction>(HttpStatus.NOT_IMPLEMENTED);
   }
 
