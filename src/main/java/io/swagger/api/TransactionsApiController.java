@@ -74,7 +74,7 @@ public class TransactionsApiController implements TransactionsApi {
     String accept = request.getHeader("Accept");
     if (accept != null && accept.contains("application/json")) {
       try {
-
+        // needs to be by user
         return new ResponseEntity<List<Transaction>>(transactionService.getTransactions(), HttpStatus.OK);
 
       } catch (Exception e) {
