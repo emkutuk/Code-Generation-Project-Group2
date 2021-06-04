@@ -61,7 +61,7 @@ public class Transaction {
 
   // New Transaction
   public Transaction(String accountTo, String accountFrom, Double amount, UUID performedBy) {
-    // this.transactionId = UUID.randomUUID();
+    this.transactionId = UUID.randomUUID();
     this.transactionDate = LocalDateTime.now();
     this.accountTo = accountTo;
     this.accountFrom = accountFrom;
@@ -81,7 +81,7 @@ public class Transaction {
 
   // Future Transaction
   public Transaction(String accountTo, String accountFrom, LocalDateTime transactionDate, Double amount, UUID performedBy) {
-    // this.transactionId = UUID.randomUUID();
+    this.transactionId = UUID.randomUUID();
     this.accountTo = accountTo;
     this.accountFrom = accountFrom;
     this.transactionDate = transactionDate;
