@@ -85,7 +85,7 @@ class TransactionTest {
   }
 
   @Test
-  @DisplayName("TransactionDate should be no more that 15 minutes past")
+  @DisplayName("TransactionDate should be no more than 15 minutes past")
   public void setTransactionDateThrowsIllegalArgumentExceptionIfDateBeforeToday() {
     LocalDateTime date = LocalDateTime.now().minusMinutes(15);
     assertThrows(IllegalArgumentException.class, () -> transaction.setTransactionDate(date));
@@ -105,4 +105,5 @@ class TransactionTest {
     transaction.setPerformedBy(null);
     assertNotNull(transaction.getPerformedBy());
   }
+
 }
