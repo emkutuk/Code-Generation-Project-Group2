@@ -3,18 +3,18 @@ package io.swagger.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.hibernate.annotations.GenericGenerator;
 import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.validation.Valid;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -27,6 +27,12 @@ import java.util.UUID;
 public class Transaction {
   @Id
   @JsonProperty("transactionId")
+  @GeneratedValue(generator = "UUID")
+  @GenericGenerator(
+          name = "UUID",
+          strategy = "org.hibernate.id.UUIDGenerator"
+  )
+  @Column(name = "id", updatable = false, nullable = false)
   private UUID transactionId = null;
 
   @Column(name = "accountTo")
@@ -42,21 +48,20 @@ public class Transaction {
   @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
   private LocalDateTime transactionDate = null;
 
-  @Column(name = "double")
+  @Column(name = "amount")
   @JsonProperty("amount")
   private Double amount = null;
 
   @JsonProperty("performedBy")
-  @Column(name = "amount")
+  @Column(name = "performedBy")
   private UUID performedBy = null;
 
   public Transaction() {
-
   }
 
   // New Transaction
   public Transaction(String accountTo, String accountFrom, Double amount, UUID performedBy) {
-    this.transactionId = UUID.randomUUID();
+    // this.transactionId = UUID.randomUUID();
     this.transactionDate = LocalDateTime.now();
     this.accountTo = accountTo;
     this.accountFrom = accountFrom;
@@ -76,17 +81,12 @@ public class Transaction {
 
   // Future Transaction
   public Transaction(String accountTo, String accountFrom, LocalDateTime transactionDate, Double amount, UUID performedBy) {
-    this.transactionId = UUID.randomUUID();
+    // this.transactionId = UUID.randomUUID();
     this.accountTo = accountTo;
     this.accountFrom = accountFrom;
     this.transactionDate = transactionDate;
     this.amount = amount;
     this.performedBy = performedBy;
-  }
-
-  public Transaction transactionId(UUID transactionId) {
-    this.transactionId = transactionId;
-    return this;
   }
 
   /**
