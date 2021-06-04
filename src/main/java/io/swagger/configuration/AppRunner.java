@@ -27,7 +27,7 @@ public class AppRunner implements ApplicationRunner
         Account bankAccount = new Account(1L, "NL01INHO0000000001", Account.AccountTypeEnum.CURRENT, 0.0);
         accountService.addANewAccount(bankAccount);
 
-        for(int i = 0; i < 1501 ; i++)
+        for(int i = 0; i < 390 ; i++)
         {
             if(rnd.nextBoolean())
                 accountList.add(new Account(Account.AccountTypeEnum.SAVING, (double) rnd.nextInt(500000)));

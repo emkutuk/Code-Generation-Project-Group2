@@ -85,27 +85,38 @@ public class AccountsApiController implements AccountsApi
         }
     }
 
+    //0 = Success
+    //1 = Balance is not 0
+    //2 = NotFound
     public ResponseEntity<Void> deleteAccountByIban(@Parameter(in = ParameterIn.PATH, description = "Account Iban", required = true, schema = @Schema()) @PathVariable("iban") String iban)
     {
+        // 99 is random here
+        int result = 99;
         try
         {
-            accountService.deleteAccountByIban(iban);
-            return new ResponseEntity<Void>(HttpStatus.OK);
+            result = accountService.deleteAccountByIban(iban);
 
         } catch (Exception e)
         {
             e.printStackTrace();
-            return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
+        if (result == 0) return new ResponseEntity<Void>(HttpStatus.OK);
+        else if (result == 1) return new ResponseEntity<Void>(HttpStatus.NOT_ACCEPTABLE);
+        else if (result == 2) return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+        else return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     public ResponseEntity<Double> getAccountBalanceByIban(@Parameter(in = ParameterIn.PATH, description = "Account Iban", required = true, schema = @Schema()) @PathVariable("iban") String iban)
     {
         try
         {
+            //Method returns null from service when there is no account with that iban
             Double balance = accountService.getAccountBalanceByIban(iban);
-            return new ResponseEntity<Double>(HttpStatus.OK).status(200).body(balance);
+            if (balance.equals(null))
+            {
+                return new ResponseEntity<Double>(HttpStatus.NOT_FOUND);
+            } else return new ResponseEntity<Double>(HttpStatus.OK).status(200).body(balance);
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -128,30 +139,24 @@ public class AccountsApiController implements AccountsApi
 
     public ResponseEntity<List<Account>> getAllAccounts(@Min(0) @Parameter(in = ParameterIn.QUERY, description = "The number of items to skip before starting to collect the result set.", schema = @Schema(allowableValues = {})) @Valid @RequestParam(value = "offset", required = false) Integer offset, @Min(10) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The maximum number of items to return.", schema = @Schema(allowableValues = {}, minimum = "10", maximum = "50", defaultValue = "10")) @Valid @RequestParam(value = "max", required = false, defaultValue = "10") Integer max)
     {
-        if (max > 50)
+        List<Account> accountsList = new ArrayList<Account>();
+        List<Account> allAccounts = new ArrayList<Account>();
+        try
         {
-            return new ResponseEntity<List<Account>>(HttpStatus.BAD_REQUEST).status(400).body(null);
-        } else
+            allAccounts = accountService.getAllAccounts();
+
+            long maxValue = max + offset;
+
+            if (maxValue > allAccounts.stream().count()) maxValue = allAccounts.stream().count();
+
+            for (int i = offset; i < maxValue; i++)
+                accountsList.add(allAccounts.get(i));
+
+            return new ResponseEntity<List<Account>>(HttpStatus.OK).status(200).body(accountsList);
+        } catch (Exception e)
         {
-            List<Account> accountsList = new ArrayList<Account>();
-            List<Account> allAccounts = new ArrayList<Account>();
-            try
-            {
-                allAccounts = accountService.getAllAccounts();
-
-                long maxValue = max + offset;
-
-                if (maxValue > allAccounts.stream().count()) maxValue = allAccounts.stream().count();
-
-                for (int i = offset; i < maxValue; i++)
-                    accountsList.add(allAccounts.get(i));
-
-                return new ResponseEntity<List<Account>>(HttpStatus.OK).status(200).body(accountsList);
-            } catch (Exception e)
-            {
-                e.printStackTrace();
-                return new ResponseEntity<List<Account>>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+            e.printStackTrace();
+            return new ResponseEntity<List<Account>>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

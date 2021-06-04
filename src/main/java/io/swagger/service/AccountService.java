@@ -21,7 +21,7 @@ public class AccountService
     {
         try
         {
-            if (account.getIban() == "")
+            if (account.getIban().equals("") || account.getIban().equals(null))
             {
                 account.setIban(GenerateIban());
             }
@@ -57,7 +57,10 @@ public class AccountService
         return null;
     }
 
-    public void deleteAccountByIban(String iban) throws Exception
+    //0= Success
+    //1 = Balance is not 0
+    //2 = NotFound
+    public int deleteAccountByIban(String iban) throws Exception
     {
         List<Account> allAccounts = (List<Account>) accountRepo.findAll();
 
@@ -66,15 +69,21 @@ public class AccountService
         {
             if (a.getIban().equals(iban))
             {
-                try
+                if (a.getBalance() != 0) return 1;
+                else
                 {
-                    accountRepo.delete(a);
-                } catch (Exception e)
-                {
-                    throw new Exception(e.getMessage());
+                    try
+                    {
+                        accountRepo.delete(a);
+                        return 0;
+                    } catch (Exception e)
+                    {
+                        throw new Exception(e.getMessage());
+                    }
                 }
             }
         }
+        return 2;
     }
 
     public void updateAccountByIban(String iban, Account account) throws Exception
@@ -145,21 +154,21 @@ public class AccountService
 
         //First check the last 9 digits to see if they are not all 9
         String last9Digits = lastIban.substring(lastIban.length() - 9);
-        String first2Digits = lastIban.substring(3,4);
+        String first2Digits = lastIban.substring(2, 4);
 
         if (last9Digits != "999999999")
         {
-            last9Digits =  String.format("%09d",(parseInt(last9Digits) + 1));
+            last9Digits = String.format("%09d", (parseInt(last9Digits) + 1));
         }
         //If they are all 9es then first 2 digits needs to increase
         else
         {
             last9Digits = String.format("%09d", 0);
-            first2Digits = String.format("%02d" ,(parseInt(first2Digits) +1));
+            first2Digits = String.format("%02d", (parseInt(first2Digits) + 1));
         }
 
         //Combine all iban together and return the value
-        return "NL" + first2Digits + "INH0" + last9Digits;
+        return "NL" + first2Digits + "INHO0" + last9Digits;
 
     }
 }
