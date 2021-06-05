@@ -35,9 +35,7 @@ public class AppRunner implements ApplicationRunner
                 accountList.add(new Account(Account.AccountTypeEnum.CURRENT, (double) rnd.nextInt(500000)));
         }
 
-        for (Account a : accountList){
+        for (Account a : accountList)
             accountService.addANewAccount(a);
-            System.out.printf(a.toString());
-        }
     }
 }
