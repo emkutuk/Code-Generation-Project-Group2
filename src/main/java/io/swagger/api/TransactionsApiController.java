@@ -52,7 +52,7 @@ public class TransactionsApiController implements TransactionsApi {
 
   public ResponseEntity<Transaction> createTransaction(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Transaction transaction) {
 
-    // Idk what this does
+    // Header location called Accept should contain application/json as value
     String accept = request.getHeader("Accept");
     // Should go into this
     if (accept != null && accept.contains("application/json")) {
@@ -60,14 +60,12 @@ public class TransactionsApiController implements TransactionsApi {
         log.info("Creating transaction id" + transaction.getTransactionId());
         return new ResponseEntity<Transaction>(transactionService.createTransaction(transaction), HttpStatus.CREATED);
       } catch (Exception e) {
-
+        // Throw different exceptions for Error codes
         log.error("Couldn't serialize response for content type application/json", e);
         return new ResponseEntity<Transaction>(HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
-
-    log.error("Unable to create Transaction: " + transaction);
-    return new ResponseEntity<Transaction>(HttpStatus.INTERNAL_SERVER_ERROR);
+    return new ResponseEntity<Transaction>(HttpStatus.BAD_REQUEST); // Request did not contain valid JSON
   }
 
   public ResponseEntity<List<Transaction>> getTransactionsByUser(@Min(10) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The maximum number of items to return.", schema = @Schema(allowableValues = {}, minimum = "10", maximum = "50"
