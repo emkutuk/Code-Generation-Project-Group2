@@ -69,5 +69,23 @@ public class UsersApiController implements UsersApi {
 
         return new ResponseEntity<User>(HttpStatus.NOT_IMPLEMENTED);
     }
+    public ResponseEntity<Void> deleteUser(@Parameter(in = ParameterIn.PATH, description = "", required=true, schema=@Schema()) @PathVariable("userid") String userid) {
+        String accept = request.getHeader("Accept");
+        return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+    }
 
+    public ResponseEntity<Void> updateUser(@Size(max=50) @Parameter(in = ParameterIn.PATH, description = "", required=true, schema=@Schema()) @PathVariable("userid") String userid) {
+        String accept = request.getHeader("Accept");
+        return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+    }
+
+    public ResponseEntity<Void> userLoginUsernamepasswordPost(@Size(max=50) @Parameter(in = ParameterIn.PATH, description = "username", required=true, schema=@Schema()) @PathVariable("username") String username,@Size(max=256) @Parameter(in = ParameterIn.PATH, description = "password", required=true, schema=@Schema()) @PathVariable("password") String password) {
+        String accept = request.getHeader("Accept");
+        return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+    }
+
+    public ResponseEntity<Void> userRegisterPost(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody User body) {
+        String accept = request.getHeader("Accept");
+        return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+    }
 }

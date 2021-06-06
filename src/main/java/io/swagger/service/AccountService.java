@@ -5,7 +5,11 @@ import io.swagger.repo.AccountRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+
+import static java.lang.Integer.parseInt;
 
 @Service
 public class AccountService
@@ -17,6 +21,10 @@ public class AccountService
     {
         try
         {
+            if (account.getIban().equals("") || account.getIban().equals(null))
+            {
+                account.setIban(GenerateIban());
+            }
             accountRepo.save(account);
         } catch (Exception e)
         {
@@ -29,6 +37,7 @@ public class AccountService
         try
         {
             return (List<Account>) accountRepo.findAll();
+
         } catch (Exception e)
         {
             throw new Exception(e.getMessage());
@@ -48,7 +57,10 @@ public class AccountService
         return null;
     }
 
-    public void deleteAccountByIban(String iban) throws Exception
+    //0= Success
+    //1 = Balance is not 0
+    //2 = NotFound
+    public int deleteAccountByIban(String iban) throws Exception
     {
         List<Account> allAccounts = (List<Account>) accountRepo.findAll();
 
@@ -57,15 +69,21 @@ public class AccountService
         {
             if (a.getIban().equals(iban))
             {
-                try
+                if (a.getBalance() != 0) return 1;
+                else
                 {
-                    accountRepo.delete(a);
-                } catch (Exception e)
-                {
-                    throw new Exception(e.getMessage());
+                    try
+                    {
+                        accountRepo.delete(a);
+                        return 0;
+                    } catch (Exception e)
+                    {
+                        throw new Exception(e.getMessage());
+                    }
                 }
             }
         }
+        return 2;
     }
 
     public void updateAccountByIban(String iban, Account account) throws Exception
@@ -79,18 +97,19 @@ public class AccountService
             {
                 try
                 {
-                    accountRepo.delete(a);
-                    accountRepo.save(account);
+                    a.setIban(account.getIban());
+                    a.setAccountType(account.getAccountType());
+                    a.setBalance(account.getBalance());
+                    accountRepo.save(a);
                 } catch (Exception e)
                 {
                     throw new Exception(e.getMessage());
                 }
-
             }
         }
     }
 
-    public void changeAccountType(String iban, Account.AccountTypeEnum typeEnum) throws Exception
+    public void changeAccountType(String iban, String typeEnum) throws Exception
     {
         List<Account> allAccounts = (List<Account>) accountRepo.findAll();
 
@@ -102,7 +121,7 @@ public class AccountService
                 try
                 {
                     accountRepo.delete(a);
-                    a.setAccountType(typeEnum);
+                    a.setAccountType(Account.AccountTypeEnum.valueOf(typeEnum.toUpperCase(Locale.ROOT)));
                     accountRepo.save(a);
                 } catch (Exception e)
                 {
@@ -122,5 +141,34 @@ public class AccountService
             if (a.getIban().equals(iban)) return a.getBalance();
         }
         return null;
+    }
+
+    public String GenerateIban()
+    {
+        //Format : NLxxINHO0xxxxxxxxx
+        // 2 digits - 9 digits
+
+        //Check what is the last iban in db
+        List<Account> allAccounts = (List<Account>) accountRepo.findAll();
+        String lastIban = allAccounts.get((int) allAccounts.stream().count() - 1).getIban();
+
+        //First check the last 9 digits to see if they are not all 9
+        String last9Digits = lastIban.substring(lastIban.length() - 9);
+        String first2Digits = lastIban.substring(2, 4);
+
+        if (last9Digits != "999999999")
+        {
+            last9Digits = String.format("%09d", (parseInt(last9Digits) + 1));
+        }
+        //If they are all 9es then first 2 digits needs to increase
+        else
+        {
+            last9Digits = String.format("%09d", 0);
+            first2Digits = String.format("%02d", (parseInt(first2Digits) + 1));
+        }
+
+        //Combine all iban together and return the value
+        return "NL" + first2Digits + "INHO0" + last9Digits;
+
     }
 }
