@@ -114,6 +114,7 @@ paths:
     put:
       tags:
         - User
+      summary: Update a user.
       description: User(customer - employee) can update their information.
       operationId: updateUserById
       requestBody:
@@ -144,6 +145,7 @@ paths:
           $ref: "#/components/responses/Default"
 
     delete:
+      summary: Delete a user.
       tags:
       - User
       description: Change user accountStatus to Inactive.
@@ -168,6 +170,8 @@ paths:
 
   /Users/Login/:
     post:
+      security: []
+      summary: User login.
       tags:
         - User
       description: login
@@ -363,8 +367,11 @@ paths:
           description: OK
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/RegularTransaction"
+               schema:
+                anyOf:
+                  - $ref: "#/components/schemas/Deposit"
+                  - $ref: "#/components/schemas/Withdrawal"
+                  - $ref: "#/components/schemas/RegularTransaction"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -384,7 +391,6 @@ paths:
       summary: Delete a scheduled transaction
       description: >
         Delete a scheduled transaction by it's ID.
-
         You cannot delete a transaction that has already been processed.
       operationId: deleteTransactionById
 
@@ -487,7 +493,7 @@ paths:
       Each account is identified by an Iban number.
     get:
       tags:
-        - AccountManagement
+        - Account
       summary: Gets an account by Iban.
       operationId: getAccountByIban
       parameters:
@@ -517,37 +523,9 @@ paths:
         default:
           $ref: '#/components/responses/Default'
 
-    delete:
-      tags:
-        - AccountManagement
-      summary: Deletes an account by Iban
-      operationId: deleteAccountByIban
-      parameters:
-      - in: path
-        name: iban
-        description: Account Iban
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: The account object has been deleted.
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "429":
-          $ref: "#/components/responses/TooManyRequests"
-        default:
-          $ref: "#/components/responses/Default"
-
     put:
       tags:
-        - AccountManagement
+        - Account
       summary: Updates an existing account
       operationId: updateAccountByIban
       requestBody:
@@ -557,7 +535,12 @@ paths:
             schema:
               $ref: '#/components/schemas/Account'
       parameters:
-        - $ref: "#/components/parameters/ibanParam"
+      - in: path
+        name: iban
+        description: Account Iban
+        required: true
+        schema:
+          type: string
       responses:
         "200":
           description: An account object has been updated.
@@ -582,11 +565,16 @@ paths:
       Each account is identified by an Iban number.
     post:
       tags:
-        - AccountType
+        - Account
       summary: Changes account type.
       operationId: changeAccountType
       parameters:
-        - $ref: "#/components/parameters/ibanParam"
+        - in: path
+          name: iban
+          description: Account Iban
+          required: true
+          schema:
+            type: string
         - in: path
           name: type
           description: The new type for the account to be changed into.
@@ -613,7 +601,7 @@ paths:
       Each account is identified by a unique Iban number.
     post:
       tags:
-        - AccountManagement
+        - Account
       summary: Adds a new Account
       operationId: addANewAccount
       requestBody:
@@ -644,7 +632,7 @@ paths:
 
     get:
       tags:
-        - AccountManagement
+        - Account
       summary: Gets all accounts
       operationId: getAllAccounts
       parameters:
@@ -661,7 +649,7 @@ paths:
       Each account is identified by an Iban number.
     get:
       tags:
-        - AccountBalance
+        - Account
       summary: Gets an account balance by Iban.
       operationId: getAccountBalanceByIban
       parameters:
@@ -686,7 +674,51 @@ paths:
           $ref: "#/components/responses/TooManyRequests"
         default:
           $ref: "#/components/responses/Default"
-
+  
+  /Accounts/{iban}/changeAccoutStatus/{status}:
+    summary: Changes the specified account's status
+    description: >
+      This changes an account's status.
+      Each account is identified by an Iban number.
+    post:
+      tags:
+        - Account
+      summary: Change an Account Status
+      operationId: changeAccountStatus
+      parameters:
+      - in: path
+        name: iban
+        description: Account Iban
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: status
+        description: Account status to be changed to.
+        required: true
+        schema:
+          type: string
+          enum: [active, closed]
+      responses:
+        "200":
+          description: The account status has been changed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        default:
+          $ref: "#/components/responses/Default"
+  
 components:
   schemas:
     User:
@@ -844,23 +876,35 @@ components:
           type: string
           description: IBAN number of the account.
           example: NL03INHO0033576852
-          not:
-            default: NL01INHO0000000001 # this address is reserved for the bank itself
           maxLength: 34
         accountType:
           type: string
           enum: [saving, current]
           default: current
           description: The type of the account. This can be either saving or current.
+        accountStatus:
+          type: string
+          enum : [active, closed]
+          default: active
+          description: The status of the account. This can be either active or closed.
         balance:
           type: number
           format: double
           default: 0
           minimum: 0
+        transactions:
+          type: array
+          description: All the transactions that belongs to the account
+          items:
+            anyOf:
+              - $ref: "#/components/schemas/Deposit"
+              - $ref: "#/components/schemas/Withdrawal"
+              - $ref: "#/components/schemas/RegularTransaction"
       required:
         - id
         - iban
         - accountType
+        - accountStatus
         - balance
 
     Error:
