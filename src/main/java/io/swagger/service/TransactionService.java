@@ -109,7 +109,7 @@ public class TransactionService {
     }
   }
 
-  public Transaction editTransactionById(UUID id, Transaction transaction) {
+  public Transaction editTransactionById(UUID id, Transaction transaction) throws Exception{
     Transaction transactionToUpdate = repo.getTransactionByTransactionId(id);
     if (transactionToUpdate != null) {
       String newAccountFrom = transaction.getAccountFrom();
