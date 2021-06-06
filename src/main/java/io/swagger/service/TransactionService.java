@@ -192,7 +192,11 @@ public class TransactionService {
        Write to database
       */
 
+//      accountService.updateTransactions(transaction.getAccountTo());
+//      accountService.updateTransactions(transaction.getAccountFrom());
+
       return repo.save(transaction);
+
 
     } catch (Exception e)
     {
