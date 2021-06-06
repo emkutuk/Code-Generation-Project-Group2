@@ -1,22 +1,14 @@
 package io.swagger.IT.steps;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.junit.Assert;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 public class StepDefinitions
 {
@@ -25,8 +17,7 @@ public class StepDefinitions
     String response;
 
     HttpHeaders headers = new HttpHeaders();
-    String baseUrl = "https://localhost:443/api";
-
+    String baseUrl = "https://localhost:8443/api";
 
     @Given("I am already an existing customer")
     public void i_am_already_an_existing_customer() throws Exception
