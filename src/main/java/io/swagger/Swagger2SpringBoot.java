@@ -20,21 +20,21 @@ public class Swagger2SpringBoot
         new SpringApplication(Swagger2SpringBoot.class).run(args);
     }
 
-    @Bean
-    public ServletWebServerFactory servletContainer() {
-        // Enable SSL Traffic
-        TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory() {
-            @Override
-            protected void postProcessContext(Context context) {
-                SecurityConstraint securityConstraint = new SecurityConstraint();
-                //securityConstraint.setUserConstraint("CONFIDENTIAL");
-                SecurityCollection collection = new SecurityCollection();
-                collection.addPattern("/*");
-                securityConstraint.addCollection(collection);
-                context.addConstraint(securityConstraint);
-            }
-        };
-        return tomcat;
-    }
+//    @Bean
+//    public ServletWebServerFactory servletContainer() {
+//        // Enable SSL Traffic
+//        TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory() {
+//            @Override
+//            protected void postProcessContext(Context context) {
+//                SecurityConstraint securityConstraint = new SecurityConstraint();
+//                //securityConstraint.setUserConstraint("CONFIDENTIAL");
+//                SecurityCollection collection = new SecurityCollection();
+//                collection.addPattern("/*");
+//                securityConstraint.addCollection(collection);
+//                context.addConstraint(securityConstraint);
+//            }
+//        };
+//        return tomcat;
+//    }
 
 }
