@@ -13,7 +13,7 @@ Students will participate in a project in the structured development of a bankin
 ### Parts That Are Going To Be Developed ###
 * Security (Whole Group)
 * Account Management (Emre Kutuk)
-* User Management (Rasheed Ramhamdani)
+* User Management (Whole Group)
 * Transaction (Stephen Holden, Omar Alawin)
 
 ### Deliverables ###
@@ -23,4 +23,4 @@ Students will participate in a project in the structured development of a bankin
 *	Week 9: Second submission (retake).
 
 #### Link to swagger specification ####
-https://app.swaggerhub.com/apis/644851/InhGroup2BankAPI/1.2
+https://app.swaggerhub.com/apis/644851/InhGroup2BankAPI/1.3/
