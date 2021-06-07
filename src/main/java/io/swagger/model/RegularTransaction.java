@@ -3,11 +3,13 @@ package io.swagger.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.UUID;
 
 /** RegularTransaction */
 @Validated
@@ -16,7 +18,15 @@ import javax.validation.constraints.Size;
     date = "2021-06-06T11:20:30.422Z[GMT]")
 @Data
 @Entity
+@NoArgsConstructor
 public class RegularTransaction extends Transaction {
+  public RegularTransaction(String accountTo, String accountFrom, double amount, UUID performedBy)
+  {
+    super(amount, performedBy, null);
+    this.accountTo = accountTo;
+    this.accountFrom = accountFrom;
+  }
+
   @JsonProperty("accountTo")
   private String accountTo = null;
 

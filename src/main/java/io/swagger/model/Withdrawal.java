@@ -7,7 +7,9 @@ import org.springframework.validation.annotation.Validated;
 import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Withdrawal
@@ -19,6 +21,11 @@ import java.util.Objects;
 public class Withdrawal extends Transaction {
   @JsonProperty("accountFrom")
   private String accountFrom = null;
+
+  public Withdrawal(String accountFrom, Double amount, UUID performedBy) {
+    super(amount, performedBy, LocalDateTime.now());
+    this.accountFrom = accountFrom;
+  }
 
   public Withdrawal accountFrom(String accountFrom) {
     this.accountFrom = accountFrom;

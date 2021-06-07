@@ -3,6 +3,7 @@ package io.swagger.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.*;
@@ -20,6 +21,7 @@ import java.util.UUID;
     date = "2021-06-06T11:20:30.422Z[GMT]")
 @Entity
 @Data
+@NoArgsConstructor
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 public abstract class Transaction{
   @Transient // Don't save to DB
@@ -41,6 +43,13 @@ public abstract class Transaction{
   @JsonProperty("performedBy")
   // @OneToOne(targetEntity=User.class, mappedBy = "id")
   private UUID performedBy = null;
+
+  public Transaction(Double amount, UUID performedBy, LocalDateTime transactionDate)
+  {
+    this.amount = amount;
+    this.performedBy = performedBy;
+    this.transactionDate = transactionDate != null ? transactionDate : LocalDateTime.now();
+  }
 
   /**
    * The ID of the created Transaction.
