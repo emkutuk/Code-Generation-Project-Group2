@@ -1,7 +1,7 @@
 package io.swagger.api;
 
 import io.swagger.model.Body;
-import io.swagger.model.InlineResponse200;
+import io.swagger.model.BearerTokenDTO;
 import io.swagger.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;

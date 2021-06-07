@@ -4,11 +4,14 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import io.swagger.model.Account;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
@@ -19,7 +22,7 @@ import javax.validation.constraints.*;
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-06T11:20:30.422Z[GMT]")
 
-
+@Data
 public class User   {
   @JsonProperty("id")
   private UUID id = null;
@@ -43,45 +46,15 @@ public class User   {
   @Valid
   private List<Account> accounts = null;
 
-  /**
-   * Gets or Sets role
-   */
-  public enum RoleEnum {
-    EMPLOYEE("employee"),
-    
-    CUSTOMER("customer");
-
-    private String value;
-
-    RoleEnum(String value) {
-      this.value = value;
-    }
-
-    @Override
-    @JsonValue
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static RoleEnum fromValue(String text) {
-      for (RoleEnum b : RoleEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
-          return b;
-        }
-      }
-      return null;
-    }
-  }
   @JsonProperty("role")
-  private RoleEnum role = RoleEnum.CUSTOMER;
+  private Role role = Role.CUSTOMER;
 
   /**
    * Gets or Sets accountStatus
    */
   public enum AccountStatusEnum {
     ACTIVE("active"),
-    
+
     DISABLED("disabled");
 
     private String value;
@@ -257,7 +230,7 @@ public class User   {
     this.accounts = accounts;
   }
 
-  public User role(RoleEnum role) {
+  public User role(Role.RoleEnum role) {
     this.role = role;
     return this;
   }
@@ -267,12 +240,12 @@ public class User   {
    * @return role
    **/
   @Schema(description = "")
-  
-    public RoleEnum getRole() {
+
+    public Role.RoleEnum getRole() {
     return role;
   }
 
-  public void setRole(RoleEnum role) {
+  public void setRole(Role.RoleEnum role) {
     this.role = role;
   }
 
@@ -286,57 +259,13 @@ public class User   {
    * @return accountStatus
    **/
   @Schema(description = "")
-  
+
     public AccountStatusEnum getAccountStatus() {
     return accountStatus;
   }
 
   public void setAccountStatus(AccountStatusEnum accountStatus) {
     this.accountStatus = accountStatus;
-  }
-
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    User user = (User) o;
-    return Objects.equals(this.id, user.id) &&
-        Objects.equals(this.firstName, user.firstName) &&
-        Objects.equals(this.lastName, user.lastName) &&
-        Objects.equals(this.phoneNumber, user.phoneNumber) &&
-        Objects.equals(this.email, user.email) &&
-        Objects.equals(this.password, user.password) &&
-        Objects.equals(this.accounts, user.accounts) &&
-        Objects.equals(this.role, user.role) &&
-        Objects.equals(this.accountStatus, user.accountStatus);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, firstName, lastName, phoneNumber, email, password, accounts, role, accountStatus);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class User {\n");
-    
-    sb.append("    id: ").append(toIndentedString(id)).append("\n");
-    sb.append("    firstName: ").append(toIndentedString(firstName)).append("\n");
-    sb.append("    lastName: ").append(toIndentedString(lastName)).append("\n");
-    sb.append("    phoneNumber: ").append(toIndentedString(phoneNumber)).append("\n");
-    sb.append("    email: ").append(toIndentedString(email)).append("\n");
-    sb.append("    password: ").append(toIndentedString(password)).append("\n");
-    sb.append("    accounts: ").append(toIndentedString(accounts)).append("\n");
-    sb.append("    role: ").append(toIndentedString(role)).append("\n");
-    sb.append("    accountStatus: ").append(toIndentedString(accountStatus)).append("\n");
-    sb.append("}");
-    return sb.toString();
   }
 
   /**

@@ -2,12 +2,9 @@ package io.swagger.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.swagger.model.BasicTransaction;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.UUID;
 import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
+
 import javax.validation.constraints.*;
 
 /**
@@ -17,7 +14,7 @@ import javax.validation.constraints.*;
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-06T11:20:30.422Z[GMT]")
 
 
-public class RegularTransaction extends BasicTransaction implements AnyOfinlineResponse2001 {
+public class RegularTransaction extends BasicTransaction {
   @JsonProperty("accountTo")
   private String accountTo = null;
 
