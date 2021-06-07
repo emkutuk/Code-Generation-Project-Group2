@@ -19,9 +19,18 @@ import java.util.UUID;
 @Service
 public class TransactionService {
 
-  @Autowired private TransactionRepo repo;
+  private final TransactionRepo repo;
 
-  @Autowired private AccountService accountService;
+  private final AccountService accountService;
+
+  private final UserService userService;
+
+  @Autowired
+  public TransactionService(TransactionRepo repo, AccountService accountService, UserService userService) {
+    this.repo = repo;
+    this.accountService = accountService;
+    this.userService = userService;
+  }
 
   public List<Transaction> getTransactions() {
     // validate user
