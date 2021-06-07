@@ -1,15 +1,19 @@
 package io.swagger.service;
 
 import io.swagger.model.Account;
+import io.swagger.model.RegularTransaction;
 import io.swagger.model.Transaction;
+import io.swagger.model.Withdrawal;
 import io.swagger.repo.TransactionRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.NotSupportedException;
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -22,22 +26,28 @@ public class TransactionService {
   public List<Transaction> getTransactions() {
     // validate user
 
-    return (List<Transaction>) repo.findAll();
+    return repo.findAll();
   }
 
   public List<Transaction> getTransactionsPaginated(Integer offset, Integer max) {
-    return (List<Transaction>) repo.findAll();
+    return repo.findAll();
   }
 
-  public Transaction getTransactionById(UUID id) {
-    return repo.getTransactionByTransactionId(id);
+  public Transaction getTransactionById(UUID id) throws Exception {
+    Optional<?> transaction = repo.findById(id);
+
+    if (transaction.isPresent()) {
+      return (Transaction) transaction.get();
+    } else {
+      throw new Exception("Transaction not found");
+    }
   }
 
   public List<Transaction> getTransactionsByUserId() throws NotSupportedException {
     throw new NotSupportedException();
   }
 
-  public Transaction createTransaction(Transaction transaction) {
+  public RegularTransaction createTransaction(RegularTransaction transaction) {
     // performTransaction(transaction);
 
     return repo.save(transaction);
@@ -50,9 +60,11 @@ public class TransactionService {
     allTransactions = (List<Transaction>) repo.findAll();
     try {
       for (Transaction t : allTransactions) {
-        if (t.getAccountFrom().equals(Iban)) {
-          filteredList.add(t);
-        }
+
+        // Fix
+//        if (t.getAccountFrom().equals(Iban)) {
+//          filteredList.add(t);
+//        }
       }
       return filteredList;
     } catch (Exception e) {
@@ -63,9 +75,9 @@ public class TransactionService {
   // omar
   public Transaction depositMoney(
       String accountTo, String accountFrom, Double amount, UUID performedBy) {
-    Transaction transaction =
-        new Transaction(
-            UUID.randomUUID(), accountTo, accountFrom, LocalDateTime.now(), amount, performedBy);
+//    Transaction transaction =
+//        new Transaction(
+//            UUID.randomUUID(), accountTo, accountFrom, LocalDateTime.now(), amount, performedBy);
     Account account1 = accountService.getAccountByIban(accountTo);
     Account account2 = accountService.getAccountByIban(accountFrom);
     if (account1.equals(account2)) {
@@ -79,28 +91,30 @@ public class TransactionService {
       account1.setBalance(account1.getBalance() + amount);
       account2.setBalance(account2.getBalance() - amount);
     }
-    repo.save(transaction);
-    return transaction;
+    // repo.save(transaction);
+    // return transaction;
+
+    return null;
   }
 
   // omar
-  public Transaction withdrawMoney(String accountFrom, Double amount, UUID performedBy) {
-    Transaction transaction =
-        new Transaction(
-            UUID.randomUUID(), accountFrom, accountFrom, LocalDateTime.now(), amount, performedBy);
+  public Withdrawal withdrawMoney(String accountFrom, Double amount, UUID performedBy) {
+//    Withdrawal transaction =
+//        new Withdrawal(UUID.randomUUID(), accountFrom, LocalDateTime.now(), amount, performedBy);
     Account account = accountService.getAccountByIban(accountFrom);
     if (account.getBalance() < amount) {
       return null;
     }
     account.setBalance(account.getBalance() - amount);
-    repo.save(transaction);
-    return transaction;
+//    repo.save(transaction);
+//    return transaction;
+      return null;
   }
 
   // omar
   public void deleteTransactionById(UUID id) throws Exception {
     try {
-      Transaction toDelete = repo.getTransactionByTransactionId(id);
+      Transaction toDelete = repo.getOne(id);
       System.out.println(toDelete);
       repo.delete(toDelete);
     } catch (Exception e) {
@@ -108,30 +122,29 @@ public class TransactionService {
     }
   }
 
-  public Transaction editTransactionById(UUID id, Transaction transaction) throws Exception{
-    Transaction transactionToUpdate = repo.getTransactionByTransactionId(id);
-    if (transactionToUpdate != null) {
-      String newAccountFrom = transaction.getAccountFrom();
-      String newAccountTo = transaction.getAccountTo();
+  @Transactional
+  public RegularTransaction editTransactionById(UUID id, RegularTransaction transaction)
+      throws Exception {
+    Optional<Transaction> transactionToUpdate = repo.findById(id);
+    if (transactionToUpdate.isPresent()) {
+
       UUID newPerformedBy = transaction.getPerformedBy();
       double newAmount = transaction.getAmount();
-      LocalDateTime newDate = transaction.getTransactionDate();
+      String newDate = transaction.getTransactionDateAsString();
 
-      if (newAccountTo != null) transactionToUpdate.setAccountTo(newAccountTo);
-      if (newAccountFrom != null) transactionToUpdate.setAccountFrom(newAccountFrom);
-      if (newPerformedBy != null) transactionToUpdate.setPerformedBy(newPerformedBy);
-      if (true || validBalance(transaction)) transactionToUpdate.setAmount(newAmount);
-      if (newDate != null) transactionToUpdate.setTransactionDate(newDate);
+      if (newPerformedBy != null) transactionToUpdate.get().setPerformedBy(newPerformedBy);
+      if (true || validBalance(transaction)) transactionToUpdate.get().setAmount(newAmount);
+      if (newDate != null) transactionToUpdate.get().setTransactionDate(newDate);
 
       try {
         // undoTransaction(transactionToUpdate);
         // performTransaction(transaction);
-        return repo.save(transactionToUpdate);
+        return (RegularTransaction) repo.save(transactionToUpdate.get());
       } catch (Exception e) {
         e.printStackTrace();
       }
     }
-    return null;
+    throw new IllegalArgumentException("User does not exist");
   }
 
   public void AddTransactions(List<Transaction> transactionList) {
@@ -142,7 +155,7 @@ public class TransactionService {
     }
   }
 
-  private boolean validAccountTypes(Transaction t) throws Exception {
+  private boolean validAccountTypes(RegularTransaction t) throws Exception {
     Account accountFrom, accountTo;
     accountFrom = accountService.getAccountByIban(t.getAccountFrom());
     accountTo = accountService.getAccountByIban(t.getAccountTo());
@@ -154,18 +167,20 @@ public class TransactionService {
         && accountTo.getAccountType().equals(Account.AccountTypeEnum.CURRENT)) {
       return true;
     }
-//    else if (accountFrom.getUser().equals(accountTo.getUser())) {
-//      return true;
-//    }
+    //    else if (accountFrom.getUser().equals(accountTo.getUser())) {
+    //      return true;
+    //    }
     throw new Exception("Account types are not valid");
   }
 
-  private boolean validBalance(Transaction t) throws Exception {
-    if (accountService.getAccountBalanceByIban(t.getAccountFrom()) > t.getAmount()) {
-      return true;
-    } else {
-      throw new Exception("Not enough to make this transaction");
-    }
+  private boolean validBalance(Transaction t) throws Exception
+  {
+//    if (accountService.getAccountBalanceByIban(t.getAccountFrom()) > t.getAmount()) {
+//      return true;
+//    } else {
+//      throw new Exception("Not enough to make this transaction");
+//    }
+    return true;
   }
 
   private Transaction performTransaction(Transaction transaction) throws Exception {
@@ -175,7 +190,7 @@ public class TransactionService {
           String.format("Date %s is too old to be valid", transaction.getTransactionDate()));
     }
 
-    validAccountTypes(transaction);
+    validAccountTypes((RegularTransaction) transaction);
     validBalance(transaction);
     boolean deductedFrom = false, addedTo = false;
 
@@ -191,28 +206,26 @@ public class TransactionService {
        Write to database
       */
 
-//      accountService.updateTransactions(transaction.getAccountTo());
-//      accountService.updateTransactions(transaction.getAccountFrom());
+      //      accountService.updateTransactions(transaction.getAccountTo());
+      //      accountService.updateTransactions(transaction.getAccountFrom());
 
       return repo.save(transaction);
 
-
-    } catch (Exception e)
-    {
+    } catch (Exception e) {
       undoTransaction(transaction, deductedFrom, addedTo);
-      // throw new HttpServerErrorException.InternalServerError("There was an error performing the transaction");
+      // throw new HttpServerErrorException.InternalServerError("There was an error performing the
+      // transaction");
       e.printStackTrace();
 
       return null;
     }
   }
 
-  private void undoTransaction(Transaction transaction, boolean deductedFrom, boolean addedTo)
-  {
-    if(deductedFrom){
+  private void undoTransaction(Transaction transaction, boolean deductedFrom, boolean addedTo) {
+    if (deductedFrom) {
       // accountService.Add(transaction.getAccountFrom(), transaction.getAmount());
     }
-    if(addedTo){
+    if (addedTo) {
       // accountService.RemoveFrom(transaction.getAccountTo(), transaction.getAmount());
     }
   }

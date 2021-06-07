@@ -4,7 +4,7 @@
  */
 package io.swagger.api;
 
-import io.swagger.model.Body;
+import io.swagger.model.BearerTokenDto;
 import io.swagger.model.LoginDto;
 import io.swagger.model.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -52,7 +52,7 @@ public interface UsersApi {
       @Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema())
           @Valid
           @RequestBody
-          User body);
+          User user);
 
   @Operation(
       summary = "Delete a user.",
@@ -144,9 +144,9 @@ public interface UsersApi {
       produces = {"application/json"},
       consumes = {"application/json"},
       method = RequestMethod.POST)
-  ResponseEntity<LoginDto> loginUser(
+  ResponseEntity<BearerTokenDto> loginUser(
       @Parameter(in = ParameterIn.DEFAULT, description = "", schema = @Schema()) @Valid @RequestBody
-          Body body);
+          LoginDto loginDto);
 
   @Operation(
       summary = "Update a user.",
@@ -158,7 +158,7 @@ public interface UsersApi {
         @ApiResponse(
             responseCode = "200",
             description = "Information has been updated.",
-            content = @Content(schema = @Schema(implementation = User.class)))
+            content = @Content(schema = @Schema(implementation = BearerTokenDto.class)))
       })
   @RequestMapping(
       value = "/Users/{id}",
@@ -170,5 +170,5 @@ public interface UsersApi {
           @PathVariable("id")
           String id,
       @Parameter(in = ParameterIn.DEFAULT, description = "", schema = @Schema()) @Valid @RequestBody
-          User body);
+          User user);
 }

@@ -1,30 +1,30 @@
 package io.swagger.model;
 
-import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+import org.springframework.validation.annotation.Validated;
+
+import javax.persistence.*;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
-
-/**
- * User
- */
+/** User */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-06T11:20:30.422Z[GMT]")
-
+@javax.annotation.Generated(
+    value = "io.swagger.codegen.v3.generators.java.SpringCodegen",
+    date = "2021-06-06T11:20:30.422Z[GMT]")
 @Data
-public class User   {
+@Entity
+public class User {
   @JsonProperty("id")
+  @Id
+  @GeneratedValue
+  // @OneToOne(targetEntity = Transaction.class)
   private UUID id = null;
 
   @JsonProperty("firstName")
@@ -44,43 +44,14 @@ public class User   {
 
   @JsonProperty("accounts")
   @Valid
+  @OneToMany(mappedBy = "userId", targetEntity = Account.class)
   private List<Account> accounts = null;
 
   @JsonProperty("role")
   private Role role = Role.CUSTOMER;
 
-  /**
-   * Gets or Sets accountStatus
-   */
-  public enum AccountStatusEnum {
-    ACTIVE("active"),
-
-    DISABLED("disabled");
-
-    private String value;
-
-    AccountStatusEnum(String value) {
-      this.value = value;
-    }
-
-    @Override
-    @JsonValue
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static AccountStatusEnum fromValue(String text) {
-      for (AccountStatusEnum b : AccountStatusEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
-          return b;
-        }
-      }
-      return null;
-    }
-  }
   @JsonProperty("accountStatus")
-  private AccountStatusEnum accountStatus = AccountStatusEnum.ACTIVE;
+  private AccountStatus accountStatus = AccountStatus.ACTIVE;
 
   public User id(UUID id) {
     this.id = id;
@@ -89,13 +60,13 @@ public class User   {
 
   /**
    * Get id
+   *
    * @return id
-   **/
+   */
   @Schema(required = true, accessMode = Schema.AccessMode.READ_ONLY, description = "")
-      @NotNull
-
-    @Valid
-    public UUID getId() {
+  @NotNull
+  @Valid
+  public UUID getId() {
     return id;
   }
 
@@ -110,12 +81,13 @@ public class User   {
 
   /**
    * Get firstName
+   *
    * @return firstName
-   **/
+   */
   @Schema(example = "Rob", required = true, description = "")
-      @NotNull
-
-  @Size(max=100)   public String getFirstName() {
+  @NotNull
+  @Size(max = 100)
+  public String getFirstName() {
     return firstName;
   }
 
@@ -130,12 +102,13 @@ public class User   {
 
   /**
    * Get lastName
+   *
    * @return lastName
-   **/
+   */
   @Schema(example = "Banks", required = true, description = "")
-      @NotNull
-
-  @Size(max=100)   public String getLastName() {
+  @NotNull
+  @Size(max = 100)
+  public String getLastName() {
     return lastName;
   }
 
@@ -150,12 +123,13 @@ public class User   {
 
   /**
    * Get phoneNumber
+   *
    * @return phoneNumber
-   **/
+   */
   @Schema(example = "321123527", required = true, description = "")
-      @NotNull
-
-  @Size(max=20)   public String getPhoneNumber() {
+  @NotNull
+  @Size(max = 20)
+  public String getPhoneNumber() {
     return phoneNumber;
   }
 
@@ -170,12 +144,13 @@ public class User   {
 
   /**
    * Get email
+   *
    * @return email
-   **/
+   */
   @Schema(example = "rbanks@gmail.com", required = true, description = "")
-      @NotNull
-
-  @Size(max=256)   public String getEmail() {
+  @NotNull
+  @Size(max = 256)
+  public String getEmail() {
     return email;
   }
 
@@ -190,12 +165,12 @@ public class User   {
 
   /**
    * Get password
+   *
    * @return password
-   **/
+   */
   @Schema(example = "GetMyP@ss1", required = true, description = "")
-      @NotNull
-
-    public String getPassword() {
+  @NotNull
+  public String getPassword() {
     return password;
   }
 
@@ -218,11 +193,17 @@ public class User   {
 
   /**
    * Get accounts
+   *
    * @return accounts
-   **/
-  @Schema(example = "[{\"id\":3,\"iban\":\"NL03INHO0033576852\",\"accountType\":\"current\",\"balance\":320},{\"id\":3,\"iban\":\"NL03INHO0033576883\",\"accountType\":\"savings\",\"balance\":800}]", accessMode = Schema.AccessMode.READ_ONLY, description = "")
-      @Valid
-  @Size(max=2)   public List<Account> getAccounts() {
+   */
+  @Schema(
+      example =
+          "[{\"id\":3,\"iban\":\"NL03INHO0033576852\",\"accountType\":\"current\",\"balance\":320},{\"id\":3,\"iban\":\"NL03INHO0033576883\",\"accountType\":\"savings\",\"balance\":800}]",
+      accessMode = Schema.AccessMode.READ_ONLY,
+      description = "")
+  @Valid
+  @Size(max = 2)
+  public List<Account> getAccounts() {
     return accounts;
   }
 
@@ -230,47 +211,46 @@ public class User   {
     this.accounts = accounts;
   }
 
-  public User role(Role.RoleEnum role) {
+  public User role(Role role) {
     this.role = role;
     return this;
   }
 
   /**
    * Get role
+   *
    * @return role
-   **/
+   */
   @Schema(description = "")
-
-    public Role.RoleEnum getRole() {
+  public Role getRole() {
     return role;
   }
 
-  public void setRole(Role.RoleEnum role) {
+  public void setRole(Role role) {
     this.role = role;
   }
 
-  public User accountStatus(AccountStatusEnum accountStatus) {
+  public User accountStatus(AccountStatus accountStatus) {
     this.accountStatus = accountStatus;
     return this;
   }
 
   /**
    * Get accountStatus
+   *
    * @return accountStatus
-   **/
+   */
   @Schema(description = "")
-
-    public AccountStatusEnum getAccountStatus() {
+  public AccountStatus getAccountStatus() {
     return accountStatus;
   }
 
-  public void setAccountStatus(AccountStatusEnum accountStatus) {
+  public void setAccountStatus(AccountStatus accountStatus) {
     this.accountStatus = accountStatus;
   }
 
   /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
+   * Convert the given object to string with each line indented by 4 spaces (except the first line).
    */
   private String toIndentedString(java.lang.Object o) {
     if (o == null) {

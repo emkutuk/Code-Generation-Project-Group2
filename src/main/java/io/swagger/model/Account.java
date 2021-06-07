@@ -1,18 +1,21 @@
 package io.swagger.model;
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.*;
 import javax.validation.Valid;
-import javax.validation.constraints.*;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Account
@@ -109,11 +112,10 @@ public class Account   {
   @JsonProperty("balance")
   private Double balance = 0d;
 
-  @Column(name = "transactions")
-  @OneToMany(targetEntity=BasicTransaction.class, mappedBy="transactionId")
+  @OneToMany
   @JsonProperty("transactions")
   @Valid
-  private List<BasicTransaction> transactions = null;
+  private List<Transaction> transactions = null;
 
   @Column(name = "userId")
   @JsonProperty("userId")
@@ -221,14 +223,14 @@ public class Account   {
     this.balance = balance;
   }
 
-  public Account transactions(List<BasicTransaction> transactions) {
+  public Account transactions(List<Transaction> transactions) {
     this.transactions = transactions;
     return this;
   }
 
-  public Account addTransactionsItem(BasicTransaction transactionsItem) {
+  public Account addTransactionsItem(Transaction transactionsItem) {
     if (this.transactions == null) {
-      this.transactions = new ArrayList<BasicTransaction>();
+      this.transactions = new ArrayList<Transaction>();
     }
     this.transactions.add(transactionsItem);
     return this;
@@ -240,11 +242,11 @@ public class Account   {
    **/
   @Schema(description = "All the transactions that belongs to the account")
   
-    public List<BasicTransaction> getTransactions() {
+    public List<Transaction> getTransactions() {
     return transactions;
   }
 
-  public void setTransactions(List<BasicTransaction> transactions) {
+  public void setTransactions(List<Transaction> transactions) {
     this.transactions = transactions;
   }
 

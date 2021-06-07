@@ -4,7 +4,7 @@
  */
 package io.swagger.api;
 
-import io.swagger.model.BasicTransaction;
+import io.swagger.model.Transaction;
 import io.swagger.model.Deposit;
 import io.swagger.model.RegularTransaction;
 import io.swagger.model.Withdrawal;
@@ -131,13 +131,13 @@ public interface TransactionsApi {
             content =
                 @Content(
                     array =
-                        @ArraySchema(schema = @Schema(implementation = BasicTransaction.class))))
+                        @ArraySchema(schema = @Schema(implementation = Transaction.class))))
       })
   @RequestMapping(
       value = "/Transactions/ByAccountNumber/{iban}",
       produces = {"application/json"},
       method = RequestMethod.GET)
-  ResponseEntity<List<BasicTransaction>> getTransactionByIBAN(
+  ResponseEntity<List<Transaction>> getTransactionByIBAN(
       @Size(max = 34)
           @Parameter(
               in = ParameterIn.PATH,
@@ -180,13 +180,13 @@ public interface TransactionsApi {
         @ApiResponse(
             responseCode = "200",
             description = "OK",
-            content = @Content(schema = @Schema(implementation = BasicTransaction.class)))
+            content = @Content(schema = @Schema(implementation = Transaction.class)))
       })
   @RequestMapping(
       value = "/Transactions/{id}",
       produces = {"application/json"},
       method = RequestMethod.GET)
-  ResponseEntity<BasicTransaction> getTransactionById(
+  ResponseEntity<Transaction> getTransactionById(
       @Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema())
           @PathVariable("id")
           String id);
@@ -203,13 +203,13 @@ public interface TransactionsApi {
             responseCode = "200",
             description = "OK",
             content =
-                @Content(array = @ArraySchema(schema = @Schema(implementation = BasicTransaction.class))))
+                @Content(array = @ArraySchema(schema = @Schema(implementation = Transaction.class))))
       })
   @RequestMapping(
       value = "/Transactions",
       produces = {"application/json"},
       method = RequestMethod.GET)
-  ResponseEntity<List<BasicTransaction>> getTransactionsByUser(
+  ResponseEntity<List<Transaction>> getTransactionsByUser(
       @Min(10)
           @Max(50)
           @Parameter(

@@ -1,9 +1,10 @@
 package io.swagger.model;
 
-import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
+
+import java.util.Objects;
 
 /**
  * InlineResponse200
@@ -12,11 +13,11 @@ import org.springframework.validation.annotation.Validated;
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-06T11:20:30.422Z[GMT]")
 
 
-public class BearerTokenDTO {
+public class BearerTokenDto {
   @JsonProperty("bearerToken")
   private String bearerToken = null;
 
-  public BearerTokenDTO bearerToken(String bearerToken) {
+  public BearerTokenDto bearerToken(String bearerToken) {
     this.bearerToken = bearerToken;
     return this;
   }
@@ -44,7 +45,7 @@ public class BearerTokenDTO {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    BearerTokenDTO inlineResponse200 = (BearerTokenDTO) o;
+    BearerTokenDto inlineResponse200 = (BearerTokenDto) o;
     return Objects.equals(this.bearerToken, inlineResponse200.bearerToken);
   }
 

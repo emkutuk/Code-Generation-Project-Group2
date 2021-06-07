@@ -1,12 +1,10 @@
 package io.swagger.service;
 
 import io.swagger.model.Account;
-import io.swagger.model.BasicTransaction;
 import io.swagger.repo.AccountRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
