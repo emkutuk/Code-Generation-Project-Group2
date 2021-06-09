@@ -265,7 +265,7 @@ paths:
         "204":
           description: OK
 
-  /Transactions/ByAccountNumber/{iban}:
+  /Transactions/{iban}:
     get:
       tags:
         - Transaction
