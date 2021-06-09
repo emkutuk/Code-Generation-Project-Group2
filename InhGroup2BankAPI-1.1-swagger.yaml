@@ -180,15 +180,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              additionalProperties: false
-              properties:
-                email:
-                  type: string
-                  example: rbanks@gmail.com
-                password:
-                  type: string
-                  example: veryCoolPassword2
+              $ref: "#/components/schemas/LoginDto"
               
       responses:
         "200":
@@ -196,11 +188,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  bearerToken:
-                    type: string
-                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dnZWRJbkFzIjoiYWRtaW4iLCJpYXQiOjE0MjI3Nzk2Mzh9.gzSraSYS8EXBxLN_oWnFSRgCzcmJmMjLiuyu5CSpyHI
+                $ref: "#/components/schemas/BearerTokenDto"
         "404":
           $ref: "#/components/responses/NotFound"
         "401":
@@ -773,6 +761,25 @@ components:
           enum:
             - active
             - disabled
+
+    LoginDto:
+      type: object
+      additionalProperties: false
+      properties:
+        email:
+          type: string
+          example: rbanks@gmail.com
+        password:
+          type: string
+          example: veryCoolPassword2
+
+    BearerTokenDto:
+      type: object
+      properties:
+        bearerToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dnZWRJbkFzIjoiYWRtaW4iLCJpYXQiOjE0MjI3Nzk2Mzh9.gzSraSYS8EXBxLN_oWnFSRgCzcmJmMjLiuyu5CSpyHI
+
 
     BasicTransaction:
       type: object
