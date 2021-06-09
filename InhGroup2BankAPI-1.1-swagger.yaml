@@ -265,31 +265,6 @@ paths:
         "204":
           description: OK
 
-    put:
-      tags:
-        - Transaction
-      summary: Edit a transaction
-      description: Edits the specified transaction, given the ID.
-      operationId: editTransactionById
-
-      parameters:
-        - $ref: "#/components/parameters/transactionIdParam"
-
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/RegularTransaction"
-
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/RegularTransaction"
-
   /Transactions/ByAccountNumber/{iban}:
     get:
       tags:
