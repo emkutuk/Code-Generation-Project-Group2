@@ -590,12 +590,6 @@ components:
       additionalProperties: false
       type: object
       properties:
-        id:
-          type: integer
-          format: int64
-          minimum: 1
-          description: The unique ID of the account.
-          example: 3
         iban:
           type: string
           description: IBAN number of the account.
@@ -616,9 +610,8 @@ components:
           format: double
           default: 0
           minimum: 0
-          
+
       required:
-        - id
         - iban
         - accountType
         - accountStatus
