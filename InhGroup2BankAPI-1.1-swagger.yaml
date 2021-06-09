@@ -29,6 +29,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/offsetParam"
         - $ref: "#/components/parameters/limitParam"
+        - $ref: "#/components/paramters/usernameParam"
       responses:
         "200":
           description: Returns a list of users
@@ -464,11 +465,14 @@ components:
       - phoneNumber
       - email
       - password
+      - username
       properties:
         id:
           type: string
           format: uuid
           readOnly: true
+        username:
+          type: string
         firstName:
           type: string
           example: Rob
@@ -667,6 +671,14 @@ components:
         type: string
         format: UUID
         example: 4a090b27-5300-456a-8041-4c63a5e31436
+
+    usernameParam:
+      name: name
+      in: query
+      required: true
+      schema:
+        type: string
+        example: robbanks72
 
     limitParam:
       name: max
