@@ -12,7 +12,7 @@ info:
     name: Apache 2.0
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
 servers:
-  - url: https://inholland-bank-api-group2.herokuapp.com/
+  - url: https://inholland-bank-api-group2.herokuapp.com/api
     description: Live Server
 
   - url: https://localhost:8080/api
