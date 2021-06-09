@@ -327,12 +327,7 @@ paths:
       summary: Gets an account by Iban.
       operationId: getAccountByIban
       parameters:
-      - in: path
-        name: iban
-        description: Account Iban
-        required: true
-        schema:
-          type: string
+        - $ref: "#/components/parameters/ibanParam"
       responses:
         "200":
           description: An account object has been returned.
@@ -353,16 +348,10 @@ paths:
             schema:
               $ref: '#/components/schemas/Account'
       parameters:
-      - in: path
-        name: iban
-        description: Account Iban
-        required: true
-        schema:
-          type: string
+        - $ref: "#/components/parameters/ibanParam"
       responses:
         "200":
           description: An account object has been updated.
-
 
   /Accounts/{iban}/{type}:
     summary: Represents an account type
@@ -375,12 +364,7 @@ paths:
       summary: Changes account type.
       operationId: changeAccountType
       parameters:
-        - in: path
-          name: iban
-          description: Account Iban
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/ibanParam"
         - in: path
           name: type
           description: The new type for the account to be changed into.
