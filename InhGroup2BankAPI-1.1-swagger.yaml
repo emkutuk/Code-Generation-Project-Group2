@@ -12,11 +12,11 @@ info:
     name: Apache 2.0
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
 servers:
-  - url: https://api.server.test/v1
-    description: Test server
-
-  - url: https://api.server.real/v1
+  - url: https://inholland-bank-api-group2.herokuapp.com/
     description: Live Server
+
+  - url: https://localhost:8080/api
+    description: Test server
 
 paths:
   /Users:
