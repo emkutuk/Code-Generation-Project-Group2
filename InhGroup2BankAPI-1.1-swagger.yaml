@@ -781,7 +781,7 @@ components:
           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dnZWRJbkFzIjoiYWRtaW4iLCJpYXQiOjE0MjI3Nzk2Mzh9.gzSraSYS8EXBxLN_oWnFSRgCzcmJmMjLiuyu5CSpyHI
 
 
-    BasicTransaction:
+    Transaction:
       type: object
       required:
         - amount
@@ -831,7 +831,7 @@ components:
           description: IBAN of the account sending the money.
           maxLength: 34
       allOf:
-        - $ref: "#/components/schemas/BasicTransaction"
+        - $ref: "#/components/schemas/Transaction"
 
     Deposit:
       type: object
@@ -843,7 +843,7 @@ components:
           example: NL04INHO6818968668
           description: IBAN of the account receiving the money.
       allOf:
-        - $ref: "#/components/schemas/BasicTransaction"
+        - $ref: "#/components/schemas/Transaction"
 
     Withdrawal:
       type: object
@@ -857,7 +857,7 @@ components:
           description: IBAN of the account withdrawing the money.
           maxLength: 34
       allOf:
-        - $ref: "#/components/schemas/BasicTransaction"
+        - $ref: "#/components/schemas/Transaction"
 
     Account:
       additionalProperties: false
