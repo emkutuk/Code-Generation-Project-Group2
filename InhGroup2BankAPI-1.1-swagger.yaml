@@ -39,18 +39,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/User"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "429":
-          $ref: "#/components/responses/TooManyRequests"
-        default:
-          $ref: "#/components/responses/Default"
 
     post:
       tags:
@@ -71,16 +59,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "429":
-          $ref: "#/components/responses/TooManyRequests"
-        default:
-          $ref: "#/components/responses/Default"
 
   /Users/{id}:
     get:
@@ -98,18 +76,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "429":
-          $ref: "#/components/responses/TooManyRequests"
-        default:
-          $ref: "#/components/responses/Default"
     
     put:
       tags:
@@ -131,18 +97,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "429":
-          $ref: "#/components/responses/TooManyRequests"
-        default:
-          $ref: "#/components/responses/Default"
 
     delete:
       summary: Delete a user.
@@ -155,18 +109,6 @@ paths:
       responses:
         "204":
           description: User set as inactive.
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "429":
-          $ref: "#/components/responses/TooManyRequests"
-        default:
-          $ref: "#/components/responses/Default"
 
   /Users/Login/:
     post:
@@ -189,18 +131,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BearerTokenDto"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "415":
-          $ref: "#/components/responses/UnsupportedMediaType"
-        "429":
-          $ref: "#/components/responses/TooManyRequests"
-        default:
-          $ref: "#/components/responses/Default"
 
   /Transactions:
     post:
@@ -224,16 +154,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RegularTransaction"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "429":
-          $ref: "#/components/responses/TooManyRequests"
-        default:
-          $ref: "#/components/responses/Default"
 
     get:
       tags:
@@ -259,19 +179,6 @@ paths:
                     - $ref: "#/components/schemas/Deposit"
                     - $ref: "#/components/schemas/Withdrawal"
                     - $ref: "#/components/schemas/RegularTransaction"
-        "400":
-                
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "429":
-          $ref: "#/components/responses/TooManyRequests"
-        default:
-          $ref: "#/components/responses/Default"
 
   /Transactions/Deposit:
     post:
@@ -295,16 +202,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Deposit"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "429":
-          $ref: "#/components/responses/TooManyRequests"
-        default:
-          $ref: "#/components/responses/Default"
 
   /Transactions/Withdraw:
     post:
@@ -328,16 +225,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Withdrawal"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "429":
-          $ref: "#/components/responses/TooManyRequests"
-        default:
-          $ref: "#/components/responses/Default"
 
   /Transactions/{id}:
     get:
@@ -360,18 +247,6 @@ paths:
                   - $ref: "#/components/schemas/Deposit"
                   - $ref: "#/components/schemas/Withdrawal"
                   - $ref: "#/components/schemas/RegularTransaction"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "429":
-          $ref: "#/components/responses/TooManyRequests"
-        default:
-          $ref: "#/components/responses/Default"
 
     delete:
       tags:
@@ -388,18 +263,6 @@ paths:
       responses:
         "204":
           description: OK
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "429":
-          $ref: "#/components/responses/TooManyRequests"
-        default:
-          $ref: "#/components/responses/Default"
 
     put:
       tags:
@@ -425,15 +288,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RegularTransaction"
-
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "429":
-          $ref: "#/components/responses/TooManyRequests"
-        default:
-          $ref: "#/components/responses/Default"
 
   /Transactions/ByAccountNumber/{iban}:
     get:
@@ -461,18 +315,6 @@ paths:
                   - $ref: "#/components/schemas/Deposit"
                   - $ref: "#/components/schemas/Withdrawal"
                   - $ref: "#/components/schemas/RegularTransaction"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "429":
-          $ref: "#/components/responses/TooManyRequests"
-        default:
-          $ref: "#/components/responses/Default"
 
   /Accounts/{iban}:
     summary: Represents an account
@@ -498,18 +340,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Account"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "429":
-          $ref: "#/components/responses/TooManyRequests"
-        default:
-          $ref: '#/components/responses/Default'
 
     put:
       tags:
@@ -532,18 +362,6 @@ paths:
       responses:
         "200":
           description: An account object has been updated.
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "429":
-          $ref: "#/components/responses/TooManyRequests"
-        default:
-          $ref: "#/components/responses/Default"
 
 
   /Accounts/{iban}/{type}:
@@ -573,14 +391,6 @@ paths:
       responses:
         "200":
           description: The account type has been changed.
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "429":
-          $ref: "#/components/responses/TooManyRequests"
-        default:
-          $ref: "#/components/responses/Default"
 
   /Accounts:
     summary: Represents an account object
@@ -605,18 +415,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Account"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "429":
-          $ref: "#/components/responses/TooManyRequests"
-        default:
-          $ref: "#/components/responses/Default"
 
     get:
       tags:
@@ -645,18 +443,6 @@ paths:
       responses:
         "200":
           description: Balance of the account has been returned.
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "429":
-          $ref: "#/components/responses/TooManyRequests"
-        default:
-          $ref: "#/components/responses/Default"
   
   /Accounts/{iban}/changeAccoutStatus/{status}:
     summary: Changes the specified account's status
@@ -684,18 +470,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Account"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "429":
-          $ref: "#/components/responses/TooManyRequests"
-        default:
-          $ref: "#/components/responses/Default"
   
 components:
   schemas:
@@ -904,25 +678,6 @@ components:
         - accountStatus
         - balance
 
-    Error:
-      additionalProperties: false
-      type: object
-      properties:
-        code:
-          type: integer
-          format: int32
-          example: 404
-          maximum: 600
-          minimum: 400
-        error:
-          type: string
-          maxLength: 100
-          example: Not Found.
-        description:
-          type: string
-          maxLength: 500
-          example: The requested resource was not found on the server.
-
   # Parameters are for paginated enddpoint
   parameters:
 
@@ -977,57 +732,6 @@ components:
         type: string
         format: UUID
         example: 4a090b27-5300-456a-8041-4c63a5e31436
-
-  responses:
-    #Generic Error Responses
-    BadRequest:
-      description: Bad Reqeust. Please try again.
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/Error"
-
-    Unauthorized:
-      description: The entered credentials are invalid or incorrect. Please try again.
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/Error"
-
-    Forbidden:
-      description: You do not have access to perform this action. Forbidden.
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/Error"
-
-    NotFound:
-      description: Not Found.
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/Error"
-
-    UnsupportedMediaType:
-      description: This media type is unsupported or it is an invalid JSON format.
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/Error"
-
-    TooManyRequests:
-      description: You have sent too many requests. Please try again in at least 300 seconds.
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/Error"
-
-    Default:
-      description: An unknown error has occured.
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/Error"
 
   # Implementing bearer authentication
   securitySchemes:
