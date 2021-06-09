@@ -616,15 +616,7 @@ components:
           format: double
           default: 0
           minimum: 0
-        transactions:
-          type: array
-          description: The ids of the transactions that belongs to the account
-          items:
-            type: string
-            example:
-              - "076682bb-ba6e-4e57-b355-2356144c0854"
-              - "c50370f6-2572-4949-aaf2-21667bee2cff"
-              - "faef7b59-2ab8-4102-a2ac-0a609ebe6c5c"
+          
       required:
         - id
         - iban
