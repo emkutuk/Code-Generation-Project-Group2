@@ -642,7 +642,7 @@ paths:
         '200':
           description: Paginated accounts have been returned
 
-  /Accounts/{iban}/getBalance:
+  /Accounts/{iban}/Balance:
     summary: Represents an account balance
     description: >
       This resource represents an account's balance.
