@@ -653,12 +653,7 @@ paths:
       summary: Gets an account balance by Iban.
       operationId: getAccountBalanceByIban
       parameters:
-      - in: path
-        name: iban
-        description: Account Iban
-        required: true
-        schema:
-          type: string
+      - $ref: "#/components/parameters/ibanParam"
       responses:
         "200":
           description: Balance of the account has been returned.
@@ -686,12 +681,7 @@ paths:
       summary: Change an Account Status
       operationId: changeAccountStatus
       parameters:
-      - in: path
-        name: iban
-        description: Account Iban
-        required: true
-        schema:
-          type: string
+      - $ref: "#/components/parameters/ibanParam"
       - in: path
         name: status
         description: Account status to be changed to.
