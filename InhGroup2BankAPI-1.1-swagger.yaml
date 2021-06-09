@@ -495,18 +495,11 @@ components:
         accounts:
           type: array
           readOnly: true
-          maxItems: 2
           items:
-            $ref: "#/components/schemas/Account"
+            type: string
           example:
-            - id: 3
-              iban: "NL03INHO0033576852"
-              accountType: "current"
-              balance: 320
-            - id: 3
-              iban: "NL03INHO0033576883"
-              accountType: "savings"
-              balance: 800
+              - "NL03INHO0033576852"
+              - "NL03INHO0033576883"
         role:
           type: string
           default: customer
