@@ -404,7 +404,7 @@ paths:
         "200":
           description: Balance of the account has been returned.
   
-  /Accounts/{iban}/changeAccoutStatus/{status}:
+  /Accounts/{iban}/Status/{status}:
     summary: Changes the specified account's status
     description: >
       This changes an account's status.
