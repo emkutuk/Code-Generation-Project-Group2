@@ -124,6 +124,50 @@ public class AccountService
         return null;
     }
 
+    public boolean addBalance(String iban, double amount) throws Exception
+    {
+        try
+        {
+            Account account = getAccountByIban(iban);
+            double balance = account.getBalance();
+
+            //Checks if amount is valid
+            if (amount > 0)
+            {
+                account.setBalance(balance + amount);
+                return true;
+            } else
+            {
+                throw new Exception("Amount needs to be more than 0.");
+            }
+        } catch (Exception e)
+        {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    public boolean subtractBalance(String iban, double amount) throws Exception
+    {
+        try
+        {
+            Account account = getAccountByIban(iban);
+            double balance = account.getBalance();
+
+            //Checks if amount is valid
+            if (amount > 0 && balance >= amount)
+            {
+                account.setBalance(balance - amount);
+                return true;
+            } else
+            {
+                throw new Exception("Amount needs to be more than 0 or balance needs to be more than the amount.");
+            }
+        } catch (Exception e)
+        {
+            throw new Exception(e.getMessage());
+        }
+    }
+
     public String GenerateIban()
     {
         //Format : NLxxINHO0xxxxxxxxx
@@ -150,21 +194,5 @@ public class AccountService
 
         //Combine all iban together and return the value
         return "NL" + first2Digits + "INHO0" + last9Digits;
-
-    }
-
-    public boolean addBalance(String iban, double amount)
-    {
-        return false;
-    }
-
-    public boolean subtractBalance(String iban, double amount)
-    {
-        return false;
-    }
-
-    public void updateTransactions(String iban)
-    {
-        //
     }
 }
