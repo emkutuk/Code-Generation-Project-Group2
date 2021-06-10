@@ -23,9 +23,9 @@ public class AppRunner implements ApplicationRunner
     @Override
     public void run(ApplicationArguments args) throws Exception
     {
-        /*
+
         //Creating the account for the bank
-        Account bankAccount = new Account(1L, "NL01INHO0000000001", Account.AccountTypeEnum.CURRENT, 0.0);
+        Account bankAccount = new Account("NL01INHO0000000001", Account.AccountTypeEnum.CURRENT, 0.0);
         accountService.addANewAccount(bankAccount);
 
         for(int i = 0; i < 390 ; i++)
@@ -37,7 +37,7 @@ public class AppRunner implements ApplicationRunner
         }
 
         for (Account a : accountList)
-            accountService.addANewAccount(a);*/
+            accountService.addANewAccount(a);
 
         System.out.println("The application has started successfully.");
     }
