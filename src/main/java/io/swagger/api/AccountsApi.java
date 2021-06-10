@@ -32,7 +32,7 @@ import javax.validation.constraints.*;
 import java.util.List;
 import java.util.Map;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-06T11:20:30.422Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-10T11:32:06.118Z[GMT]")
 @Validated
 public interface AccountsApi {
 
@@ -51,10 +51,10 @@ public interface AccountsApi {
         @SecurityRequirement(name = "bearerAuth")    }, tags={ "Account" })
     @ApiResponses(value = { 
         @ApiResponse(responseCode = "200", description = "The account status has been changed.", content = @Content(schema = @Schema(implementation = Account.class))) })
-    @RequestMapping(value = "/Accounts/{iban}/changeAccoutStatus/{status}",
+    @RequestMapping(value = "/Accounts/{iban}/Status/{status}",
         produces = { "application/json" }, 
         method = RequestMethod.POST)
-    ResponseEntity<Account> changeAccountStatus(@Parameter(in = ParameterIn.PATH, description = "Account Iban", required=true, schema=@Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.PATH, description = "Account status to be changed to.", required=true, schema=@Schema(allowableValues={ "active", "closed" }
+    ResponseEntity<Account> changeAccountStatus(@Size(max=34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required=true, schema=@Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.PATH, description = "Account status to be changed to.", required=true, schema=@Schema(allowableValues={ "active", "closed" }
 )) @PathVariable("status") String status);
 
 
@@ -64,7 +64,7 @@ public interface AccountsApi {
         @ApiResponse(responseCode = "200", description = "The account type has been changed.") })
     @RequestMapping(value = "/Accounts/{iban}/{type}",
         method = RequestMethod.POST)
-    ResponseEntity<Void> changeAccountType(@Parameter(in = ParameterIn.PATH, description = "Account Iban", required=true, schema=@Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.PATH, description = "The new type for the account to be changed into.", required=true, schema=@Schema(allowableValues={ "saving", "current" }
+    ResponseEntity<Void> changeAccountType(@Size(max=34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required=true, schema=@Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.PATH, description = "The new type for the account to be changed into.", required=true, schema=@Schema(allowableValues={ "saving", "current" }
 )) @PathVariable("type") String type);
 
 
@@ -72,9 +72,9 @@ public interface AccountsApi {
         @SecurityRequirement(name = "bearerAuth")    }, tags={ "Account" })
     @ApiResponses(value = { 
         @ApiResponse(responseCode = "200", description = "Balance of the account has been returned.") })
-    @RequestMapping(value = "/Accounts/{iban}/getBalance",
+    @RequestMapping(value = "/Accounts/{iban}/Balance",
         method = RequestMethod.GET)
-    ResponseEntity<Void> getAccountBalanceByIban(@Parameter(in = ParameterIn.PATH, description = "Account Iban", required=true, schema=@Schema()) @PathVariable("iban") String iban);
+    ResponseEntity<Void> getAccountBalanceByIban(@Size(max=34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required=true, schema=@Schema()) @PathVariable("iban") String iban);
 
 
     @Operation(summary = "Gets an account by Iban.", description = "", security = {
@@ -84,7 +84,7 @@ public interface AccountsApi {
     @RequestMapping(value = "/Accounts/{iban}",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<Account> getAccountByIban(@Parameter(in = ParameterIn.PATH, description = "Account Iban", required=true, schema=@Schema()) @PathVariable("iban") String iban);
+    ResponseEntity<Account> getAccountByIban(@Size(max=34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required=true, schema=@Schema()) @PathVariable("iban") String iban);
 
 
     @Operation(summary = "Gets all accounts", description = "", security = {
@@ -105,7 +105,7 @@ public interface AccountsApi {
     @RequestMapping(value = "/Accounts/{iban}",
         consumes = { "application/json" }, 
         method = RequestMethod.PUT)
-    ResponseEntity<Void> updateAccountByIban(@Parameter(in = ParameterIn.PATH, description = "Account Iban", required=true, schema=@Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Account body);
+    ResponseEntity<Void> updateAccountByIban(@Size(max=34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required=true, schema=@Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Account body);
 
 }
 

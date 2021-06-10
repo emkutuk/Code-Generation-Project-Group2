@@ -32,7 +32,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-06T11:20:30.422Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-10T11:32:06.118Z[GMT]")
 @RestController
 public class AccountsApiController implements AccountsApi {
 
@@ -52,7 +52,7 @@ public class AccountsApiController implements AccountsApi {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
             try {
-                return new ResponseEntity<Account>(objectMapper.readValue("{\n  \"accountStatus\" : \"active\",\n  \"balance\" : 0.08008281904610115,\n  \"iban\" : \"NL03INHO0033576852\",\n  \"accountType\" : \"current\",\n  \"id\" : 3,\n  \"transactions\" : [ \"\", \"\" ],\n  \"userId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}", Account.class), HttpStatus.NOT_IMPLEMENTED);
+                return new ResponseEntity<Account>(objectMapper.readValue("{\n  \"accountStatus\" : \"active\",\n  \"balance\" : 0.08008281904610115,\n  \"iban\" : \"NL03INHO0033576852\",\n  \"accountType\" : \"current\"\n}", Account.class), HttpStatus.NOT_IMPLEMENTED);
             } catch (IOException e) {
                 log.error("Couldn't serialize response for content type application/json", e);
                 return new ResponseEntity<Account>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -62,12 +62,12 @@ public class AccountsApiController implements AccountsApi {
         return new ResponseEntity<Account>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    public ResponseEntity<Account> changeAccountStatus(@Parameter(in = ParameterIn.PATH, description = "Account Iban", required=true, schema=@Schema()) @PathVariable("iban") String iban,@Parameter(in = ParameterIn.PATH, description = "Account status to be changed to.", required=true, schema=@Schema(allowableValues={ "active", "closed" }
+    public ResponseEntity<Account> changeAccountStatus(@Size(max=34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required=true, schema=@Schema()) @PathVariable("iban") String iban,@Parameter(in = ParameterIn.PATH, description = "Account status to be changed to.", required=true, schema=@Schema(allowableValues={ "active", "closed" }
 )) @PathVariable("status") String status) {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
             try {
-                return new ResponseEntity<Account>(objectMapper.readValue("{\n  \"accountStatus\" : \"active\",\n  \"balance\" : 0.08008281904610115,\n  \"iban\" : \"NL03INHO0033576852\",\n  \"accountType\" : \"current\",\n  \"id\" : 3,\n  \"transactions\" : [ \"\", \"\" ],\n  \"userId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}", Account.class), HttpStatus.NOT_IMPLEMENTED);
+                return new ResponseEntity<Account>(objectMapper.readValue("{\n  \"accountStatus\" : \"active\",\n  \"balance\" : 0.08008281904610115,\n  \"iban\" : \"NL03INHO0033576852\",\n  \"accountType\" : \"current\"\n}", Account.class), HttpStatus.NOT_IMPLEMENTED);
             } catch (IOException e) {
                 log.error("Couldn't serialize response for content type application/json", e);
                 return new ResponseEntity<Account>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -77,22 +77,22 @@ public class AccountsApiController implements AccountsApi {
         return new ResponseEntity<Account>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    public ResponseEntity<Void> changeAccountType(@Parameter(in = ParameterIn.PATH, description = "Account Iban", required=true, schema=@Schema()) @PathVariable("iban") String iban,@Parameter(in = ParameterIn.PATH, description = "The new type for the account to be changed into.", required=true, schema=@Schema(allowableValues={ "saving", "current" }
+    public ResponseEntity<Void> changeAccountType(@Size(max=34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required=true, schema=@Schema()) @PathVariable("iban") String iban,@Parameter(in = ParameterIn.PATH, description = "The new type for the account to be changed into.", required=true, schema=@Schema(allowableValues={ "saving", "current" }
 )) @PathVariable("type") String type) {
         String accept = request.getHeader("Accept");
         return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    public ResponseEntity<Void> getAccountBalanceByIban(@Parameter(in = ParameterIn.PATH, description = "Account Iban", required=true, schema=@Schema()) @PathVariable("iban") String iban) {
+    public ResponseEntity<Void> getAccountBalanceByIban(@Size(max=34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required=true, schema=@Schema()) @PathVariable("iban") String iban) {
         String accept = request.getHeader("Accept");
         return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    public ResponseEntity<Account> getAccountByIban(@Parameter(in = ParameterIn.PATH, description = "Account Iban", required=true, schema=@Schema()) @PathVariable("iban") String iban) {
+    public ResponseEntity<Account> getAccountByIban(@Size(max=34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required=true, schema=@Schema()) @PathVariable("iban") String iban) {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
             try {
-                return new ResponseEntity<Account>(objectMapper.readValue("{\n  \"accountStatus\" : \"active\",\n  \"balance\" : 0.08008281904610115,\n  \"iban\" : \"NL03INHO0033576852\",\n  \"accountType\" : \"current\",\n  \"id\" : 3,\n  \"transactions\" : [ \"\", \"\" ],\n  \"userId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}", Account.class), HttpStatus.NOT_IMPLEMENTED);
+                return new ResponseEntity<Account>(objectMapper.readValue("{\n  \"accountStatus\" : \"active\",\n  \"balance\" : 0.08008281904610115,\n  \"iban\" : \"NL03INHO0033576852\",\n  \"accountType\" : \"current\"\n}", Account.class), HttpStatus.NOT_IMPLEMENTED);
             } catch (IOException e) {
                 log.error("Couldn't serialize response for content type application/json", e);
                 return new ResponseEntity<Account>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -109,7 +109,7 @@ public class AccountsApiController implements AccountsApi {
         return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    public ResponseEntity<Void> updateAccountByIban(@Parameter(in = ParameterIn.PATH, description = "Account Iban", required=true, schema=@Schema()) @PathVariable("iban") String iban,@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Account body) {
+    public ResponseEntity<Void> updateAccountByIban(@Size(max=34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required=true, schema=@Schema()) @PathVariable("iban") String iban,@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Account body) {
         String accept = request.getHeader("Accept");
         return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
     }
