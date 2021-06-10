@@ -13,7 +13,7 @@ Students will participate in a project in the structured development of a bankin
 ### Parts That Are Going To Be Developed ###
 * Security (Whole Group)
 * Account Management (Emre Kutuk)
-* User Management (Whole Group)
+* User Management (Rasheed Ramhamdani)
 * Transaction (Stephen Holden, Omar Alawin)
 
 ### Deliverables ###
