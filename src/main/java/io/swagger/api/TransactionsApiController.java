@@ -21,7 +21,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,26 +66,9 @@ public class TransactionsApiController implements TransactionsApi {
     // null check user
 
     if (accept != null && accept.contains("application/json")) {
-
-      if (user.getRole().equals(Role.CUSTOMER)) {
-        // Check if the user owns the account
-        boolean userOwnsAccount = false;
-
-        for (Account account : user.getAccounts()) {
-          if (account.getIban().equals(transaction.getAccountFrom())) {
-            userOwnsAccount = true;
-            break;
-          }
-        }
-
-        if (!userOwnsAccount) {
-          return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
-      }
-
       try {
         return new ResponseEntity<>(
-            transactionService.createTransaction(transaction), HttpStatus.CREATED);
+            transactionService.createTransaction(transaction, user), HttpStatus.CREATED);
       } catch (Exception e) {
         // Handle exceptions
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -108,17 +90,15 @@ public class TransactionsApiController implements TransactionsApi {
       @Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema())
           @Valid
           @RequestBody
-          Deposit deposit)
-  {
+          Deposit deposit) {
 
     String accept = request.getHeader("Accept");
 
     if (accept != null && accept.contains("application/json")) {
-      try
-      {
-        return new ResponseEntity<Deposit>(transactionService.depositMoney(deposit), HttpStatus.CREATED);
-      } catch (Exception e)
-      {
+      try {
+        return new ResponseEntity<Deposit>(
+            transactionService.depositMoney(deposit), HttpStatus.CREATED);
+      } catch (Exception e) {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
       }
     }
@@ -235,7 +215,8 @@ public class TransactionsApiController implements TransactionsApi {
     String accept = request.getHeader("Accept");
     if (accept != null && accept.contains("application/json")) {
       try {
-        return new ResponseEntity<Withdrawal>(transactionService.withdrawMoney(withdrawal),HttpStatus.OK);
+        return new ResponseEntity<Withdrawal>(
+            transactionService.withdrawMoney(withdrawal), HttpStatus.OK);
       } catch (Exception e) {
         log.error("Couldn't serialize response for content type application/json", e);
         return new ResponseEntity<Withdrawal>(HttpStatus.BAD_REQUEST);

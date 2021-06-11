@@ -1,6 +1,5 @@
 package io.swagger.service;
 
-import io.swagger.api.ApiException;
 import io.swagger.model.*;
 import io.swagger.repo.TransactionRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,29 +15,30 @@ import java.util.UUID;
 @Service
 public class TransactionService {
 
-  private final TransactionRepo repo;
-
+  private final TransactionRepo transactionRepo;
   private final AccountService accountService;
+  private final UserService userService;
 
   @Autowired
   public TransactionService(
-      TransactionRepo repo, AccountService accountService) {
-    this.repo = repo;
+      TransactionRepo repo, AccountService accountService, UserService userService) {
+    this.transactionRepo = repo;
     this.accountService = accountService;
+    this.userService = userService;
   }
 
   public List<Transaction> getTransactions() {
     // validate user
 
-    return repo.findAll();
+    return transactionRepo.findAll();
   }
 
   public List<Transaction> getTransactionsPaginated(Integer offset, Integer max) {
-    return repo.findAll();
+    return transactionRepo.findAll();
   }
 
   public Transaction getTransactionById(UUID id) throws Exception {
-    Optional<?> transaction = repo.findById(id);
+    Optional<?> transaction = transactionRepo.findById(id);
 
     if (transaction.isPresent()) {
       return (Transaction) transaction.get();
@@ -51,17 +51,11 @@ public class TransactionService {
     throw new NotSupportedException();
   }
 
-  public RegularTransaction createTransaction(RegularTransaction transaction) {
-    // performTransaction(transaction);
-
-    return repo.save(transaction);
-  }
-
   // omar
   public List<Transaction> getTransactionsByIban(String Iban) throws Exception {
     List<Transaction> allTransactions = new ArrayList<Transaction>();
     List<Transaction> filteredList = new ArrayList<Transaction>();
-    allTransactions = (List<Transaction>) repo.findAll();
+    allTransactions = (List<Transaction>) transactionRepo.findAll();
     try {
       for (Transaction t : allTransactions) {
 
@@ -76,121 +70,113 @@ public class TransactionService {
     }
   }
 
-  public Deposit depositMoney(Deposit deposit) throws Exception {
-    // Check transaction limits
-
-    try{
-      accountService.addBalance(deposit.getAccountTo(), deposit.getAmount());
-      return repo.save(deposit);
-    }catch (Exception e){
-      throw new ApiException(400, "Bad Request");
+  public RegularTransaction createTransaction(RegularTransaction transaction, User user)
+      throws Exception {
+    if (LocalDateTime.now().minusMinutes(15).isBefore(transaction.getTransactionDate())) {
+      // Transaction is too old
+      throw new IllegalStateException(
+          String.format("Date %s is too old to be valid", transaction.getTransactionDate()));
     }
+
+    Account accountFrom, accountTo;
+    accountFrom = accountService.getAccountByIban(transaction.getAccountFrom());
+    accountTo = accountService.getAccountByIban(transaction.getAccountTo());
+
+    if (user.getRole().equals(Role.EMPLOYEE) || user.getAccounts().contains(accountFrom)) {
+
+      // User is transferring from their own account or is an employee
+
+      if (accountFrom.getUserId().equals(accountTo.getUserId())) {
+        return performRegularTransaction(transaction);
+
+      } else if (accountFrom.getAccountType().equals(Account.AccountTypeEnum.CURRENT)
+          && accountTo.getAccountType().equals(Account.AccountTypeEnum.CURRENT)) {
+        return performRegularTransaction(transaction);
+      } else {
+        throw new Exception("bad stuff");
+      }
+    }
+
+    throw new Exception("bad stuff");
   }
 
-  public Withdrawal withdrawMoney(Withdrawal withdrawal) throws Exception{
+  public Deposit depositMoney(Deposit deposit) throws Exception {
+    // Validate stuff
+
+    return performDeposit(deposit);
+  }
+
+  public Withdrawal withdrawMoney(Withdrawal withdrawal) throws Exception {
     // Validate balance
     // Check Transaction Limits Limits
 
-    try{
-      accountService.subtractBalance(withdrawal.getAccountFrom(), withdrawal.getAmount());
-      return repo.save(withdrawal);
-    }
-    catch (Exception e)
-    {
-      throw new ApiException(400, "Bad Request");
-    }
+    return performWithdrawal(withdrawal);
   }
 
   // omar
   public void deleteTransactionById(UUID id) throws Exception {
     try {
-      Transaction toDelete = repo.getOne(id);
+      Transaction toDelete = transactionRepo.getOne(id);
       System.out.println(toDelete);
-      repo.delete(toDelete);
+      transactionRepo.delete(toDelete);
     } catch (Exception e) {
       throw new Exception(e.getMessage());
     }
   }
 
+  /*
+   * Add a list of transactions. Used for test transactions
+   */
+
   public void AddTransactions(List<Transaction> transactionList) {
     try {
-      repo.saveAll(transactionList);
+      transactionRepo.saveAll(transactionList);
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
 
-  private boolean validAccountTypes(RegularTransaction t) throws Exception {
-    Account accountFrom, accountTo;
-    accountFrom = accountService.getAccountByIban(t.getAccountFrom());
-    accountTo = accountService.getAccountByIban(t.getAccountTo());
-
-    // If user is transferring between own accounts or directly to another Current Account
-    // transaction is valid
-
-    if (accountFrom.getAccountType().equals(Account.AccountTypeEnum.CURRENT)
-        && accountTo.getAccountType().equals(Account.AccountTypeEnum.CURRENT)) {
-      return true;
-    }
-    //    else if (accountFrom.getUser().equals(accountTo.getUser())) {
-    //      return true;
-    //    }
-    throw new Exception("Account types are not valid");
+  private Deposit performDeposit(Deposit deposit) {
+    // Assuming valid user
+    // Assuming validation done in account service
+    // Assuming deposit is a valid deposit
+    accountService.addBalance(deposit.getAccountTo(), deposit.getAmount());
+    return transactionRepo.save(deposit);
   }
 
-  private boolean validBalance(Transaction t) throws Exception {
-    //    if (accountService.getAccountBalanceByIban(t.getAccountFrom()) > t.getAmount()) {
-    //      return true;
-    //    } else {
-    //      throw new Exception("Not enough to make this transaction");
-    //    }
-    return true;
+  private Withdrawal performWithdrawal(Withdrawal withdrawal) {
+    // Assuming valid user
+    // Assuming validation done in account
+    // Assuming withdrawal is a valid withdrawal
+    accountService.subtractBalance(withdrawal.getAccountFrom(), withdrawal.getAmount());
+    return transactionRepo.save(withdrawal);
   }
 
-  private Transaction performTransaction(Transaction transaction) throws Exception {
-    if (LocalDateTime.now().minusMinutes(15).isBefore(transaction.getTransactionDate())) {
-      // Transaction is too old
-      throw new IllegalArgumentException(
-          String.format("Date %s is too old to be valid", transaction.getTransactionDate()));
-    }
+  private RegularTransaction performRegularTransaction(RegularTransaction transaction) {
+    // Assuming valid user
+    // Assuming validation done in account
+    // Assuming transaction is a valid transaction
 
-    validAccountTypes((RegularTransaction) transaction);
-    validBalance(transaction);
     boolean deductedFrom = false, addedTo = false;
 
     try {
-      /*
-       // Deduct from first
-       accountService.Remove(t.getAccountFrom(), transaction.getAmount());
-       deductedFrom = true;
-
-       // Add to second
-       accountService.Add(t.getAccountTo(), transaction.getAmount());
-       addedTo = true;
-       Write to database
-      */
-
-      //      accountService.updateTransactions(transaction.getAccountTo());
-      //      accountService.updateTransactions(transaction.getAccountFrom());
-
-      return repo.save(transaction);
-
+      deductedFrom =
+          accountService.subtractBalance(transaction.getAccountFrom(), transaction.getAmount());
+      addedTo = accountService.addBalance(transaction.getAccountTo(), transaction.getAmount());
+      return transactionRepo.save(transaction);
     } catch (Exception e) {
-      undoTransaction(transaction, deductedFrom, addedTo);
-      // throw new HttpServerErrorException.InternalServerError("There was an error performing the
-      // transaction");
-      e.printStackTrace();
-
-      return null;
+      undoRegularTransaction(transaction, deductedFrom, addedTo);
+      throw e;
     }
   }
 
-  private void undoTransaction(Transaction transaction, boolean deductedFrom, boolean addedTo) {
+  private void undoRegularTransaction(
+      RegularTransaction transaction, boolean deductedFrom, boolean addedTo) {
     if (deductedFrom) {
-      // accountService.Add(transaction.getAccountFrom(), transaction.getAmount());
+      accountService.addBalance(transaction.getAccountFrom(), transaction.getAmount());
     }
     if (addedTo) {
-      // accountService.RemoveFrom(transaction.getAccountTo(), transaction.getAmount());
+      accountService.subtractBalance(transaction.getAccountTo(), transaction.getAmount());
     }
   }
 }
