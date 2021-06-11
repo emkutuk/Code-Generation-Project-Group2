@@ -49,18 +49,36 @@ public class TransactionsApiController implements TransactionsApi {
           @Valid
           @RequestBody
           RegularTransaction body) {
+
     String accept = request.getHeader("Accept");
+    String tokenHeader = request.getHeader("bearerToken");
+
+    if(!tokenHeader.isEmpty())
+    {
+      // If not valid token
+      // return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+
+    }else{
+      log.info("Unauthorised");
+      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+
+
     if (accept != null && accept.contains("application/json")) {
+
       try {
-        return new ResponseEntity<RegularTransaction>(
-            objectMapper.readValue(
-                "{\n  \"accountTo\" : \"NL04INHO6818968668\",\n  \"accountFrom\" : \"NL01INHO0000579848\"\n}",
-                RegularTransaction.class),
-            HttpStatus.NOT_IMPLEMENTED);
-      } catch (IOException e) {
+
+        return new ResponseEntity<RegularTransaction>(HttpStatus.NOT_IMPLEMENTED);
+
+      } catch (Exception e) {
+
         log.error("Couldn't serialize response for content type application/json", e);
+
         return new ResponseEntity<RegularTransaction>(HttpStatus.INTERNAL_SERVER_ERROR);
+
       }
+
     }
 
     return new ResponseEntity<RegularTransaction>(HttpStatus.NOT_IMPLEMENTED);
@@ -92,27 +110,6 @@ public class TransactionsApiController implements TransactionsApi {
     }
 
     return new ResponseEntity<Deposit>(HttpStatus.NOT_IMPLEMENTED);
-  }
-
-  public ResponseEntity<RegularTransaction> editTransactionById(
-      @Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema())
-          @PathVariable("id")
-          String id,
-      @Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema())
-          @Valid
-          @RequestBody
-          RegularTransaction body) {
-    String accept = request.getHeader("Accept");
-    if (accept != null && accept.contains("application/json")) {
-      try {
-        return new ResponseEntity<RegularTransaction>(HttpStatus.NOT_IMPLEMENTED);
-      } catch (Exception e) {
-        log.error("Couldn't serialize response for content type application/json", e);
-        return new ResponseEntity<RegularTransaction>(HttpStatus.INTERNAL_SERVER_ERROR);
-      }
-    }
-
-    return new ResponseEntity<RegularTransaction>(HttpStatus.NOT_IMPLEMENTED);
   }
 
   public ResponseEntity<List<Transaction>> getTransactionByIBAN(

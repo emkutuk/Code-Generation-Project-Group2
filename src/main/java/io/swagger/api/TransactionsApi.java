@@ -93,32 +93,6 @@ public interface TransactionsApi {
           Deposit body);
 
   @Operation(
-      summary = "Edit a transaction",
-      description = "Edits the specified transaction, given the ID.",
-      security = {@SecurityRequirement(name = "bearerAuth")},
-      tags = {"Transaction"})
-  @ApiResponses(
-      value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "OK",
-            content = @Content(schema = @Schema(implementation = RegularTransaction.class)))
-      })
-  @RequestMapping(
-      value = "/Transactions/{id}",
-      produces = {"application/json"},
-      consumes = {"application/json"},
-      method = RequestMethod.PUT)
-  ResponseEntity<RegularTransaction> editTransactionById(
-      @Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema())
-          @PathVariable("id")
-          String id,
-      @Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema())
-          @Valid
-          @RequestBody
-          RegularTransaction body);
-
-  @Operation(
       summary = "Return a list of Transactions from IBAN.",
       description = "Return a list of transactions from the account with the specified IBAN.",
       security = {@SecurityRequirement(name = "bearerAuth")},
