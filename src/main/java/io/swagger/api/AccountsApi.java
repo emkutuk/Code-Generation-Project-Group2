@@ -54,7 +54,7 @@ public interface AccountsApi {
     @RequestMapping(value = "/Accounts/{iban}/Status/{status}",
         produces = { "application/json" }, 
         method = RequestMethod.POST)
-    ResponseEntity<Account> changeAccountStatus(@Size(max=34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required=true, schema=@Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.PATH, description = "Account status to be changed to.", required=true, schema=@Schema(allowableValues={ "active", "closed" }
+    ResponseEntity<Void> changeAccountStatus(@Size(max=34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required=true, schema=@Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.PATH, description = "Account status to be changed to.", required=true, schema=@Schema(allowableValues={ "active", "closed" }
 )) @PathVariable("status") String status);
 
 
@@ -74,7 +74,7 @@ public interface AccountsApi {
         @ApiResponse(responseCode = "200", description = "Balance of the account has been returned.") })
     @RequestMapping(value = "/Accounts/{iban}/Balance",
         method = RequestMethod.GET)
-    ResponseEntity<Void> getAccountBalanceByIban(@Size(max=34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required=true, schema=@Schema()) @PathVariable("iban") String iban);
+    ResponseEntity<Double> getAccountBalanceByIban(@Size(max=34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required=true, schema=@Schema()) @PathVariable("iban") String iban);
 
 
     @Operation(summary = "Gets an account by Iban.", description = "", security = {
@@ -93,7 +93,7 @@ public interface AccountsApi {
         @ApiResponse(responseCode = "200", description = "Paginated accounts have been returned") })
     @RequestMapping(value = "/Accounts",
         method = RequestMethod.GET)
-    ResponseEntity<Void> getAllAccounts(@Min(0)@Parameter(in = ParameterIn.QUERY, description = "The number of items to skip before starting to collect the result set." ,schema=@Schema(allowableValues={  }
+    ResponseEntity<List<Account>> getAllAccounts(@Min(0)@Parameter(in = ParameterIn.QUERY, description = "The number of items to skip before starting to collect the result set." ,schema=@Schema(allowableValues={  }
 )) @Valid @RequestParam(value = "offset", required = false) Integer offset, @Min(10) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The maximum number of items to return." ,schema=@Schema(allowableValues={  }, minimum="10", maximum="50"
 , defaultValue="10")) @Valid @RequestParam(value = "max", required = false, defaultValue="10") Integer max);
 
