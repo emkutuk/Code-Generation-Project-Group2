@@ -1,15 +1,14 @@
 package io.swagger.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.model.Deposit;
-import io.swagger.model.RegularTransaction;
-import io.swagger.model.Transaction;
-import io.swagger.model.Withdrawal;
+import io.swagger.model.*;
+import io.swagger.service.TransactionService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,6 +37,8 @@ public class TransactionsApiController implements TransactionsApi {
 
   private final HttpServletRequest request;
 
+  @Autowired TransactionService transactionService;
+
   @org.springframework.beans.factory.annotation.Autowired
   public TransactionsApiController(ObjectMapper objectMapper, HttpServletRequest request) {
     this.objectMapper = objectMapper;
@@ -48,40 +49,52 @@ public class TransactionsApiController implements TransactionsApi {
       @Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema())
           @Valid
           @RequestBody
-          RegularTransaction body) {
+          RegularTransaction transaction) {
 
     String accept = request.getHeader("Accept");
     String tokenHeader = request.getHeader("bearerToken");
 
-    if(!tokenHeader.isEmpty())
-    {
+    if (!tokenHeader.isEmpty()) {
       // If not valid token
       // return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 
-    }else{
+    } else {
       log.info("Unauthorised");
       return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-
+    User user = new User(); // Get User from token
+    // null check user
 
     if (accept != null && accept.contains("application/json")) {
 
-      try {
+      if (user.getRole().equals(Role.CUSTOMER))
+      {
+        // Check if the user owns the account
+        boolean userOwnsAccount = false;
 
-        return new ResponseEntity<RegularTransaction>(HttpStatus.NOT_IMPLEMENTED);
+        for (Account account : user.getAccounts()) {
+          if (account.getIban().equals(transaction.getAccountFrom())) {
+            userOwnsAccount = true;
+            break;
+          }
+        }
 
-      } catch (Exception e) {
-
-        log.error("Couldn't serialize response for content type application/json", e);
-
-        return new ResponseEntity<RegularTransaction>(HttpStatus.INTERNAL_SERVER_ERROR);
-
+        if(!userOwnsAccount){
+          return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
       }
 
+      try {
+        return new ResponseEntity<>(
+            transactionService.createTransaction(transaction), HttpStatus.CREATED);
+      } catch (Exception e) {
+        // Handle exceptions
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+      }
     }
 
-    return new ResponseEntity<RegularTransaction>(HttpStatus.NOT_IMPLEMENTED);
+    return new ResponseEntity<RegularTransaction>(HttpStatus.BAD_REQUEST);
   }
 
   public ResponseEntity<Void> deleteTransactionById(
