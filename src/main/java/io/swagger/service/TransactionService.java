@@ -74,7 +74,7 @@ public class TransactionService {
 
   public RegularTransaction createTransaction(RegularTransaction transaction, User user)
       throws Exception {
-    if (LocalDateTime.now().minusMinutes(15).isBefore(transaction.getTransactionDate())) {
+    if (LocalDateTime.now().minusMinutes(3).isAfter(transaction.getTransactionDate())) {
       // Transaction is too old
       log.info("Transaction is too old");
       throw new IllegalStateException(
@@ -91,8 +91,7 @@ public class TransactionService {
     }
 
     // If user is a customer and does not own the account from which the money is leaving
-    if (user.getRole().equals(Role.CUSTOMER) && !userFrom.getAccounts().contains(accountFrom))
-    {
+    if (user.getRole().equals(Role.CUSTOMER) && !userFrom.getAccounts().contains(accountFrom)) {
       log.info("User trying to make transaction from another users account");
       throw new IllegalArgumentException("user is not authorized to do this");
     }
@@ -102,6 +101,8 @@ public class TransactionService {
       log.info("User trying to make transaction to savings account of another user");
       throw new IllegalArgumentException("Cannot transfer to savings of another user");
     }
+    log.info("Checked role and account owner");
+
     return performRegularTransaction(transaction);
   }
 
@@ -161,6 +162,8 @@ public class TransactionService {
     // Assuming valid user
     // Assuming validation done in account
     // Assuming transaction is a valid transaction
+
+    log.info("Performing transaction");
 
     boolean deductedFrom = false, addedTo = false;
 

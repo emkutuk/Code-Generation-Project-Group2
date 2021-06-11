@@ -1,5 +1,7 @@
 package io.swagger.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -25,8 +27,8 @@ import java.util.UUID;
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 public abstract class Transaction{
   @Transient // Don't save to DB
-  @JsonProperty
-  private final DateTimeFormatter dateTimeFormatter =
+  @JsonIgnore
+  private static final DateTimeFormatter dateTimeFormatter =
       DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
   @Id
@@ -35,13 +37,13 @@ public abstract class Transaction{
   private UUID transactionId = null;
 
   @JsonProperty("transactionDate")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
   private LocalDateTime transactionDate = null;
 
   @JsonProperty("amount")
   private Double amount = null;
 
   @JsonProperty("performedBy")
-  // @OneToOne(targetEntity=User.class, mappedBy = "id")
   private UUID performedBy = null;
 
   public Transaction(Double amount, UUID performedBy, LocalDateTime transactionDate)
@@ -69,22 +71,14 @@ public abstract class Transaction{
    *
    * @return transactionDate
    */
-  @Schema(example = "2021/12/01 16:02:06", description = "Timestamp of the transaction.")
-  public String getTransactionDateAsString() {
-    return transactionDate.format(dateTimeFormatter);
-  }
 
+  @Schema(example = "2021-12-01 16:02:06", description = "Timestamp of the transaction.")
   public LocalDateTime getTransactionDate() {
     return this.transactionDate;
   }
 
   public void setTransactionDate(LocalDateTime date) {
     this.transactionDate = date;
-  }
-
-  public void setTransactionDate(String date) {
-    // yikes
-    this.transactionDate = LocalDateTime.parse(date);
   }
 
   /**
