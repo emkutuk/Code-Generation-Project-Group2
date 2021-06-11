@@ -2,6 +2,7 @@ package io.swagger.service;
 
 import io.swagger.model.*;
 import io.swagger.repo.TransactionRepo;
+import org.graalvm.compiler.nodes.FieldLocationIdentity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -78,26 +79,24 @@ public class TransactionService {
           String.format("Date %s is too old to be valid", transaction.getTransactionDate()));
     }
 
-    Account accountFrom, accountTo;
-    accountFrom = accountService.getAccountByIban(transaction.getAccountFrom());
-    accountTo = accountService.getAccountByIban(transaction.getAccountTo());
+    User userFrom = userService.getUserByIban(transaction.getAccountFrom());
+    Account accountFrom = accountService.getAccountByIban(transaction.getAccountFrom());
+    Account accountTo = accountService.getAccountByIban(transaction.getAccountTo());
 
-    if (user.getRole().equals(Role.EMPLOYEE) || user.getAccounts().contains(accountFrom)) {
-
-      // User is transferring from their own account or is an employee
-
-      if (accountFrom.getUserId().equals(accountTo.getUserId())) {
-        return performRegularTransaction(transaction);
-
-      } else if (accountFrom.getAccountType().equals(Account.AccountTypeEnum.CURRENT)
-          && accountTo.getAccountType().equals(Account.AccountTypeEnum.CURRENT)) {
-        return performRegularTransaction(transaction);
-      } else {
-        throw new Exception("bad stuff");
-      }
+    if(userFrom == null || accountFrom == null || accountTo == null){
+      throw new IllegalArgumentException("one of these doesn't exist");
     }
 
-    throw new Exception("bad stuff");
+    // If user is a customer and does not own the account from which the money is leaving
+    if (user.getRole().equals(Role.CUSTOMER) && !userFrom.getAccounts().contains(accountFrom)) {
+      throw new IllegalArgumentException("user is not authorized to do this");
+    }
+    // If user does not own the account to and it is a savings account
+    else if (!(userFrom.getAccounts().contains(accountTo))
+        && accountTo.getAccountType().equals(Account.AccountTypeEnum.SAVING)) {
+      throw new IllegalArgumentException("Cannot transfer to savings of another user");
+    }
+    return performRegularTransaction(transaction);
   }
 
   public Deposit depositMoney(Deposit deposit) throws Exception {
