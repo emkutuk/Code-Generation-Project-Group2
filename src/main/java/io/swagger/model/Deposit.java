@@ -2,6 +2,7 @@ package io.swagger.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.NoArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.Entity;
@@ -16,6 +17,7 @@ import java.util.UUID;
     value = "io.swagger.codegen.v3.generators.java.SpringCodegen",
     date = "2021-06-06T11:20:30.422Z[GMT]")
 @Entity
+@NoArgsConstructor
 public class Deposit extends Transaction {
   @JsonProperty("accountTo")
   private String accountTo = null;

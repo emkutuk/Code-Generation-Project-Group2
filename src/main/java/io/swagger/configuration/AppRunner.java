@@ -3,6 +3,7 @@ package io.swagger.configuration;
 import io.swagger.model.*;
 import io.swagger.service.AccountService;
 import io.swagger.service.TransactionService;
+import io.swagger.service.UserService;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -22,6 +23,8 @@ public class AppRunner implements ApplicationRunner {
   @Autowired AccountService accountService;
 
   @Autowired TransactionService transactionService;
+
+  @Autowired UserService userService;
 
   List<Account> accountList = new ArrayList<Account>();
   Random rnd = new Random();
@@ -43,8 +46,6 @@ public class AppRunner implements ApplicationRunner {
 
     for (Account a : accountList)
         accountService.addANewAccount(a);*/
-
-    System.out.println("The application has started successfully.");
     createTestTransactions();
   }
 
@@ -54,26 +55,26 @@ public class AppRunner implements ApplicationRunner {
     List<Transaction> transactionList = new ArrayList<Transaction>();
     Random rng = new Random();
 
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 10; i++) {
       transactionList.add(
           new RegularTransaction(
-              "NL04INHO6868186817" + rng.nextInt(5),
-              "NL01INHO0000579848" + rng.nextInt(5),
+              "NL04INHO6868186817" + rng.nextInt(3),
+              "NL01INHO0000579848" + rng.nextInt(3),
               Math.floor(rng.nextDouble() * 100),
               UUID.randomUUID()));
     }
 
     log.info("Creating test withdrawals and deposits");
-    for (int i = 0; i < 25; i++) {
+    for (int i = 0; i < 5; i++) {
       transactionList.add(
           new Deposit(
-              "NL04INHO6868186817" + rng.nextInt(5),
-              Math.floor(rng.nextDouble() * 100),
+              "NL04INHO6868186817" + rng.nextInt(3),
+              Math.floor(rng.nextDouble() * 1000),
               UUID.randomUUID()));
       transactionList.add(
           new Withdrawal(
-              "NL04INHO6868186817" + rng.nextInt(5),
-              Math.floor(rng.nextDouble() * 100),
+              "NL04INHO6868186817" + rng.nextInt(3),
+              Math.floor(rng.nextDouble() * 1000),
               UUID.randomUUID()));
     }
 
