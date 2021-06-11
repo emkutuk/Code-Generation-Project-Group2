@@ -49,15 +49,7 @@ public class AccountsApiController implements AccountsApi {
     }
 
     public ResponseEntity<Account> addANewAccount(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Account body) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<Account>(objectMapper.readValue("{\n  \"accountStatus\" : \"active\",\n  \"balance\" : 0.08008281904610115,\n  \"iban\" : \"NL03INHO0033576852\",\n  \"accountType\" : \"current\"\n}", Account.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<Account>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
+
 
         return new ResponseEntity<Account>(HttpStatus.NOT_IMPLEMENTED);
     }

@@ -33,6 +33,7 @@ public class AccountService
         }
     }
 
+    //TODO Authorization stuff here, I need to check user
     public List<Account> getAllAccounts() throws Exception
     {
         try
@@ -58,17 +59,27 @@ public class AccountService
         return null;
     }
 
-    //0= Success
-    //1 = Balance is not 0
-    //2 = NotFound
-    public int changeAccountStatus(String iban, String status)
+    // 0 Success
+    // 1 Account not found
+    public int changeAccountStatus(String iban, String status) throws Exception
     {
-        //Will be implemented later
-        return 99;
-    }
+        Account account = getAccountByIban(iban);
+        if (account == null)
+            return 1;
+        else
+            {
+                try
+                {
+                    account.setAccountStatus(Account.AccountStatusEnum.valueOf(status.toUpperCase(Locale.ROOT)));
+                    return 0;
+                } catch (Exception e)
+                {
+                    throw new Exception(e.getMessage());
+                }
+            }
+        }
 
-    public void updateAccountByIban(String iban, Account account) throws Exception
-    {
+        public void updateAccountByIban (String iban, Account account) throws Exception {
         List<Account> allAccounts = (List<Account>) accountRepo.findAll();
 
         //Checks all accounts by their iban
@@ -90,8 +101,7 @@ public class AccountService
         }
     }
 
-    public void changeAccountType(String iban, String typeEnum) throws Exception
-    {
+        public void changeAccountType (String iban, String typeEnum) throws Exception {
         List<Account> allAccounts = (List<Account>) accountRepo.findAll();
 
         //Checks all accounts by their iban
@@ -112,20 +122,19 @@ public class AccountService
         }
     }
 
-    public Double getAccountBalanceByIban(String iban)
-    {
-        List<Account> allAccounts = (List<Account>) accountRepo.findAll();
-
-        //Checks all accounts by their iban
-        for (Account a : allAccounts)
+        public Double getAccountBalanceByIban (String iban)
         {
-            if (a.getIban().equals(iban)) return a.getBalance();
-        }
-        return null;
-    }
+            List<Account> allAccounts = (List<Account>) accountRepo.findAll();
 
-    public boolean addBalance(String iban, double amount) throws Exception
-    {
+            //Checks all accounts by their iban
+            for (Account a : allAccounts)
+            {
+                if (a.getIban().equals(iban)) return a.getBalance();
+            }
+            return null;
+        }
+
+        public boolean addBalance (String iban,double amount) throws Exception {
         try
         {
             Account account = getAccountByIban(iban);
@@ -146,8 +155,7 @@ public class AccountService
         }
     }
 
-    public boolean subtractBalance(String iban, double amount) throws Exception
-    {
+        public boolean subtractBalance (String iban,double amount) throws Exception {
         try
         {
             Account account = getAccountByIban(iban);
@@ -168,8 +176,7 @@ public class AccountService
         }
     }
 
-    public String GenerateIban()
-    {
+        public String GenerateIban () {
         //Format : NLxxINHO0xxxxxxxxx
         // 2 digits - 9 digits
 
@@ -195,4 +202,4 @@ public class AccountService
         //Combine all iban together and return the value
         return "NL" + first2Digits + "INHO0" + last9Digits;
     }
-}
+    }
