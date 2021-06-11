@@ -68,8 +68,7 @@ public class TransactionsApiController implements TransactionsApi {
 
     if (accept != null && accept.contains("application/json")) {
 
-      if (user.getRole().equals(Role.CUSTOMER))
-      {
+      if (user.getRole().equals(Role.CUSTOMER)) {
         // Check if the user owns the account
         boolean userOwnsAccount = false;
 
@@ -80,7 +79,7 @@ public class TransactionsApiController implements TransactionsApi {
           }
         }
 
-        if(!userOwnsAccount){
+        if (!userOwnsAccount) {
           return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
       }
@@ -109,20 +108,22 @@ public class TransactionsApiController implements TransactionsApi {
       @Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema())
           @Valid
           @RequestBody
-          Deposit body) {
+          Deposit deposit)
+  {
+
     String accept = request.getHeader("Accept");
+
     if (accept != null && accept.contains("application/json")) {
-      try {
-        return new ResponseEntity<Deposit>(
-            objectMapper.readValue("{\n  \"accountTo\" : \"NL04INHO6818968668\"\n}", Deposit.class),
-            HttpStatus.NOT_IMPLEMENTED);
-      } catch (IOException e) {
-        log.error("Couldn't serialize response for content type application/json", e);
-        return new ResponseEntity<Deposit>(HttpStatus.INTERNAL_SERVER_ERROR);
+      try
+      {
+        return new ResponseEntity<Deposit>(transactionService.depositMoney(deposit), HttpStatus.CREATED);
+      } catch (Exception e)
+      {
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
       }
     }
 
-    return new ResponseEntity<Deposit>(HttpStatus.NOT_IMPLEMENTED);
+    return new ResponseEntity<Deposit>(HttpStatus.BAD_REQUEST);
   }
 
   public ResponseEntity<List<Transaction>> getTransactionByIBAN(
@@ -230,17 +231,17 @@ public class TransactionsApiController implements TransactionsApi {
       @Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema())
           @Valid
           @RequestBody
-          Withdrawal body) {
+          Withdrawal withdrawal) {
     String accept = request.getHeader("Accept");
     if (accept != null && accept.contains("application/json")) {
       try {
-        return new ResponseEntity<Withdrawal>(HttpStatus.NOT_IMPLEMENTED);
+        return new ResponseEntity<Withdrawal>(transactionService.withdrawMoney(withdrawal),HttpStatus.OK);
       } catch (Exception e) {
         log.error("Couldn't serialize response for content type application/json", e);
-        return new ResponseEntity<Withdrawal>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<Withdrawal>(HttpStatus.BAD_REQUEST);
       }
     }
 
-    return new ResponseEntity<Withdrawal>(HttpStatus.NOT_IMPLEMENTED);
+    return new ResponseEntity<Withdrawal>(HttpStatus.BAD_REQUEST);
   }
 }
