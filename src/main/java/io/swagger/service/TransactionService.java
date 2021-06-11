@@ -2,6 +2,7 @@ package io.swagger.service;
 
 import io.swagger.model.*;
 import io.swagger.repo.TransactionRepo;
+import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@Log
 public class TransactionService {
 
   private final TransactionRepo transactionRepo;
@@ -74,6 +76,7 @@ public class TransactionService {
       throws Exception {
     if (LocalDateTime.now().minusMinutes(15).isBefore(transaction.getTransactionDate())) {
       // Transaction is too old
+      log.info("Transaction is too old");
       throw new IllegalStateException(
           String.format("Date %s is too old to be valid", transaction.getTransactionDate()));
     }
@@ -83,16 +86,20 @@ public class TransactionService {
     Account accountTo = accountService.getAccountByIban(transaction.getAccountTo());
 
     if (userFrom == null || accountFrom == null || accountTo == null) {
+      log.info("User or account doesn't exist");
       throw new IllegalArgumentException("one of these doesn't exist");
     }
 
     // If user is a customer and does not own the account from which the money is leaving
-    if (user.getRole().equals(Role.CUSTOMER) && !userFrom.getAccounts().contains(accountFrom)) {
+    if (user.getRole().equals(Role.CUSTOMER) && !userFrom.getAccounts().contains(accountFrom))
+    {
+      log.info("User trying to make transaction from another users account");
       throw new IllegalArgumentException("user is not authorized to do this");
     }
     // If user does not own the account to and it is a savings account
     else if (!(userFrom.getAccounts().contains(accountTo))
         && accountTo.getAccountType().equals(Account.AccountTypeEnum.SAVING)) {
+      log.info("User trying to make transaction to savings account of another user");
       throw new IllegalArgumentException("Cannot transfer to savings of another user");
     }
     return performRegularTransaction(transaction);

@@ -55,6 +55,7 @@ public class UsersApiController implements UsersApi {
 
     if (accept != null && accept.contains("application/json")) {
       try {
+        log.info("Trying to create user");
         return new ResponseEntity<User>(userService.createUser(user), HttpStatus.CREATED);
       } catch (Exception e) {
         e.printStackTrace();
@@ -72,6 +73,7 @@ public class UsersApiController implements UsersApi {
     String accept = request.getHeader("Accept");
 
     // Validate user
+    log.info("Change user status to disabled");
     userService.deleteUserById(UUID.fromString(id));
     return new ResponseEntity<Void>(HttpStatus.OK);
   }
@@ -102,9 +104,11 @@ public class UsersApiController implements UsersApi {
           Integer max) {
     String accept = request.getHeader("Accept");
     // Validate user
+    // Employee Only
 
     if (accept != null && accept.contains("application/json")) {
       try {
+        log.info("Returning all users");
         return new ResponseEntity<List<User>>(userService.getAllUsers(), HttpStatus.OK);
       } catch (Exception e) {
         // return new ResponseEntity<List<User>>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -121,6 +125,7 @@ public class UsersApiController implements UsersApi {
     String accept = request.getHeader("Accept");
     if (accept != null && accept.contains("application/json")) {
       try {
+        log.info("Getting user by ID");
         return new ResponseEntity<User>(userService.getUserById(UUID.fromString(id)), HttpStatus.OK);
       } catch (Exception e) {
         //return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -159,6 +164,7 @@ public class UsersApiController implements UsersApi {
 
     if (accept != null && accept.contains("application/json")) {
       try {
+        log.info("Updating a user");
         return new ResponseEntity<User>(userService.updateUser(user) , HttpStatus.NOT_IMPLEMENTED);
       } catch (Exception e) {
         // return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);

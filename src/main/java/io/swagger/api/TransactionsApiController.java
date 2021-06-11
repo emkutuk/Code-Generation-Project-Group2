@@ -57,6 +57,8 @@ public class TransactionsApiController implements TransactionsApi {
       log.info("Unauthorised");
       return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     } else {
+
+      log.info("Would be checking for if token is valid");
       // If not valid token
       // return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
@@ -95,6 +97,7 @@ public class TransactionsApiController implements TransactionsApi {
 
     if (accept != null && accept.contains("application/json")) {
       try {
+        log.info("Trying to save deposit");
         return new ResponseEntity<Deposit>(
             transactionService.depositMoney(deposit), HttpStatus.CREATED);
       } catch (Exception e) {
@@ -214,6 +217,7 @@ public class TransactionsApiController implements TransactionsApi {
     String accept = request.getHeader("Accept");
     if (accept != null && accept.contains("application/json")) {
       try {
+        log.info("Trying to save withdrawal");
         return new ResponseEntity<Withdrawal>(
             transactionService.withdrawMoney(withdrawal), HttpStatus.OK);
       } catch (Exception e) {
