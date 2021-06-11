@@ -1,5 +1,6 @@
 package io.swagger.service;
 
+import io.swagger.model.AccountStatus;
 import io.swagger.model.User;
 import io.swagger.repo.UserRepo;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,15 @@ public class UserService {
 
   public User createUser(User user) {
     return userRepo.save(user);
+  }
+
+  // Sets account to inactive
+  @Transient
+  public User deleteUserById(UUID id)
+  {
+    User userToDelete = userRepo.getOne(id);
+    userToDelete.setAccountStatus(AccountStatus.DISABLED);
+    return userRepo.save(userToDelete);
   }
 
   @Transient

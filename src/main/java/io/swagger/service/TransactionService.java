@@ -2,7 +2,6 @@ package io.swagger.service;
 
 import io.swagger.model.*;
 import io.swagger.repo.TransactionRepo;
-import org.graalvm.compiler.nodes.FieldLocationIdentity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -83,7 +82,7 @@ public class TransactionService {
     Account accountFrom = accountService.getAccountByIban(transaction.getAccountFrom());
     Account accountTo = accountService.getAccountByIban(transaction.getAccountTo());
 
-    if(userFrom == null || accountFrom == null || accountTo == null){
+    if (userFrom == null || accountFrom == null || accountTo == null) {
       throw new IllegalArgumentException("one of these doesn't exist");
     }
 

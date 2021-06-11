@@ -53,13 +53,12 @@ public class TransactionsApiController implements TransactionsApi {
     String accept = request.getHeader("Accept");
     String tokenHeader = request.getHeader("bearerToken");
 
-    if (!tokenHeader.isEmpty()) {
-      // If not valid token
-      // return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-
-    } else {
+    if (tokenHeader.isEmpty()) {
       log.info("Unauthorised");
       return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    } else {
+      // If not valid token
+      // return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
     User user = new User(); // Get User from token

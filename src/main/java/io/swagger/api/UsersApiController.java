@@ -4,11 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.model.BearerTokenDto;
 import io.swagger.model.LoginDto;
 import io.swagger.model.User;
+import io.swagger.security.TokenAuthenticate;
+import io.swagger.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +24,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.List;
+import java.util.UUID;
 
 @javax.annotation.Generated(
     value = "io.swagger.codegen.v3.generators.java.SpringCodegen",
@@ -31,8 +35,8 @@ public class UsersApiController implements UsersApi {
   private static final Logger log = LoggerFactory.getLogger(UsersApiController.class);
 
   private final ObjectMapper objectMapper;
-
   private final HttpServletRequest request;
+  @Autowired private UserService userService;
 
   @org.springframework.beans.factory.annotation.Autowired
   public UsersApiController(ObjectMapper objectMapper, HttpServletRequest request) {
@@ -46,16 +50,19 @@ public class UsersApiController implements UsersApi {
           @RequestBody
           User user) {
     String accept = request.getHeader("Accept");
+
+    // Validate user
+
     if (accept != null && accept.contains("application/json")) {
       try {
-        return new ResponseEntity<User>(HttpStatus.NOT_IMPLEMENTED);
+        return new ResponseEntity<User>(userService.createUser(user), HttpStatus.CREATED);
       } catch (Exception e) {
-        log.error("Couldn't serialize response for content type application/json", e);
-        return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
+        e.printStackTrace();
+        // return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
 
-    return new ResponseEntity<User>(HttpStatus.NOT_IMPLEMENTED);
+    return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
   }
 
   public ResponseEntity<Void> deleteUserById(
@@ -63,7 +70,10 @@ public class UsersApiController implements UsersApi {
           @PathVariable("id")
           String id) {
     String accept = request.getHeader("Accept");
-    return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+
+    // Validate user
+    userService.deleteUserById(UUID.fromString(id));
+    return new ResponseEntity<Void>(HttpStatus.OK);
   }
 
   public ResponseEntity<List<User>> getAllUsers(
@@ -91,16 +101,17 @@ public class UsersApiController implements UsersApi {
           @RequestParam(value = "max", required = false, defaultValue = "10")
           Integer max) {
     String accept = request.getHeader("Accept");
+    // Validate user
+
     if (accept != null && accept.contains("application/json")) {
       try {
-        return new ResponseEntity<List<User>>(HttpStatus.NOT_IMPLEMENTED);
+        return new ResponseEntity<List<User>>(userService.getAllUsers(), HttpStatus.OK);
       } catch (Exception e) {
-        log.error("Couldn't serialize response for content type application/json", e);
-        return new ResponseEntity<List<User>>(HttpStatus.INTERNAL_SERVER_ERROR);
+        // return new ResponseEntity<List<User>>(HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
 
-    return new ResponseEntity<List<User>>(HttpStatus.NOT_IMPLEMENTED);
+    return new ResponseEntity<List<User>>(HttpStatus.BAD_REQUEST);
   }
 
   public ResponseEntity<User> getUserById(
@@ -110,30 +121,30 @@ public class UsersApiController implements UsersApi {
     String accept = request.getHeader("Accept");
     if (accept != null && accept.contains("application/json")) {
       try {
-        return new ResponseEntity<User>(HttpStatus.NOT_IMPLEMENTED);
+        return new ResponseEntity<User>(userService.getUserById(UUID.fromString(id)), HttpStatus.OK);
       } catch (Exception e) {
-        log.error("Couldn't serialize response for content type application/json", e);
-        return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
+        //return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
 
-    return new ResponseEntity<User>(HttpStatus.NOT_IMPLEMENTED);
+    return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
   }
 
   public ResponseEntity<BearerTokenDto> loginUser(
       @Parameter(in = ParameterIn.DEFAULT, description = "", schema = @Schema()) @Valid @RequestBody
           LoginDto loginDto) {
     String accept = request.getHeader("Accept");
+
     if (accept != null && accept.contains("application/json")) {
       try {
-        return new ResponseEntity<BearerTokenDto>(HttpStatus.NOT_IMPLEMENTED);
-      } catch (Exception e) {
-        log.error("Couldn't serialize response for content type application/json", e);
-        return new ResponseEntity<BearerTokenDto>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<BearerTokenDto>(TokenAuthenticate.getToken(loginDto), HttpStatus.OK);
+      } catch (Exception e)
+      {
+        // return new ResponseEntity<BearerTokenDto>(HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
 
-    return new ResponseEntity<BearerTokenDto>(HttpStatus.NOT_IMPLEMENTED);
+    return new ResponseEntity<BearerTokenDto>(HttpStatus.BAD_REQUEST);
   }
 
   public ResponseEntity<User> updateUserById(
@@ -141,17 +152,19 @@ public class UsersApiController implements UsersApi {
           @PathVariable("id")
           String id,
       @Parameter(in = ParameterIn.DEFAULT, description = "", schema = @Schema()) @Valid @RequestBody
-          User body) {
+          User user) {
+
     String accept = request.getHeader("Accept");
+    // Validate User
+
     if (accept != null && accept.contains("application/json")) {
       try {
-        return new ResponseEntity<User>(HttpStatus.NOT_IMPLEMENTED);
+        return new ResponseEntity<User>(userService.updateUser(user) , HttpStatus.NOT_IMPLEMENTED);
       } catch (Exception e) {
-        log.error("Couldn't serialize response for content type application/json", e);
-        return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
+        // return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
 
-    return new ResponseEntity<User>(HttpStatus.NOT_IMPLEMENTED);
+    return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
   }
 }
