@@ -29,19 +29,18 @@ public class TransactionService {
     this.userService = userService;
   }
 
+  //omar
   public List<Transaction> getTransactions() {
     // validate user
 
     return transactionRepo.findAll();
   }
 
-  public List<Transaction> getTransactionsPaginated(Integer offset, Integer max) {
-    return transactionRepo.findAll();
-  }
-
+  //omar
   public Transaction getTransactionById(UUID id) throws Exception {
-    Optional<?> transaction = transactionRepo.findById(id);
+    //validate user
 
+    Optional<?> transaction = transactionRepo.findById(id);
     if (transaction.isPresent()) {
       return (Transaction) transaction.get();
     } else {
@@ -49,27 +48,51 @@ public class TransactionService {
     }
   }
 
-  public List<Transaction> getTransactionsByUserId() throws NotSupportedException {
-    throw new NotSupportedException();
+  //omar
+  public List<Transaction> getTransactionsByUserId(UUID id) throws Exception {
+    //validate user
+    try{
+      User user = userService.getUserById(id);
+      List<Transaction> allTransactions = new ArrayList<Transaction>();
+      List<Account> userAccounts = user.getAccounts();
+      for (Account a : userAccounts){
+        List<Transaction> accountTransactions = a.getTransactions();
+        if(!accountTransactions.isEmpty()){
+          allTransactions.addAll(accountTransactions);
+        }
+      }
+      return allTransactions;
+    }
+    catch (Exception e){
+      throw new Exception("Invalid User ID or no transactions found");
+    }
   }
 
   // omar
   public List<Transaction> getTransactionsByIban(String Iban) throws Exception {
-    List<Transaction> allTransactions = new ArrayList<Transaction>();
-    List<Transaction> filteredList = new ArrayList<Transaction>();
-    allTransactions = (List<Transaction>) transactionRepo.findAll();
-    try {
-      for (Transaction t : allTransactions) {
-
-        // Fix
-        //        if (t.getAccountFrom().equals(Iban)) {
-        //          filteredList.add(t);
-        //        }
-      }
-      return filteredList;
+    //validate user
+    try{
+      Account account= accountService.getAccountByIban(Iban);
+      return account.getTransactions();
     } catch (Exception e) {
-      throw new Exception(e.getMessage());
+      throw new Exception("Transaction not found");
     }
+  }
+
+  // omar
+  public void deleteTransactionById(UUID id) throws Exception {
+    //validate user
+    try {
+      Transaction toDelete = transactionRepo.getOne(id);
+      System.out.println(toDelete);
+      transactionRepo.delete(toDelete);
+    } catch (Exception e) {
+      throw new Exception("Unable to delete transaction");
+    }
+  }
+
+  public List<Transaction> getTransactionsPaginated(Integer offset, Integer max) {
+    return transactionRepo.findAll();
   }
 
   public RegularTransaction createTransaction(RegularTransaction transaction, User user)
@@ -117,17 +140,6 @@ public class TransactionService {
     // Check Transaction Limits Limits
 
     return performWithdrawal(withdrawal);
-  }
-
-  // omar
-  public void deleteTransactionById(UUID id) throws Exception {
-    try {
-      Transaction toDelete = transactionRepo.getOne(id);
-      System.out.println(toDelete);
-      transactionRepo.delete(toDelete);
-    } catch (Exception e) {
-      throw new Exception(e.getMessage());
-    }
   }
 
   /*
