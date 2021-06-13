@@ -32,14 +32,12 @@ public class TransactionService {
   //omar
   public List<Transaction> getTransactions() {
     // validate user
-
     return transactionRepo.findAll();
   }
 
   //omar
   public Transaction getTransactionById(UUID id) throws Exception {
     //validate user
-
     Optional<?> transaction = transactionRepo.findById(id);
     if (transaction.isPresent()) {
       return (Transaction) transaction.get();
@@ -54,9 +52,11 @@ public class TransactionService {
     try{
       User user = userService.getUserById(id);
       List<Transaction> allTransactions = new ArrayList<Transaction>();
+      List<Transaction> accountTransactions;
       List<Account> userAccounts = user.getAccounts();
+
       for (Account a : userAccounts){
-        List<Transaction> accountTransactions = a.getTransactions();
+         accountTransactions = a.getTransactions();
         if(!accountTransactions.isEmpty()){
           allTransactions.addAll(accountTransactions);
         }
@@ -80,13 +80,14 @@ public class TransactionService {
   }
 
   // omar
-  public void deleteTransactionById(UUID id) throws Exception {
+  public void deleteTransactionById(String id) throws Exception {
     //validate user
     try {
-      Transaction toDelete = transactionRepo.getOne(id);
-      System.out.println(toDelete);
+      Transaction toDelete = transactionRepo.getOne(UUID.fromString(id));
+      System.out.println(toDelete.toString());
       transactionRepo.delete(toDelete);
     } catch (Exception e) {
+      System.out.println("Something went wrong");
       throw new Exception("Unable to delete transaction");
     }
   }
