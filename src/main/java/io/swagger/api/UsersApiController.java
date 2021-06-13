@@ -1,130 +1,178 @@
 package io.swagger.api;
 
-import io.swagger.model.Body;
-import io.swagger.model.InlineResponse200;
-import io.swagger.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.model.BearerTokenDto;
+import io.swagger.model.LoginDto;
+import io.swagger.model.User;
+import io.swagger.security.TokenAuthenticate;
+import io.swagger.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.constraints.*;
-import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-06T11:20:30.422Z[GMT]")
+@javax.annotation.Generated(
+    value = "io.swagger.codegen.v3.generators.java.SpringCodegen",
+    date = "2021-06-06T11:20:30.422Z[GMT]")
 @RestController
 public class UsersApiController implements UsersApi {
 
-    private static final Logger log = LoggerFactory.getLogger(UsersApiController.class);
+  private static final Logger log = LoggerFactory.getLogger(UsersApiController.class);
 
-    private final ObjectMapper objectMapper;
+  private final ObjectMapper objectMapper;
+  private final HttpServletRequest request;
 
-    private final HttpServletRequest request;
+  @Autowired
+  private UserService userService;
 
-    @org.springframework.beans.factory.annotation.Autowired
-    public UsersApiController(ObjectMapper objectMapper, HttpServletRequest request) {
-        this.objectMapper = objectMapper;
-        this.request = request;
+  @org.springframework.beans.factory.annotation.Autowired
+  public UsersApiController(ObjectMapper objectMapper, HttpServletRequest request) {
+    this.objectMapper = objectMapper;
+    this.request = request;
+  }
+
+  public ResponseEntity<User> createUser(
+      @Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema())
+          @Valid
+          @RequestBody
+          User user) {
+    String accept = request.getHeader("Accept");
+
+    // Validate user
+
+    if (accept != null && accept.contains("application/json")) {
+      try {
+        log.info("Trying to create user");
+        return new ResponseEntity<User>(userService.createUser(user), HttpStatus.CREATED);
+      } catch (Exception e) {
+        e.printStackTrace();
+        // return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
+      }
     }
 
-    public ResponseEntity<User> createUser(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody User body) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<User>(objectMapper.readValue("{\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}", User.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
+    return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
+  }
 
-        return new ResponseEntity<User>(HttpStatus.NOT_IMPLEMENTED);
+  public ResponseEntity<Void> deleteUserById(
+      @Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema())
+          @PathVariable("id")
+          String id) {
+    String accept = request.getHeader("Accept");
+
+    // Validate user
+    log.info("Change user status to disabled");
+    userService.deleteUserById(UUID.fromString(id));
+    return new ResponseEntity<Void>(HttpStatus.OK);
+  }
+
+  public ResponseEntity<List<User>> getAllUsers(
+      @Min(0)
+          @Parameter(
+              in = ParameterIn.QUERY,
+              description =
+                  "The number of items to skip before starting to collect the result set.",
+              schema = @Schema(allowableValues = {}))
+          @Valid
+          @RequestParam(value = "offset", required = false)
+          Integer offset,
+      @Min(10)
+          @Max(50)
+          @Parameter(
+              in = ParameterIn.QUERY,
+              description = "The maximum number of items to return.",
+              schema =
+                  @Schema(
+                      allowableValues = {},
+                      minimum = "10",
+                      maximum = "50",
+                      defaultValue = "10"))
+          @Valid
+          @RequestParam(value = "max", required = false, defaultValue = "10")
+          Integer max) {
+    String accept = request.getHeader("Accept");
+    // Validate user
+    // Employee Only
+
+    if (accept != null && accept.contains("application/json")) {
+      try {
+        log.info("Returning all users");
+        return new ResponseEntity<List<User>>(userService.getAllUsers(), HttpStatus.OK);
+      } catch (Exception e) {
+        // return new ResponseEntity<List<User>>(HttpStatus.INTERNAL_SERVER_ERROR);
+      }
     }
 
-    public ResponseEntity<Void> deleteUserById(@Parameter(in = ParameterIn.PATH, description = "", required=true, schema=@Schema()) @PathVariable("id") String id) {
-        String accept = request.getHeader("Accept");
-        return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+    return new ResponseEntity<List<User>>(HttpStatus.BAD_REQUEST);
+  }
+
+  public ResponseEntity<User> getUserById(
+      @Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema())
+          @PathVariable("id")
+          String id) {
+    String accept = request.getHeader("Accept");
+    if (accept != null && accept.contains("application/json")) {
+      try {
+        log.info("Getting user by ID");
+        return new ResponseEntity<User>(userService.getUserById(UUID.fromString(id)), HttpStatus.OK);
+      } catch (Exception e) {
+        //return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
+      }
     }
 
-    public ResponseEntity<List<User>> getAllUsers(@Min(0)@Parameter(in = ParameterIn.QUERY, description = "The number of items to skip before starting to collect the result set." ,schema=@Schema(allowableValues={  }
-)) @Valid @RequestParam(value = "offset", required = false) Integer offset,@Min(10) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The maximum number of items to return." ,schema=@Schema(allowableValues={  }, minimum="10", maximum="50"
-, defaultValue="10")) @Valid @RequestParam(value = "max", required = false, defaultValue="10") Integer max) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<List<User>>(objectMapper.readValue("[ {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}, {\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n} ]", List.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<List<User>>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
+    return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
+  }
 
-        return new ResponseEntity<List<User>>(HttpStatus.NOT_IMPLEMENTED);
+  public ResponseEntity<BearerTokenDto> loginUser(
+      @Parameter(in = ParameterIn.DEFAULT, description = "", schema = @Schema()) @Valid @RequestBody
+          LoginDto loginDto) {
+    String accept = request.getHeader("Accept");
+
+    if (accept != null && accept.contains("application/json")) {
+      try {
+        return new ResponseEntity<BearerTokenDto>(TokenAuthenticate.getToken(loginDto), HttpStatus.OK);
+      } catch (Exception e)
+      {
+        // return new ResponseEntity<BearerTokenDto>(HttpStatus.INTERNAL_SERVER_ERROR);
+      }
     }
 
-    public ResponseEntity<User> getUserById(@Parameter(in = ParameterIn.PATH, description = "", required=true, schema=@Schema()) @PathVariable("id") String id) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<User>(objectMapper.readValue("{\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}", User.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
+    return new ResponseEntity<BearerTokenDto>(HttpStatus.BAD_REQUEST);
+  }
 
-        return new ResponseEntity<User>(HttpStatus.NOT_IMPLEMENTED);
+  public ResponseEntity<User> updateUserById(
+      @Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema())
+          @PathVariable("id")
+          String id,
+      @Parameter(in = ParameterIn.DEFAULT, description = "", schema = @Schema()) @Valid @RequestBody
+          User user) {
+
+    String accept = request.getHeader("Accept");
+    // Validate User
+
+    if (accept != null && accept.contains("application/json")) {
+      try {
+        log.info("Updating a user");
+        return new ResponseEntity<User>(userService.updateUser(user) , HttpStatus.NOT_IMPLEMENTED);
+      } catch (Exception e) {
+        // return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
+      }
     }
 
-    public ResponseEntity<InlineResponse200> loginUser(@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody Body body) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<InlineResponse200>(objectMapper.readValue("{\n  \"bearerToken\" : \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dnZWRJbkFzIjoiYWRtaW4iLCJpYXQiOjE0MjI3Nzk2Mzh9.gzSraSYS8EXBxLN_oWnFSRgCzcmJmMjLiuyu5CSpyHI\"\n}", InlineResponse200.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<InlineResponse200>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
-
-        return new ResponseEntity<InlineResponse200>(HttpStatus.NOT_IMPLEMENTED);
-    }
-
-    public ResponseEntity<User> updateUserById(@Parameter(in = ParameterIn.PATH, description = "", required=true, schema=@Schema()) @PathVariable("id") String id,@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody User body) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<User>(objectMapper.readValue("{\n  \"accountStatus\" : \"active\",\n  \"firstName\" : \"Rob\",\n  \"lastName\" : \"Banks\",\n  \"password\" : \"GetMyP@ss1\",\n  \"phoneNumber\" : \"321123527\",\n  \"role\" : \"customer\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"accounts\" : [ {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576852\",\n    \"accountType\" : \"current\",\n    \"balance\" : 320\n  }, {\n    \"id\" : 3,\n    \"iban\" : \"NL03INHO0033576883\",\n    \"accountType\" : \"savings\",\n    \"balance\" : 800\n  } ],\n  \"email\" : \"rbanks@gmail.com\"\n}", User.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
-
-        return new ResponseEntity<User>(HttpStatus.NOT_IMPLEMENTED);
-    }
-
+    return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
+  }
 }
