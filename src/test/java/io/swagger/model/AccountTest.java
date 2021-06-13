@@ -17,9 +17,7 @@ public class AccountTest
         account = new Account("testIban", Account.AccountTypeEnum.SAVING, 400.0);
     }
 
-    //TODO DisplayNames
     @Test
-    @DisplayName("")
     public void testGetIban()
     {
         assertEquals("testIban", account.getIban());
