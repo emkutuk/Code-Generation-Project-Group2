@@ -1,25 +1,31 @@
 package io.swagger.model;
 
-import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.swagger.model.BasicTransaction;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.UUID;
+import lombok.NoArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
 
-/**
- * Deposit
- */
+import javax.persistence.Entity;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.UUID;
+
+/** Deposit */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-06T11:20:30.422Z[GMT]")
-
-
-public class Deposit extends BasicTransaction implements AnyOfinlineResponse2001 {
+@javax.annotation.Generated(
+    value = "io.swagger.codegen.v3.generators.java.SpringCodegen",
+    date = "2021-06-06T11:20:30.422Z[GMT]")
+@Entity
+@NoArgsConstructor
+public class Deposit extends Transaction {
   @JsonProperty("accountTo")
   private String accountTo = null;
+
+  public Deposit(String accountTo, Double amount, UUID performedBy) {
+    super(amount, performedBy, LocalDateTime.now());
+    this.accountTo = accountTo;
+  }
 
   public Deposit accountTo(String accountTo) {
     this.accountTo = accountTo;
@@ -28,19 +34,21 @@ public class Deposit extends BasicTransaction implements AnyOfinlineResponse2001
 
   /**
    * IBAN of the account receiving the money.
+   *
    * @return accountTo
-   **/
-  @Schema(example = "NL04INHO6818968668", required = true, description = "IBAN of the account receiving the money.")
-      @NotNull
-
-    public String getAccountTo() {
+   */
+  @Schema(
+      example = "NL04INHO6818968668",
+      required = true,
+      description = "IBAN of the account receiving the money.")
+  @NotNull
+  public String getAccountTo() {
     return accountTo;
   }
 
   public void setAccountTo(String accountTo) {
     this.accountTo = accountTo;
   }
-
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -51,8 +59,7 @@ public class Deposit extends BasicTransaction implements AnyOfinlineResponse2001
       return false;
     }
     Deposit deposit = (Deposit) o;
-    return Objects.equals(this.accountTo, deposit.accountTo) &&
-        super.equals(o);
+    return Objects.equals(this.accountTo, deposit.accountTo) && super.equals(o);
   }
 
   @Override
@@ -71,8 +78,7 @@ public class Deposit extends BasicTransaction implements AnyOfinlineResponse2001
   }
 
   /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
+   * Convert the given object to string with each line indented by 4 spaces (except the first line).
    */
   private String toIndentedString(java.lang.Object o) {
     if (o == null) {
