@@ -1,6 +1,8 @@
 package io.swagger.service;
 
 import io.swagger.model.Account;
+import io.swagger.model.AccountStatus;
+import io.swagger.model.AccountType;
 import io.swagger.repo.AccountRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,7 +16,7 @@ import static java.lang.Integer.parseInt;
 public class AccountService
 {
     @Autowired
-    AccountRepo accountRepo;
+    private AccountRepo accountRepo;
 
     public void addANewAccount(Account account) throws Exception
     {
@@ -46,15 +48,12 @@ public class AccountService
 
     public Account getAccountByIban(String iban)
     {
-        List<Account> allAccounts = (List<Account>) accountRepo.findAll();
-
-        //Checks all accounts by their iban
-        for (Account a : allAccounts)
-        {
-            if (a.getIban().equals(iban)) return a;
-        }
-        //If there are no accounts, it returns null
-        return null;
+        Account account = accountRepo.findByIban(iban);
+        if (account != null)
+            return account;
+            //If there are no accounts, it returns null
+        else
+            return null;
     }
 
     // 0 Success
@@ -68,7 +67,7 @@ public class AccountService
             {
                 try
                 {
-                    account.setAccountStatus(Account.AccountStatusEnum.valueOf(status.toUpperCase(Locale.ROOT)));
+                    account.setAccountStatus(AccountStatus.valueOf(status.toUpperCase(Locale.ROOT)));
                     return 0;
                 } catch (Exception e)
                 {
@@ -110,7 +109,7 @@ public class AccountService
                 try
                 {
                     accountRepo.delete(a);
-                    a.setAccountType(Account.AccountTypeEnum.valueOf(typeEnum.toUpperCase(Locale.ROOT)));
+                    a.setAccountType(AccountType.valueOf(typeEnum.toUpperCase(Locale.ROOT)));
                     accountRepo.save(a);
                 } catch (Exception e)
                 {

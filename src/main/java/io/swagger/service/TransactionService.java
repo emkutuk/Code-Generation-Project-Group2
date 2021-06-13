@@ -17,17 +17,15 @@ import java.util.UUID;
 @Log
 public class TransactionService {
 
-  private final TransactionRepo transactionRepo;
-  private final AccountService accountService;
-  private final UserService userService;
+  @Autowired
+  private TransactionRepo transactionRepo;
 
   @Autowired
-  public TransactionService(
-      TransactionRepo repo, AccountService accountService, UserService userService) {
-    this.transactionRepo = repo;
-    this.accountService = accountService;
-    this.userService = userService;
-  }
+  private AccountService accountService;
+
+  @Autowired
+  private UserService userService;
+
 
   public List<Transaction> getTransactions() {
     // validate user
@@ -97,7 +95,7 @@ public class TransactionService {
     }
     // If user does not own the account to and it is a savings account
     else if (!(userFrom.getAccounts().contains(accountTo))
-        && accountTo.getAccountType().equals(Account.AccountTypeEnum.SAVING)) {
+        && accountTo.getAccountType().equals(AccountType.SAVING)) {
       log.info("User trying to make transaction to savings account of another user");
       throw new IllegalArgumentException("Cannot transfer to savings of another user");
     }
@@ -142,7 +140,8 @@ public class TransactionService {
     }
   }
 
-  private Deposit performDeposit(Deposit deposit) {
+  private Deposit performDeposit(Deposit deposit) throws Exception
+  {
     // Assuming valid user
     // Assuming validation done in account service
     // Assuming deposit is a valid deposit
@@ -150,7 +149,8 @@ public class TransactionService {
     return transactionRepo.save(deposit);
   }
 
-  private Withdrawal performWithdrawal(Withdrawal withdrawal) {
+  private Withdrawal performWithdrawal(Withdrawal withdrawal) throws Exception
+  {
     // Assuming valid user
     // Assuming validation done in account
     // Assuming withdrawal is a valid withdrawal
@@ -158,7 +158,8 @@ public class TransactionService {
     return transactionRepo.save(withdrawal);
   }
 
-  private RegularTransaction performRegularTransaction(RegularTransaction transaction) {
+  private RegularTransaction performRegularTransaction(RegularTransaction transaction) throws Exception
+  {
     // Assuming valid user
     // Assuming validation done in account
     // Assuming transaction is a valid transaction
@@ -179,7 +180,8 @@ public class TransactionService {
   }
 
   private void undoRegularTransaction(
-      RegularTransaction transaction, boolean deductedFrom, boolean addedTo) {
+      RegularTransaction transaction, boolean deductedFrom, boolean addedTo) throws Exception
+  {
     if (deductedFrom) {
       accountService.addBalance(transaction.getAccountFrom(), transaction.getAmount());
     }

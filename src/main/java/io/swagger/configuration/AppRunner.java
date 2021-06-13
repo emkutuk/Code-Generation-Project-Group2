@@ -1,6 +1,7 @@
 package io.swagger.configuration;
 
 import io.swagger.model.Account;
+import io.swagger.model.AccountType;
 import io.swagger.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -25,15 +26,15 @@ public class AppRunner implements ApplicationRunner
     {
 
         //Creating the account for the bank
-        Account bankAccount = new Account("NL01INHO0000000001", Account.AccountTypeEnum.CURRENT, 0.0);
+        Account bankAccount = new Account("NL01INHO0000000001", AccountType.CURRENT, 0.0);
         accountService.addANewAccount(bankAccount);
 
         for(int i = 0; i < 390 ; i++)
         {
             if(rnd.nextBoolean())
-                accountList.add(new Account(Account.AccountTypeEnum.SAVING, (double) rnd.nextInt(500000)));
+                accountList.add(new Account(AccountType.SAVING, (double) rnd.nextInt(500000)));
             else
-                accountList.add(new Account(Account.AccountTypeEnum.CURRENT, (double) rnd.nextInt(500000)));
+                accountList.add(new Account(AccountType.CURRENT, (double) rnd.nextInt(500000)));
         }
 
         for (Account a : accountList)

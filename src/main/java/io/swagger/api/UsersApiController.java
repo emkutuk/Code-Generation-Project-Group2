@@ -36,7 +36,9 @@ public class UsersApiController implements UsersApi {
 
   private final ObjectMapper objectMapper;
   private final HttpServletRequest request;
-  @Autowired private UserService userService;
+
+  @Autowired
+  private UserService userService;
 
   @org.springframework.beans.factory.annotation.Autowired
   public UsersApiController(ObjectMapper objectMapper, HttpServletRequest request) {

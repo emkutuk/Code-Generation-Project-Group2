@@ -14,5 +14,3 @@ Feature: Account Tests
     Given I have an account
     When I want to learn about my account's balance
     Then I should be able to see my account's balance
-
-

@@ -14,7 +14,7 @@ public class AccountTest
 
     @BeforeEach
     public void Setup() {
-        account = new Account("testIban", Account.AccountTypeEnum.SAVING, 400.0);
+        account = new Account("testIban", AccountType.SAVING, 400.0);
     }
 
     @Test
@@ -33,14 +33,14 @@ public class AccountTest
     @Test
     public void testGetAccountType()
     {
-        assertEquals(Account.AccountTypeEnum.SAVING, account.getAccountType());
+        assertEquals(AccountType.SAVING, account.getAccountType());
     }
 
     @Test
     public void testSetAccountType()
     {
-        account.setAccountType(Account.AccountTypeEnum.CURRENT);
-        assertEquals(Account.AccountTypeEnum.CURRENT, account.getAccountType());
+        account.setAccountType(AccountType.CURRENT);
+        assertEquals(AccountType.CURRENT, account.getAccountType());
     }
 
     @Test

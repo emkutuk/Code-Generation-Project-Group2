@@ -25,85 +25,11 @@ public class Account
     @JsonProperty("iban")
     private String iban = null;
 
-    /**
-     * The type of the account. This can be either saving or current.
-     */
-    public enum AccountTypeEnum
-    {
-        SAVING("saving"),
-
-        CURRENT("current");
-
-        private String value;
-
-        AccountTypeEnum(String value)
-        {
-            this.value = value;
-        }
-
-        @Override
-        @JsonValue
-        public String toString()
-        {
-            return String.valueOf(value);
-        }
-
-        @JsonCreator
-        public static AccountTypeEnum fromValue(String text)
-        {
-            for (AccountTypeEnum b : AccountTypeEnum.values())
-            {
-                if (String.valueOf(b.value).equals(text))
-                {
-                    return b;
-                }
-            }
-            return null;
-        }
-    }
-
     @JsonProperty("accountType")
-    private AccountTypeEnum accountType = AccountTypeEnum.CURRENT;
-
-    /**
-     * The status of the account. This can be either active or closed.
-     */
-    public enum AccountStatusEnum
-    {
-        ACTIVE("active"),
-
-        CLOSED("closed");
-
-        private String value;
-
-        AccountStatusEnum(String value)
-        {
-            this.value = value;
-        }
-
-        @Override
-        @JsonValue
-        public String toString()
-        {
-            return String.valueOf(value);
-        }
-
-        @JsonCreator
-        public static AccountStatusEnum fromValue(String text)
-        {
-            for (AccountStatusEnum b : AccountStatusEnum.values())
-            {
-                if (String.valueOf(b.value).equals(text))
-                {
-                    return b;
-                }
-            }
-            return null;
-        }
-    }
+    private AccountType accountType = AccountType.CURRENT;
 
     @JsonProperty("accountStatus")
-    private AccountStatusEnum accountStatus = AccountStatusEnum.ACTIVE;
+    private AccountStatus accountStatus = AccountStatus.ACTIVE;
 
     @JsonProperty("balance")
     private Double balance = 0d;
@@ -133,7 +59,7 @@ public class Account
         this.iban = iban;
     }
 
-    public Account accountType(AccountTypeEnum accountType)
+    public Account accountType(AccountType accountType)
     {
         this.accountType = accountType;
         return this;
@@ -147,17 +73,17 @@ public class Account
     @Schema(required = true, description = "The type of the account. This can be either saving or current.")
     @NotNull
 
-    public AccountTypeEnum getAccountType()
+    public AccountType getAccountType()
     {
         return accountType;
     }
 
-    public void setAccountType(AccountTypeEnum accountType)
+    public void setAccountType(AccountType accountType)
     {
         this.accountType = accountType;
     }
 
-    public Account accountStatus(AccountStatusEnum accountStatus)
+    public Account accountStatus(AccountStatus accountStatus)
     {
         this.accountStatus = accountStatus;
         return this;
@@ -171,12 +97,12 @@ public class Account
     @Schema(required = true, description = "The status of the account. This can be either active or closed.")
     @NotNull
 
-    public AccountStatusEnum getAccountStatus()
+    public AccountStatus getAccountStatus()
     {
         return accountStatus;
     }
 
-    public void setAccountStatus(AccountStatusEnum accountStatus)
+    public void setAccountStatus(AccountStatus accountStatus)
     {
         this.accountStatus = accountStatus;
     }
@@ -262,7 +188,7 @@ public class Account
 
     }
 
-    public Account(AccountTypeEnum accountType) throws Exception
+    public Account(AccountType accountType) throws Exception
     {
         this.iban = "";
         this.accountType = accountType;
@@ -270,7 +196,7 @@ public class Account
     }
 
     //These constructors are for testing
-    public Account(AccountTypeEnum accountType, Double balance) throws Exception
+    public Account(AccountType accountType, Double balance) throws Exception
     {
         this.iban = "";
         this.accountType = accountType;
@@ -278,7 +204,7 @@ public class Account
     }
 
 
-    public Account(String iban, AccountTypeEnum accountType, Double balance)
+    public Account(String iban, AccountType accountType, Double balance)
     {
         this.iban = iban;
         this.accountType = accountType;

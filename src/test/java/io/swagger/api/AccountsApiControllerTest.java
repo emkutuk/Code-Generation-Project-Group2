@@ -3,6 +3,7 @@ package io.swagger.api;
 import io.swagger.model.Account;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.model.AccountType;
 import io.swagger.service.AccountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,7 @@ public class AccountsApiControllerTest
     @BeforeEach
     public void setup()
     {
-        account = new Account("testIban", Account.AccountTypeEnum.SAVING, 15.0);
+        account = new Account("testIban", AccountType.SAVING, 15.0);
     }
 
     @Test

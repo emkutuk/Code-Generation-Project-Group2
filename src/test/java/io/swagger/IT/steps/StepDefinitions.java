@@ -6,6 +6,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.swagger.model.Account;
+import io.swagger.model.AccountType;
 import org.junit.Assert;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
@@ -32,7 +33,7 @@ public class StepDefinitions
     @Given("I have an account")
     public void iHaveAnAccount() throws Exception
     {
-        account = new Account("testIban", Account.AccountTypeEnum.CURRENT, 400D);
+        account = new Account("testIban", AccountType.CURRENT, 400D);
         expectedBalance = 400D;
 
         ObjectMapper mapper = new ObjectMapper();
@@ -62,7 +63,7 @@ public class StepDefinitions
     @Given("I am already an existing customer with a saving account that is with zero balance")
     public void iAmAlreadyAnExistingCustomerWithASavingAccountThatIsWithZeroBalance() throws JsonProcessingException, URISyntaxException
     {
-        account = new Account("testIban", Account.AccountTypeEnum.SAVING, 0D);
+        account = new Account("testIban", AccountType.SAVING, 0D);
 
         ObjectMapper mapper = new ObjectMapper();
         URI uri = new URI(baseUrl);
