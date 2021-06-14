@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.NotSupportedException;
+import java.beans.Transient;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,9 +38,13 @@ public class TransactionService {
   }
 
   //omar
-  public Transaction getTransactionById(UUID id) throws Exception {
+  public Transaction getTransactionById(String id) throws Exception {
     //validate user
-    Optional<?> transaction = transactionRepo.findById(id);
+    String s = id.replace("-", "");
+    UUID uuid = new UUID(
+            new BigInteger(s.substring(0, 16), 16).longValue(),
+            new BigInteger(s.substring(16), 16).longValue());
+    Optional<?> transaction = transactionRepo.findById(uuid);
     if (transaction.isPresent()) {
       return (Transaction) transaction.get();
     } else {
@@ -47,11 +53,12 @@ public class TransactionService {
   }
 
   //omar
-  public List<Transaction> getTransactionsByUserId(UUID id) throws Exception {
+  public List<Transaction> getTransactionsByUserId(UUID id,Integer max,Integer offset) throws Exception {
     //validate user
     try{
       User user = userService.getUserById(id);
       List<Transaction> allTransactions = new ArrayList<Transaction>();
+      List<Transaction> filteredList = new ArrayList<>();
       List<Transaction> accountTransactions;
       List<Account> userAccounts = user.getAccounts();
 
@@ -61,7 +68,13 @@ public class TransactionService {
           allTransactions.addAll(accountTransactions);
         }
       }
-      return allTransactions;
+      for (int i = offset; i <= allTransactions.size(); i++) {
+        filteredList.add(allTransactions.get(i));
+        if (allTransactions.size() == max) {
+          break;
+        }
+        }
+      return filteredList;
     }
     catch (Exception e){
       throw new Exception("Invalid User ID or no transactions found");
@@ -69,24 +82,37 @@ public class TransactionService {
   }
 
   // omar
-  public List<Transaction> getTransactionsByIban(String Iban) throws Exception {
+  public List<Transaction> getTransactionsByIban(String Iban, Integer max, Integer offset) throws Exception {
     //validate user
-    try{
       Account account= accountService.getAccountByIban(Iban);
-      return account.getTransactions();
+      List<Transaction> allAccountTransactions = account.getTransactions();
+      ArrayList<Transaction> filteredList = new ArrayList<Transaction>();
+    try{
+      for (int i = offset; i <= allAccountTransactions.size(); i++){
+          filteredList.add(allAccountTransactions.get(i));
+          if (filteredList.size() == max){
+              break;
+          }
+      }
     } catch (Exception e) {
       throw new Exception("Transaction not found");
     }
+    return filteredList;
   }
 
   // omar
+  @Transient
   public void deleteTransactionById(String id) throws Exception {
     //validate user
     try {
-      Transaction toDelete = transactionRepo.getOne(UUID.fromString(id));
-      System.out.println(toDelete.toString());
-      transactionRepo.delete(toDelete);
+      //Converting String to UUID (Using UUID.toString(id) causes an illegal argument exception
+      String s = id.replace("-", "");
+      UUID uuid = new UUID(
+              new BigInteger(s.substring(0, 16), 16).longValue(),
+              new BigInteger(s.substring(16), 16).longValue());
+      transactionRepo.deleteById(uuid);
     } catch (Exception e) {
+      e.printStackTrace();
       System.out.println("Something went wrong");
       throw new Exception("Unable to delete transaction");
     }
