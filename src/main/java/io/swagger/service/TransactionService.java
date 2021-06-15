@@ -99,7 +99,7 @@ public class TransactionService {
     }
     // If user does not own the account to and it is a savings account
     else if (!(userFrom.getAccounts().contains(accountTo))
-        && accountTo.getAccountType().equals(Account.AccountTypeEnum.SAVING)) {
+        && accountTo.getAccountType().equals(AccountType.SAVING)) {
       log.info("User trying to make transaction to savings account of another user");
       throw new IllegalArgumentException("Cannot transfer to savings of another user");
     }
