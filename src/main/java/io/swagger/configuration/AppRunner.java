@@ -1,8 +1,8 @@
 package io.swagger.configuration;
 
-import io.swagger.model.Account;
-import io.swagger.model.AccountType;
+import io.swagger.model.*;
 import io.swagger.service.AccountService;
+import io.swagger.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -17,6 +17,9 @@ public class AppRunner implements ApplicationRunner
 {
     @Autowired
     AccountService accountService;
+
+    @Autowired
+    UserService userService;
 
     List<Account> accountList = new ArrayList<Account>();
     Random rnd = new Random();
@@ -39,6 +42,18 @@ public class AppRunner implements ApplicationRunner
 
         for (Account a : accountList)
             accountService.addANewAccount(a);
+
+        //Creating users
+        List<User> usersList= new ArrayList<User>();
+        //Customers
+        usersList.add(new User("Emre", "Kutuk", "31685032148", "emkutuk@gmail.com", "emre", null, io.swagger.security.Role.ROLE_CUSTOMER, AccountStatus.ACTIVE));
+
+        //Employees
+        usersList.add(new User("Ege", "Cinarli", "31685032148", "egecinarli@gmail.com", "ege", null, io.swagger.security.Role.ROLE_EMPLOYEE, AccountStatus.ACTIVE));
+
+        for(User u : usersList)
+            userService.register(u.getEmail(), u.getPassword(), u.getRole());
+
 
         System.out.println("The application has started successfully.");
     }

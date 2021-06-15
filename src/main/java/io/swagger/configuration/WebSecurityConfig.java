@@ -4,6 +4,7 @@ import io.swagger.security.JwtTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -40,9 +41,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers("/h2-console/**/**");
-        web.ignoring().antMatchers("/api/**");
-        web.ignoring().antMatchers("/**");
+        web.ignoring().antMatchers("/h2-console/**/**")
+        .antMatchers("/api/**")
+        .antMatchers(HttpMethod.POST, "/Login");
     }
 
     @Bean

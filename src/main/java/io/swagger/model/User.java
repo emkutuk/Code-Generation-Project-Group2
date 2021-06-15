@@ -12,194 +12,228 @@ import javax.validation.constraints.Size;
 import java.util.List;
 import java.util.UUID;
 
-/** User */
+/**
+ * User
+ */
 @Validated
-@javax.annotation.Generated(
-    value = "io.swagger.codegen.v3.generators.java.SpringCodegen",
-    date = "2021-06-06T11:20:30.422Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-06T11:20:30.422Z[GMT]")
 @Data
 @Entity
-public class User {
-  @JsonProperty("id")
-  @Id
-  @GeneratedValue
-  private UUID id = null;
-
-  @JsonProperty("firstName")
-  private String firstName = null;
-
-  @JsonProperty("lastName")
-  private String lastName = null;
-
-  @JsonProperty("phoneNumber")
-  private String phoneNumber = null;
-
-  @JsonProperty("email")
-  private String email = null;
-
-  @JsonProperty("password")
-  private String password = null;
-
-  @JsonProperty("accounts")
-  @ElementCollection
-  private List<String> accounts = null;
-
-  @JsonProperty("role")
-  private Role role = Role.CUSTOMER;
-
-  @JsonProperty("accountStatus")
-  private AccountStatus accountStatus = AccountStatus.ACTIVE;
-
-  /**
-   * Get id
-   *
-   * @return id
-   */
-  @Schema(required = true, accessMode = Schema.AccessMode.READ_ONLY, description = "")
-  @NotNull
-  @Valid
-  public UUID getId() {
-    return id;
-  }
-
-  public void setId(UUID id) {
-    this.id = id;
-  }
-
-  /**
-   * Get firstName
-   *
-   * @return firstName
-   */
-  @Schema(example = "Rob", required = true, description = "")
-  @NotNull
-  @Size(max = 100)
-  public String getFirstName() {
-    return firstName;
-  }
-
-  public void setFirstName(String firstName) {
-    this.firstName = firstName;
-  }
-
-  /**
-   * Get lastName
-   *
-   * @return lastName
-   */
-  @Schema(example = "Banks", required = true, description = "")
-  @NotNull
-  @Size(max = 100)
-  public String getLastName() {
-    return lastName;
-  }
-
-  public void setLastName(String lastName) {
-    this.lastName = lastName;
-  }
-
-  /**
-   * Get phoneNumber
-   *
-   * @return phoneNumber
-   */
-  @Schema(example = "321123527", required = true, description = "")
-  @NotNull
-  @Size(max = 20)
-  public String getPhoneNumber() {
-    return phoneNumber;
-  }
-
-  public void setPhoneNumber(String phoneNumber) {
-    this.phoneNumber = phoneNumber;
-  }
-
-  /**
-   * Get email
-   *
-   * @return email
-   */
-  @Schema(example = "rbanks@gmail.com", required = true, description = "")
-  @NotNull
-  @Size(max = 256)
-  public String getEmail() {
-    return email;
-  }
-
-  public void setEmail(String email) {
-    this.email = email;
-  }
-
-  /**
-   * Get password
-   *
-   * @return password
-   */
-  @Schema(example = "GetMyP@ss1", required = true, description = "")
-  @NotNull
-  public String getPassword() {
-    return password;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  /**
-   * Get accounts
-   *
-   * @return accounts
-   */
-  @Schema(
-      example =
-          "[{\"id\":3,\"iban\":\"NL03INHO0033576852\",\"accountType\":\"current\",\"balance\":320},{\"id\":3,\"iban\":\"NL03INHO0033576883\",\"accountType\":\"savings\",\"balance\":800}]",
-      accessMode = Schema.AccessMode.READ_ONLY,
-      description = "")
-  @Valid
-  @Size(max = 2)
-  public List<String> getAccounts() {
-    return accounts;
-  }
-
-  public void setAccounts(List<String> accounts) {
-    this.accounts = accounts;
-  }
-
-  /**
-   * Get role
-   *
-   * @return role
-   */
-  @Schema(description = "")
-  public Role getRole() {
-    return role;
-  }
-
-  public void setRole(Role role) {
-    this.role = role;
-  }
-
-  /**
-   * Get accountStatus
-   *
-   * @return accountStatus
-   */
-  @Schema(description = "")
-  public AccountStatus getAccountStatus() {
-    return accountStatus;
-  }
-
-  public void setAccountStatus(AccountStatus accountStatus) {
-    this.accountStatus = accountStatus;
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
+public class User
+{
+    public User(String firstName, String lastName, String phoneNumber, String email, String password, List<String> accounts, io.swagger.security.Role role, AccountStatus accountStatus)
+    {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.password = password;
+        this.accounts = accounts;
+        this.role = role;
+        this.accountStatus = accountStatus;
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    public User()
+    {
+
+    }
+
+    @JsonProperty("id")
+    @Id
+    @GeneratedValue
+    private UUID id = null;
+
+    @JsonProperty("firstName")
+    private String firstName = null;
+
+    @JsonProperty("lastName")
+    private String lastName = null;
+
+    @JsonProperty("phoneNumber")
+    private String phoneNumber = null;
+
+    @JsonProperty("email")
+    private String email = null;
+
+    @JsonProperty("password")
+    private String password = null;
+
+    @JsonProperty("accounts")
+    @ElementCollection
+    private List<String> accounts = null;
+
+    @JsonProperty("role")
+    private io.swagger.security.Role role = io.swagger.security.Role.ROLE_CUSTOMER;
+
+    @JsonProperty("accountStatus")
+    private AccountStatus accountStatus = AccountStatus.ACTIVE;
+
+    /**
+     * Get id
+     *
+     * @return id
+     */
+    @Schema(required = true, accessMode = Schema.AccessMode.READ_ONLY, description = "")
+    @NotNull
+    @Valid
+    public UUID getId()
+    {
+        return id;
+    }
+
+    public void setId(UUID id)
+    {
+        this.id = id;
+    }
+
+    /**
+     * Get firstName
+     *
+     * @return firstName
+     */
+    @Schema(example = "Rob", required = true, description = "")
+    @NotNull
+    @Size(max = 100)
+    public String getFirstName()
+    {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName)
+    {
+        this.firstName = firstName;
+    }
+
+    /**
+     * Get lastName
+     *
+     * @return lastName
+     */
+    @Schema(example = "Banks", required = true, description = "")
+    @NotNull
+    @Size(max = 100)
+    public String getLastName()
+    {
+        return lastName;
+    }
+
+    public void setLastName(String lastName)
+    {
+        this.lastName = lastName;
+    }
+
+    /**
+     * Get phoneNumber
+     *
+     * @return phoneNumber
+     */
+    @Schema(example = "321123527", required = true, description = "")
+    @NotNull
+    @Size(max = 20)
+    public String getPhoneNumber()
+    {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber)
+    {
+        this.phoneNumber = phoneNumber;
+    }
+
+    /**
+     * Get email
+     *
+     * @return email
+     */
+    @Schema(example = "rbanks@gmail.com", required = true, description = "")
+    @NotNull
+    @Size(max = 256)
+    public String getEmail()
+    {
+        return email;
+    }
+
+    public void setEmail(String email)
+    {
+        this.email = email;
+    }
+
+    /**
+     * Get password
+     *
+     * @return password
+     */
+    @Schema(example = "GetMyP@ss1", required = true, description = "")
+    @NotNull
+    public String getPassword()
+    {
+        return password;
+    }
+
+    public void setPassword(String password)
+    {
+        this.password = password;
+    }
+
+    /**
+     * Get accounts
+     *
+     * @return accounts
+     */
+    @Schema(example = "[{\"id\":3,\"iban\":\"NL03INHO0033576852\",\"accountType\":\"current\",\"balance\":320},{\"id\":3,\"iban\":\"NL03INHO0033576883\",\"accountType\":\"savings\",\"balance\":800}]", accessMode = Schema.AccessMode.READ_ONLY, description = "")
+    @Valid
+    @Size(max = 2)
+    public List<String> getAccounts()
+    {
+        return accounts;
+    }
+
+    public void setAccounts(List<String> accounts)
+    {
+        this.accounts = accounts;
+    }
+
+    /**
+     * Get role
+     *
+     * @return role
+     */
+    @Schema(description = "")
+    public io.swagger.security.Role getRole()
+    {
+        return role;
+    }
+
+    public void setRole(io.swagger.security.Role role)
+    {
+        this.role = role;
+    }
+
+    /**
+     * Get accountStatus
+     *
+     * @return accountStatus
+     */
+    @Schema(description = "")
+    public AccountStatus getAccountStatus()
+    {
+        return accountStatus;
+    }
+
+    public void setAccountStatus(AccountStatus accountStatus)
+    {
+        this.accountStatus = accountStatus;
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces (except the first line).
+     */
+    private String toIndentedString(java.lang.Object o)
+    {
+        if (o == null)
+        {
+            return "null";
+        }
+        return o.toString().replace("\n", "\n    ");
+    }
 }

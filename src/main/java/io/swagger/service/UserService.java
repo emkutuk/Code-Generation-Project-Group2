@@ -48,7 +48,7 @@ public class UserService
         }
     }
 
-    public String register(String email, String password, Role role)
+    public String register(String email, String password, io.swagger.security.Role role)
     {
         if (userRepo.findUserByEmail(email) == null)
         {
@@ -58,7 +58,7 @@ public class UserService
             user.setPassword(passwordEncoder().encode(password));
             if (role != null)
                 user.setRole(role);
-            else user.setRole(Role.EMPLOYEE);
+            else user.setRole(io.swagger.security.Role.ROLE_EMPLOYEE);
 
             //TODO
             user.setFirstName("Gabe");

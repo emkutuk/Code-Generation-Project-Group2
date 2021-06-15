@@ -89,7 +89,7 @@ public class TransactionService {
     }
 
     // If user is a customer and does not own the account from which the money is leaving
-    if (user.getRole().equals(Role.CUSTOMER) && !userFrom.getAccounts().contains(accountFrom)) {
+    if (user.getRole().equals(Role.ROLE_CUSTOMER) && !userFrom.getAccounts().contains(accountFrom)) {
       log.info("User trying to make transaction from another users account");
       throw new IllegalArgumentException("user is not authorized to do this");
     }
