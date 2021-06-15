@@ -54,9 +54,9 @@ public class TransactionService {
 
   //omar
   public List<Transaction> getTransactionsByUserId(UUID id,Integer max,Integer offset) throws Exception {
+    User user = userService.getUserById(id);
     //validate user
     try{
-      User user = userService.getUserById(id);
       List<Transaction> allTransactions = new ArrayList<Transaction>();
       List<Transaction> filteredList = new ArrayList<>();
       List<Transaction> accountTransactions;

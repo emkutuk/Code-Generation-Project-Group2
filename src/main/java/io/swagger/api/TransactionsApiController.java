@@ -203,7 +203,7 @@ public class TransactionsApiController implements TransactionsApi {
         return new ResponseEntity<List<Transaction>>(transactionService.getTransactionsByUserId(null,max,offset), HttpStatus.OK);
       } catch (Exception e) {
         log.error("Couldn't serialize response for content type application/json", e);
-        return new ResponseEntity<List<Transaction>>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<List<Transaction>>(HttpStatus.FORBIDDEN);
       }
   }
 
