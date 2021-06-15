@@ -3,6 +3,7 @@ package io.swagger.service;
 import io.swagger.model.AccountStatus;
 import io.swagger.model.User;
 import io.swagger.repo.UserRepo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.Transient;
@@ -11,11 +12,9 @@ import java.util.UUID;
 
 @Service
 public class UserService {
-  private final UserRepo userRepo;
 
-  public UserService(UserRepo userRepo) {
-    this.userRepo = userRepo;
-  }
+  @Autowired
+  private UserRepo userRepo;
 
   public User getUserById(UUID id) {
     return userRepo.getOne(id);
@@ -26,7 +25,8 @@ public class UserService {
   }
 
   public User getUserByIban(String iban) {
-    return userRepo.findUserByAccounts_iban(iban);
+    //TODO
+    return null;
   }
 
   public User createUser(User user) {

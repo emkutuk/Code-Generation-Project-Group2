@@ -1,6 +1,7 @@
 package io.swagger.model;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,7 +14,7 @@ public class AccountTest
 
     @BeforeEach
     public void Setup() {
-        account = new Account(999999L, "testIban", Account.AccountTypeEnum.SAVING, 400.0);
+        account = new Account("testIban", AccountType.SAVING, 400.0);
     }
 
     @Test
@@ -32,14 +33,14 @@ public class AccountTest
     @Test
     public void testGetAccountType()
     {
-        assertEquals(Account.AccountTypeEnum.SAVING, account.getAccountType());
+        assertEquals(AccountType.SAVING, account.getAccountType());
     }
 
     @Test
     public void testSetAccountType()
     {
-        account.setAccountType(Account.AccountTypeEnum.CURRENT);
-        assertEquals(Account.AccountTypeEnum.CURRENT, account.getAccountType());
+        account.setAccountType(AccountType.CURRENT);
+        assertEquals(AccountType.CURRENT, account.getAccountType());
     }
 
     @Test

@@ -6,10 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import org.springframework.validation.annotation.Validated;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -44,10 +41,9 @@ public class User {
   @JsonProperty("password")
   private String password = null;
 
-  @JsonIgnore
-  @Valid
-  @OneToMany(mappedBy = "userId", targetEntity = Account.class)
-  private List<Account> accounts = null;
+  @JsonProperty("accounts")
+  @ElementCollection
+  private List<String> accounts = null;
 
   @JsonProperty("role")
   private Role role = Role.CUSTOMER;
@@ -162,11 +158,11 @@ public class User {
       description = "")
   @Valid
   @Size(max = 2)
-  public List<Account> getAccounts() {
+  public List<String> getAccounts() {
     return accounts;
   }
 
-  public void setAccounts(List<Account> accounts) {
+  public void setAccounts(List<String> accounts) {
     this.accounts = accounts;
   }
 

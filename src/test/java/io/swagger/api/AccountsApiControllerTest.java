@@ -3,6 +3,7 @@ package io.swagger.api;
 import io.swagger.model.Account;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.model.AccountType;
 import io.swagger.service.AccountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,7 @@ public class AccountsApiControllerTest
     @BeforeEach
     public void setup()
     {
-        account = new Account(999999L, "testIban", Account.AccountTypeEnum.SAVING, 15.0);
+        account = new Account("testIban", AccountType.SAVING, 15.0);
     }
 
     @Test
@@ -55,17 +56,17 @@ public class AccountsApiControllerTest
     }
 
     @Test
-    public void testDeleteAccountByIban() throws Exception
+    public void testChangeAccountStatus() throws Exception
     {
         accountService.addANewAccount(this.account);
-        this.mvc.perform(delete("/Accounts/testIban").contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
-    }
+        this.mvc.perform(post("/Accounts/testIban/Status/closed")).andExpect(status().isOk());
+   }
 
     @Test
     public void testGetAccountBalanceByIban() throws Exception
     {
         accountService.addANewAccount(this.account);
-        this.mvc.perform(get("/Accounts/testIban/getBalance")).andExpect(status().isOk());
+        this.mvc.perform(get("/Accounts/testIban/Balance")).andExpect(status().isOk());
     }
 
     @Test
