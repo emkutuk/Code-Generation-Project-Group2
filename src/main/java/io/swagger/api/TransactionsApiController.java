@@ -199,8 +199,11 @@ public class TransactionsApiController implements TransactionsApi {
                   "The number of items to skip before starting to collect the result set.",
               schema = @Schema(allowableValues = {}))
           @Valid
-          @RequestParam(value = "offset", required = false)
+          @RequestParam(value = "offset", required = false, defaultValue = "1")
           Integer offset) {
+
+    //log.info(String.format("offset = %d, max = %d", offset, max));
+
     String accept = request.getHeader("Accept");
     if (accept != null && accept.contains("application/json")) {
       try {

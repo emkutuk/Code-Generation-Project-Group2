@@ -2,6 +2,7 @@ package io.swagger.service;
 
 import io.swagger.model.*;
 import io.swagger.repo.TransactionRepo;
+import lombok.NoArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,11 +16,12 @@ import java.util.UUID;
 
 @Service
 @Log
+@NoArgsConstructor
 public class TransactionService {
 
-  private final TransactionRepo transactionRepo;
-  private final AccountService accountService;
-  private final UserService userService;
+  private TransactionRepo transactionRepo;
+  private AccountService accountService;
+  private UserService userService;
 
   @Autowired
   public TransactionService(

@@ -14,12 +14,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class TransactionTest {
 
-  private static Transaction transaction;
+  private static RegularTransaction transaction;
 
   @BeforeEach
   public void createTestTransaction() {
     transaction =
-        new Transaction("NL04INHO68681868171", "NL01INHO00005798481", 120D, UUID.randomUUID());
+        new RegularTransaction("NL04INHO68681868171", "NL01INHO00005798481", 120D, UUID.randomUUID());
   }
 
   @Test
