@@ -23,6 +23,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @javax.annotation.Generated(
     value = "io.swagger.codegen.v3.generators.java.SpringCodegen",
@@ -88,8 +89,13 @@ public class TransactionsApiController implements TransactionsApi {
       @Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema())
           @PathVariable("id")
           String id) {
-    String accept = request.getHeader("Accept");
-    return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+      try {
+        System.out.println(id);
+        transactionService.deleteTransactionById(id);
+        return new ResponseEntity<Void>(HttpStatus.ACCEPTED);
+      } catch (Exception e) {
+        return new ResponseEntity<Void>(HttpStatus.I_AM_A_TEAPOT);
+      }
   }
 
   public ResponseEntity<Deposit> depositMoney(
@@ -145,36 +151,27 @@ public class TransactionsApiController implements TransactionsApi {
           @Valid
           @RequestParam(value = "offset", required = false)
           Integer offset) {
-    String accept = request.getHeader("Accept");
-    if (accept != null && accept.contains("application/json")) {
       try {
         return new ResponseEntity<List<Transaction>>(
-            new ArrayList<Transaction>(), HttpStatus.NOT_IMPLEMENTED);
+            transactionService.getTransactionsByIban(iban,max,offset), HttpStatus.OK);
       } catch (Exception e) {
+          e.printStackTrace();
         log.error("Couldn't serialize response for content type application/json", e);
-        return new ResponseEntity<List<Transaction>>(HttpStatus.INTERNAL_SERVER_ERROR);
-      }
+        return new ResponseEntity<List<Transaction>>(HttpStatus.BAD_REQUEST);
     }
-
-    return new ResponseEntity<List<Transaction>>(HttpStatus.NOT_IMPLEMENTED);
   }
 
   public ResponseEntity<Transaction> getTransactionById(
       @Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema())
           @PathVariable("id")
           String id) {
-    String accept = request.getHeader("Accept");
-    if (accept != null && accept.contains("application/json")) {
       try {
         return new ResponseEntity<Transaction>(
-            new RegularTransaction(), HttpStatus.NOT_IMPLEMENTED);
+            transactionService.getTransactionById(id), HttpStatus.OK);
       } catch (Exception e) {
         log.error("Couldn't serialize response for content type application/json", e);
-        return new ResponseEntity<Transaction>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<Transaction>(HttpStatus.BAD_REQUEST);
       }
-    }
-
-    return new ResponseEntity<Transaction>(HttpStatus.NOT_IMPLEMENTED);
   }
 
   public ResponseEntity<List<Transaction>> getTransactionsByUser(
@@ -202,19 +199,12 @@ public class TransactionsApiController implements TransactionsApi {
           @RequestParam(value = "offset", required = false, defaultValue = "1")
           Integer offset) {
 
-    //log.info(String.format("offset = %d, max = %d", offset, max));
-
-    String accept = request.getHeader("Accept");
-    if (accept != null && accept.contains("application/json")) {
       try {
-        return new ResponseEntity<List<Transaction>>(new ArrayList<>(), HttpStatus.NOT_IMPLEMENTED);
+        return new ResponseEntity<List<Transaction>>(transactionService.getTransactionsByUserId(null,max,offset), HttpStatus.OK);
       } catch (Exception e) {
         log.error("Couldn't serialize response for content type application/json", e);
-        return new ResponseEntity<List<Transaction>>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<List<Transaction>>(HttpStatus.FORBIDDEN);
       }
-    }
-
-    return new ResponseEntity<List<Transaction>>(HttpStatus.NOT_IMPLEMENTED);
   }
 
   public ResponseEntity<Withdrawal> withdrawMoney(
