@@ -147,5 +147,4 @@ public class AccountsApiController implements AccountsApi
             return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 }
