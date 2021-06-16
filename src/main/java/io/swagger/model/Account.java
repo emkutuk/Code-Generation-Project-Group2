@@ -1,15 +1,13 @@
 package io.swagger.model;
 
+import java.util.List;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.*;
 
 /**
@@ -33,6 +31,21 @@ public class Account
 
     @JsonProperty("balance")
     private Double balance = 0d;
+
+    @JsonProperty("transactions")
+    @OneToMany(mappedBy = "transactionId")
+    @JsonManagedReference
+    private List<Transaction> transactions = null;
+
+    public List<Transaction> getTransactions()
+    {
+        return transactions;
+    }
+
+    public void setTransactions(List<Transaction> transactions)
+    {
+        this.transactions = transactions;
+    }
 
     public Account iban(String iban)
     {

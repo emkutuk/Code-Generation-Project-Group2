@@ -46,10 +46,10 @@ public class AppRunner implements ApplicationRunner
         //Creating users
         List<User> usersList= new ArrayList<User>();
         //Customers
-        usersList.add(new User("Emre", "Kutuk", "31685032148", "emkutuk@gmail.com", "emre", null, io.swagger.security.Role.ROLE_CUSTOMER, AccountStatus.ACTIVE));
+        usersList.add(new User("Customer", "Kutuk", "31685032148", "customer", "customer", null,io.swagger.security.Role.ROLE_CUSTOMER, AccountStatus.ACTIVE));
 
         //Employees
-        usersList.add(new User("Ege", "Cinarli", "31685032148", "egecinarli@gmail.com", "ege", null, io.swagger.security.Role.ROLE_EMPLOYEE, AccountStatus.ACTIVE));
+        usersList.add(new User("Employee", "Cinarli", "31685032148", "employee", "employee", null, io.swagger.security.Role.ROLE_EMPLOYEE, AccountStatus.ACTIVE));
 
         for(User u : usersList)
             userService.register(u.getEmail(), u.getPassword(), u.getRole());

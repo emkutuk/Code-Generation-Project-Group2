@@ -1,5 +1,7 @@
 package io.swagger.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -21,7 +23,7 @@ import java.util.UUID;
 @Entity
 public class User
 {
-    public User(String firstName, String lastName, String phoneNumber, String email, String password, List<String> accounts, io.swagger.security.Role role, AccountStatus accountStatus)
+    public User(String firstName, String lastName, String phoneNumber, String email, String password, List<Account> accounts, io.swagger.security.Role role, AccountStatus accountStatus)
     {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -58,9 +60,9 @@ public class User
     @JsonProperty("password")
     private String password = null;
 
-    @JsonProperty("accounts")
-    @ElementCollection
-    private List<String> accounts = null;
+    //@JsonProperty("accounts")
+    @OneToMany(mappedBy = "iban")
+    private List<Account> accounts = null;
 
     @JsonProperty("role")
     private io.swagger.security.Role role = io.swagger.security.Role.ROLE_CUSTOMER;
@@ -183,12 +185,12 @@ public class User
     @Schema(example = "[{\"id\":3,\"iban\":\"NL03INHO0033576852\",\"accountType\":\"current\",\"balance\":320},{\"id\":3,\"iban\":\"NL03INHO0033576883\",\"accountType\":\"savings\",\"balance\":800}]", accessMode = Schema.AccessMode.READ_ONLY, description = "")
     @Valid
     @Size(max = 2)
-    public List<String> getAccounts()
+    public List<Account> getAccounts()
     {
         return accounts;
     }
 
-    public void setAccounts(List<String> accounts)
+    public void setAccounts(List<Account> accounts)
     {
         this.accounts = accounts;
     }

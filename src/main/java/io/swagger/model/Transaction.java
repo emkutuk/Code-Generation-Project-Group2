@@ -1,5 +1,6 @@
 package io.swagger.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -33,6 +34,8 @@ public abstract class Transaction{
 
   @Id
   @JsonProperty("transactionId")
+  @ManyToOne(targetEntity = Account.class)
+  @JsonBackReference
   @GeneratedValue
   private UUID transactionId = null;
 
