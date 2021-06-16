@@ -45,8 +45,8 @@ public class BearerTokenDto {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    BearerTokenDto inlineResponse200 = (BearerTokenDto) o;
-    return Objects.equals(this.bearerToken, inlineResponse200.bearerToken);
+    BearerTokenDto bearerToken = (BearerTokenDto) o;
+    return Objects.equals(this.bearerToken, bearerToken.bearerToken);
   }
 
   @Override
@@ -57,7 +57,7 @@ public class BearerTokenDto {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class InlineResponse200 {\n");
+    sb.append("class BearerTokenDto {\n");
     
     sb.append("    bearerToken: ").append(toIndentedString(bearerToken)).append("\n");
     sb.append("}");

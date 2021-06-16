@@ -2,11 +2,14 @@ package io.swagger.service;
 
 import io.swagger.model.*;
 import io.swagger.repo.TransactionRepo;
+import lombok.NoArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.NotSupportedException;
+import java.beans.Transient;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,31 +18,35 @@ import java.util.UUID;
 
 @Service
 @Log
+@NoArgsConstructor
 public class TransactionService {
 
-  @Autowired
   private TransactionRepo transactionRepo;
-
-  @Autowired
   private AccountService accountService;
-
-  @Autowired
   private UserService userService;
 
+  @Autowired
+  public TransactionService(
+      TransactionRepo repo, AccountService accountService, UserService userService) {
+    this.transactionRepo = repo;
+    this.accountService = accountService;
+    this.userService = userService;
+  }
 
+  //omar
   public List<Transaction> getTransactions() {
     // validate user
-
     return transactionRepo.findAll();
   }
 
-  public List<Transaction> getTransactionsPaginated(Integer offset, Integer max) {
-    return transactionRepo.findAll();
-  }
-
-  public Transaction getTransactionById(UUID id) throws Exception {
-    Optional<?> transaction = transactionRepo.findById(id);
-
+  //omar
+  public Transaction getTransactionById(String id) throws Exception {
+    //validate user
+    String s = id.replace("-", "");
+    UUID uuid = new UUID(
+            new BigInteger(s.substring(0, 16), 16).longValue(),
+            new BigInteger(s.substring(16), 16).longValue());
+    Optional<?> transaction = transactionRepo.findById(uuid);
     if (transaction.isPresent()) {
       return (Transaction) transaction.get();
     } else {
@@ -47,27 +54,74 @@ public class TransactionService {
     }
   }
 
-  public List<Transaction> getTransactionsByUserId() throws NotSupportedException {
-    throw new NotSupportedException();
+  //omar
+  public List<Transaction> getTransactionsByUserId(UUID id,Integer max,Integer offset) throws Exception {
+    User user = userService.getUserById(id);
+    //validate user
+    try{
+      List<Transaction> allTransactions = new ArrayList<Transaction>();
+      List<Transaction> filteredList = new ArrayList<>();
+      List<Transaction> accountTransactions;
+      List<Account> userAccounts = user.getAccounts();
+
+      for (Account a : userAccounts){
+         accountTransactions = a.getTransactions();
+        if(!accountTransactions.isEmpty()){
+          allTransactions.addAll(accountTransactions);
+        }
+      }
+      for (int i = offset; i <= allTransactions.size(); i++) {
+        filteredList.add(allTransactions.get(i));
+        if (allTransactions.size() == max) {
+          break;
+        }
+        }
+      return filteredList;
+    }
+    catch (Exception e){
+      throw new Exception("Invalid User ID or no transactions found");
+    }
   }
 
   // omar
-  public List<Transaction> getTransactionsByIban(String Iban) throws Exception {
-    List<Transaction> allTransactions = new ArrayList<Transaction>();
-    List<Transaction> filteredList = new ArrayList<Transaction>();
-    allTransactions = (List<Transaction>) transactionRepo.findAll();
-    try {
-      for (Transaction t : allTransactions) {
-
-        // Fix
-        //        if (t.getAccountFrom().equals(Iban)) {
-        //          filteredList.add(t);
-        //        }
+  public List<Transaction> getTransactionsByIban(String Iban, Integer max, Integer offset) throws Exception {
+    //validate user
+      Account account= accountService.getAccountByIban(Iban);
+      List<Transaction> allAccountTransactions = account.getTransactions();
+      ArrayList<Transaction> filteredList = new ArrayList<Transaction>();
+    try{
+      for (int i = offset; i <= allAccountTransactions.size(); i++){
+          filteredList.add(allAccountTransactions.get(i));
+          if (filteredList.size() == max){
+              break;
+          }
       }
-      return filteredList;
     } catch (Exception e) {
-      throw new Exception(e.getMessage());
+      throw new Exception("Transaction not found");
     }
+    return filteredList;
+  }
+
+  // omar
+  @Transient
+  public void deleteTransactionById(String id) throws Exception {
+    //validate user
+    try {
+      //Converting String to UUID (Using UUID.toString(id) causes an illegal argument exception
+      String s = id.replace("-", "");
+      UUID uuid = new UUID(
+              new BigInteger(s.substring(0, 16), 16).longValue(),
+              new BigInteger(s.substring(16), 16).longValue());
+      transactionRepo.deleteById(uuid);
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.out.println("Something went wrong");
+      throw new Exception("Unable to delete transaction");
+    }
+  }
+
+  public List<Transaction> getTransactionsPaginated(Integer offset, Integer max) {
+    return transactionRepo.findAll();
   }
 
   public RegularTransaction createTransaction(RegularTransaction transaction, User user)
@@ -118,17 +172,6 @@ public class TransactionService {
     return performWithdrawal(withdrawal);
   }
 
-  // omar
-  public void deleteTransactionById(UUID id) throws Exception {
-    try {
-      Transaction toDelete = transactionRepo.getOne(id);
-      System.out.println(toDelete);
-      transactionRepo.delete(toDelete);
-    } catch (Exception e) {
-      throw new Exception(e.getMessage());
-    }
-  }
-
   /*
    * Add a list of transactions. Used for test transactions
    */
@@ -141,8 +184,7 @@ public class TransactionService {
     }
   }
 
-  private Deposit performDeposit(Deposit deposit) throws Exception
-  {
+  private Deposit performDeposit(Deposit deposit) {
     // Assuming valid user
     // Assuming validation done in account service
     // Assuming deposit is a valid deposit
@@ -150,8 +192,7 @@ public class TransactionService {
     return transactionRepo.save(deposit);
   }
 
-  private Withdrawal performWithdrawal(Withdrawal withdrawal) throws Exception
-  {
+  private Withdrawal performWithdrawal(Withdrawal withdrawal) {
     // Assuming valid user
     // Assuming validation done in account
     // Assuming withdrawal is a valid withdrawal
@@ -159,8 +200,7 @@ public class TransactionService {
     return transactionRepo.save(withdrawal);
   }
 
-  private RegularTransaction performRegularTransaction(RegularTransaction transaction) throws Exception
-  {
+  private RegularTransaction performRegularTransaction(RegularTransaction transaction) {
     // Assuming valid user
     // Assuming validation done in account
     // Assuming transaction is a valid transaction
@@ -181,8 +221,7 @@ public class TransactionService {
   }
 
   private void undoRegularTransaction(
-      RegularTransaction transaction, boolean deductedFrom, boolean addedTo) throws Exception
-  {
+      RegularTransaction transaction, boolean deductedFrom, boolean addedTo) {
     if (deductedFrom) {
       accountService.addBalance(transaction.getAccountFrom(), transaction.getAmount());
     }
