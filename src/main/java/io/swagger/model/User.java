@@ -5,10 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import org.springframework.validation.annotation.Validated;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -26,6 +23,7 @@ public class User
 {
     public User(String firstName, String lastName, String phoneNumber, String email, String password, List<Account> accounts, io.swagger.security.Role role, AccountStatus accountStatus)
     {
+        this.id =UUID.randomUUID();
         this.firstName = firstName;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
@@ -62,7 +60,7 @@ public class User
     private String password = null;
 
     //@JsonProperty("accounts")
-    @OneToMany(mappedBy = "iban")
+    @OneToMany
     private List<Account> accounts = null;
 
     @JsonProperty("role")

@@ -1,6 +1,5 @@
 package io.swagger.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
@@ -37,8 +36,7 @@ public class Account
     private Double balance = 0d;
 
     @JsonProperty("transactions")
-    @OneToMany(mappedBy = "transactionId")
-    @JsonManagedReference
+    @OneToMany
     private List<Transaction> transactions = null;
 
     public List<Transaction> getTransactions()
