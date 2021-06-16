@@ -2,6 +2,7 @@ package io.swagger.service;
 
 import io.swagger.model.*;
 import io.swagger.repo.TransactionRepo;
+import io.swagger.security.Role;
 import lombok.NoArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -159,6 +160,23 @@ public class TransactionService {
     log.info("Checked role and account owner");
 
     return performRegularTransaction(transaction);
+  }
+
+
+  public List<Transaction> getAllTransactionsForAccountByIban(String iban) {
+    List<Transaction> transactionList = transactionRepo.findAll();
+    List<Transaction> returnTransactionList = new ArrayList<>();
+
+    for (Transaction t : transactionList) {
+      if (t instanceof Deposit && ((Deposit) t).getAccountTo().equals(iban)) {
+        returnTransactionList.add(t);
+      } else if (t instanceof RegularTransaction && ((RegularTransaction) t).getAccountTo().equals(iban)) {
+        returnTransactionList.add(t);
+      }else if (t instanceof Withdrawal && ((Withdrawal) t).getAccountFrom().equals(iban)){
+        returnTransactionList.add(t);
+      }
+    }
+    return returnTransactionList;
   }
 
   public Deposit depositMoney(Deposit deposit) throws Exception {
