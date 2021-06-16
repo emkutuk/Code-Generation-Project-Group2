@@ -144,7 +144,7 @@ public interface UsersApi {
       produces = {"application/json"},
       consumes = {"application/json"},
       method = RequestMethod.POST)
-  ResponseEntity<BearerTokenDto> loginUser(
+  ResponseEntity<String> loginUser(
       @Parameter(in = ParameterIn.DEFAULT, description = "", schema = @Schema()) @Valid @RequestBody
           LoginDto loginDto);
 

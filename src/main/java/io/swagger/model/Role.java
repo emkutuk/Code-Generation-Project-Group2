@@ -5,9 +5,9 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum Role
 {
-  EMPLOYEE("employee"),
+  ROLE_EMPLOYEE("employee"),
 
-  CUSTOMER("customer");
+  ROLE_CUSTOMER("customer");
 
   private String value;
 
