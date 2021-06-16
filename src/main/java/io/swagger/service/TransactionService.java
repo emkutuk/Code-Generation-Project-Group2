@@ -7,7 +7,6 @@ import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.NotSupportedException;
 import java.beans.Transient;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
@@ -184,7 +183,7 @@ public class TransactionService {
     }
   }
 
-  private Deposit performDeposit(Deposit deposit) {
+  private Deposit performDeposit(Deposit deposit) throws Exception {
     // Assuming valid user
     // Assuming validation done in account service
     // Assuming deposit is a valid deposit
@@ -192,7 +191,7 @@ public class TransactionService {
     return transactionRepo.save(deposit);
   }
 
-  private Withdrawal performWithdrawal(Withdrawal withdrawal) {
+  private Withdrawal performWithdrawal(Withdrawal withdrawal) throws Exception {
     // Assuming valid user
     // Assuming validation done in account
     // Assuming withdrawal is a valid withdrawal
@@ -200,7 +199,7 @@ public class TransactionService {
     return transactionRepo.save(withdrawal);
   }
 
-  private RegularTransaction performRegularTransaction(RegularTransaction transaction) {
+  private RegularTransaction performRegularTransaction(RegularTransaction transaction) throws Exception {
     // Assuming valid user
     // Assuming validation done in account
     // Assuming transaction is a valid transaction
@@ -221,7 +220,7 @@ public class TransactionService {
   }
 
   private void undoRegularTransaction(
-      RegularTransaction transaction, boolean deductedFrom, boolean addedTo) {
+      RegularTransaction transaction, boolean deductedFrom, boolean addedTo) throws Exception {
     if (deductedFrom) {
       accountService.addBalance(transaction.getAccountFrom(), transaction.getAmount());
     }
