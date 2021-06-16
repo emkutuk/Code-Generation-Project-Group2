@@ -1,21 +1,21 @@
 package io.swagger.service;
 
+import io.swagger.model.Account;
 import io.swagger.model.AccountStatus;
-import io.swagger.model.Role;
 import io.swagger.model.User;
 import io.swagger.repo.UserRepo;
 import io.swagger.security.JwtTokenProvider;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.stereotype.Service;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.Transient;
 import java.util.List;
@@ -92,10 +92,9 @@ public class UserService
         return userRepo.findAll();
     }
 
-    public User getUserByIban(String iban)
+    public User getUserByIban(Account account)
     {
-        //TODO
-        return null;
+        return userRepo.findUserByAccountsContaining(account);
     }
 
     public User createUser(User user)

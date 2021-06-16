@@ -132,8 +132,11 @@ public class TransactionService {
           String.format("Date %s is too old to be valid", transaction.getTransactionDate()));
     }
 
-    User userFrom = userService.getUserByIban(transaction.getAccountFrom());
+    log.info(transaction.toString());
+
+
     Account accountFrom = accountService.getAccountByIban(transaction.getAccountFrom());
+    User userFrom = userService.getUserByIban(accountFrom);
     Account accountTo = accountService.getAccountByIban(transaction.getAccountTo());
 
     if (userFrom == null || accountFrom == null || accountTo == null) {
