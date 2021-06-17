@@ -7,7 +7,6 @@ import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.NotSupportedException;
 import java.beans.Transient;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
@@ -56,7 +55,7 @@ public class TransactionService {
 
   //omar
   public List<Transaction> getTransactionsByUserId(UUID id,Integer max,Integer offset) throws Exception {
-    /*User user = userService.getUserById(id);
+    User user = userService.getUserById(id);
     //validate user
     try{
       List<Transaction> allTransactions = new ArrayList<Transaction>();
@@ -80,13 +79,12 @@ public class TransactionService {
     }
     catch (Exception e){
       throw new Exception("Invalid User ID or no transactions found");
-    }*/
-    return null;
+    }
   }
 
   // omar
   public List<Transaction> getTransactionsByIban(String Iban, Integer max, Integer offset) throws Exception {
-    /*//validate user
+    //validate user
       Account account= accountService.getAccountByIban(Iban);
       List<Transaction> allAccountTransactions = account.getTransactions();
       ArrayList<Transaction> filteredList = new ArrayList<Transaction>();
@@ -100,8 +98,7 @@ public class TransactionService {
     } catch (Exception e) {
       throw new Exception("Transaction not found");
     }
-    return filteredList;*/
-    return null;
+    return filteredList;
   }
 
   // omar
@@ -135,8 +132,11 @@ public class TransactionService {
           String.format("Date %s is too old to be valid", transaction.getTransactionDate()));
     }
 
-    User userFrom = userService.getUserByIban(transaction.getAccountFrom());
+    log.info(transaction.toString());
+
+
     Account accountFrom = accountService.getAccountByIban(transaction.getAccountFrom());
+    User userFrom = userService.getUserByIban(accountFrom);
     Account accountTo = accountService.getAccountByIban(transaction.getAccountTo());
 
     if (userFrom == null || accountFrom == null || accountTo == null) {
@@ -186,8 +186,7 @@ public class TransactionService {
     }
   }
 
-  private Deposit performDeposit(Deposit deposit) throws Exception
-  {
+  private Deposit performDeposit(Deposit deposit) throws Exception {
     // Assuming valid user
     // Assuming validation done in account service
     // Assuming deposit is a valid deposit
@@ -195,8 +194,7 @@ public class TransactionService {
     return transactionRepo.save(deposit);
   }
 
-  private Withdrawal performWithdrawal(Withdrawal withdrawal) throws Exception
-  {
+  private Withdrawal performWithdrawal(Withdrawal withdrawal) throws Exception {
     // Assuming valid user
     // Assuming validation done in account
     // Assuming withdrawal is a valid withdrawal
@@ -204,8 +202,7 @@ public class TransactionService {
     return transactionRepo.save(withdrawal);
   }
 
-  private RegularTransaction performRegularTransaction(RegularTransaction transaction) throws Exception
-  {
+  private RegularTransaction performRegularTransaction(RegularTransaction transaction) throws Exception {
     // Assuming valid user
     // Assuming validation done in account
     // Assuming transaction is a valid transaction
@@ -226,8 +223,7 @@ public class TransactionService {
   }
 
   private void undoRegularTransaction(
-      RegularTransaction transaction, boolean deductedFrom, boolean addedTo) throws Exception
-  {
+      RegularTransaction transaction, boolean deductedFrom, boolean addedTo) throws Exception {
     if (deductedFrom) {
       accountService.addBalance(transaction.getAccountFrom(), transaction.getAmount());
     }

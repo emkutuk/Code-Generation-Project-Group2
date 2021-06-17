@@ -9,34 +9,7 @@ import org.springframework.validation.annotation.Validated;
 public class LoginDto {
     @JsonProperty("email")
     private String emailAddress = null;
+
     @JsonProperty("password")
     private String password = null;
-
-    public String getEmailAddress()
-    {
-        return emailAddress;
-    }
-
-    public void setEmailAddress(String emailAddress)
-    {
-        this.emailAddress = emailAddress;
-    }
-
-    public String getPassword()
-    {
-        return password;
-    }
-
-    public void setPassword(String password)
-    {
-        this.password = password;
-    }
-
-    @Override
-    public String toString() {
-        return "LoginDTO{" +
-                "username='" + emailAddress + '\'' +
-                ", password='" + password + '\'' +
-                '}';
-    }
 }
