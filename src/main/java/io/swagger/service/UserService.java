@@ -48,50 +48,86 @@ public class UserService
         }
     }
 
-    public String register(User user)
+    public String register(User user) throws Exception
     {
         if (userRepo.findUserByEmail(user.getEmail()) == null)
         {
-            //noinspection SpringConfigurationProxyMethods
-            user.setPassword(passwordEncoder().encode(user.getPassword()));
+            try
+            {
+                //noinspection SpringConfigurationProxyMethods
+                user.setPassword(passwordEncoder().encode(user.getPassword()));
 
-            if (user.getRole() != null)
-                user.setRole(io.swagger.security.Role.ROLE_EMPLOYEE);
+                if (user.getRole() == null) user.setRole(io.swagger.security.Role.ROLE_EMPLOYEE);
 
-            log.info(user.toString());
-            userRepo.save(user);
-            String token = jwtTokenProvider.createToken(user.getEmail(), io.swagger.security.Role.valueOf(user.getRole().toString().toUpperCase(Locale.ROOT)));
-            return token;
+                log.info(user.toString());
+                userRepo.save(user);
+                String token = jwtTokenProvider.createToken(user.getEmail(), io.swagger.security.Role.valueOf(user.getRole().toString().toUpperCase(Locale.ROOT)));
+                return token;
+            } catch (Exception e)
+            {
+                throw new Exception(e.getMessage());
+            }
         } else
         {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Email address already in use.");
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Email address is already in use.");
         }
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder()
+    public PasswordEncoder passwordEncoder() throws Exception
     {
-        return new BCryptPasswordEncoder(12);
+        try
+        {
+            return new BCryptPasswordEncoder(12);
+        } catch (Exception e)
+        {
+            throw new Exception(e.getMessage());
+
+        }
     }
 
-    public User getUserById(UUID id)
+    public User getUserById(UUID id) throws Exception
     {
-        return userRepo.getOne(id);
+        try
+        {
+            return userRepo.getOne(id);
+        } catch (Exception e)
+        {
+            throw new Exception(e.getMessage());
+        }
     }
 
-    public List<User> getAllUsers()
+    public List<User> getAllUsers() throws Exception
     {
-        return userRepo.findAll();
+        try
+        {
+            return userRepo.findAll();
+        } catch (Exception e)
+        {
+            throw new Exception(e.getMessage());
+        }
     }
 
-    public User getUserByIban(Account account)
+    public User getUserByIban(Account account) throws Exception
     {
-        return userRepo.findUserByAccountsContaining(account);
+        try
+        {
+            return userRepo.findUserByAccountsContaining(account);
+        } catch (Exception e)
+        {
+            throw new Exception(e.getMessage());
+        }
     }
 
-    public User createUser(User user)
+    public User createUser(User user) throws Exception
     {
-        return userRepo.save(user);
+        try
+        {
+            return userRepo.save(user);
+        } catch (Exception e)
+        {
+            throw new Exception(e.getMessage());
+        }
     }
 
     // Sets account to inactive

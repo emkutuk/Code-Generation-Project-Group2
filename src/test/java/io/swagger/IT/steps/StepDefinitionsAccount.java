@@ -16,7 +16,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 
-public class StepDefinitions
+public class StepDefinitionsAccount
 {
     private Account account;
     private Double actualBalance;

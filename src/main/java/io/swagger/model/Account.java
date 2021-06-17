@@ -35,6 +35,9 @@ public class Account
     @JsonProperty("balance")
     private Double balance = 0d;
 
+    @JsonProperty("absoluteLimit")
+    private Double absoluteLimit = 0d;
+
     @JsonProperty("transactions")
     @OneToMany
     private List<Transaction> transactions = null;
@@ -72,6 +75,16 @@ public class Account
     public void setIban(String iban)
     {
         this.iban = iban;
+    }
+
+    public Double getAbsoluteLimit()
+    {
+        return absoluteLimit;
+    }
+
+    public void setAbsoluteLimit(Double absoluteLimit)
+    {
+        this.absoluteLimit = absoluteLimit;
     }
 
     public Account accountType(AccountType accountType)
