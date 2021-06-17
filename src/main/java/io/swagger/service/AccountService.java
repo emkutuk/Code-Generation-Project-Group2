@@ -97,8 +97,6 @@ public class AccountService
                 throw new Exception(e.getMessage());
             }
         }
-
-
     }
 
     public void changeAccountType(String iban, String typeEnum) throws Exception

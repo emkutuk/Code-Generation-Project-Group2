@@ -119,6 +119,17 @@ public class UserService
         }
     }
 
+    public User getUserByEmail(String email) throws Exception
+    {
+        try
+        {
+            return userRepo.findUserByEmail(email);
+        } catch (Exception e)
+        {
+            throw new Exception(e.getMessage());
+        }
+    }
+
     public User createUser(User user) throws Exception
     {
         try

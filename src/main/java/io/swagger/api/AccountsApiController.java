@@ -2,7 +2,11 @@ package io.swagger.api;
 
 import io.swagger.model.Account;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.model.User;
+import io.swagger.security.JwtTokenProvider;
+import io.swagger.security.Role;
 import io.swagger.service.AccountService;
+import io.swagger.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -14,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.security.RolesAllowed;
 import javax.validation.constraints.*;
 import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
@@ -32,6 +35,12 @@ public class AccountsApiController implements AccountsApi
 
     @Autowired
     AccountService accountService;
+
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    JwtTokenProvider tokenProvider;
 
     @org.springframework.beans.factory.annotation.Autowired
     public AccountsApiController(ObjectMapper objectMapper, HttpServletRequest request)
@@ -73,8 +82,14 @@ public class AccountsApiController implements AccountsApi
     {
         try
         {
-            accountService.changeAccountStatus(iban, status);
-            return new ResponseEntity<Void>(HttpStatus.OK);
+            int result = accountService.changeAccountStatus(iban, status);
+            // 0 Success
+            // 1 Account not found
+            // 2 Account is banks own account
+            if (result == 0) return new ResponseEntity<Void>(HttpStatus.OK);
+            else if (result == 1) return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+            else if (result == 2) return new ResponseEntity<Void>(HttpStatus.UNAUTHORIZED);
+            else return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -82,15 +97,42 @@ public class AccountsApiController implements AccountsApi
         }
     }
 
-    @RolesAllowed("{CUSTOMER}, {EMPLOYEE}")
-    public ResponseEntity<Double> getAccountBalanceByIban(@Size(max = 34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required = true, schema = @Schema()) @PathVariable("iban") String iban)
+    @PreAuthorize("hasRole('EMPLOYEE') OR hasRole('CUSTOMER')")
+    public ResponseEntity<Double> getAccountBalanceByIban(@Size(max = 34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required = true, schema = @Schema()) @PathVariable("iban") String iban) throws Exception
     {
+        String token = tokenProvider.resolveToken(request);
+        String email = tokenProvider.getUsername(token);
+
+        User user = userService.getUserByEmail(email);
+        Role role = user.getRole();
+
+        Double balance;
         try
         {
-            //Method returns null from service when there is no account with that iban
-            Double balance = accountService.getAccountBalanceByIban(iban);
-            if (balance.equals(null)) return new ResponseEntity<Double>(HttpStatus.NOT_FOUND);
-            else return new ResponseEntity<Double>(HttpStatus.OK).status(200).body(balance);
+            //If the user is a customer, check if that iban belongs to him/her
+            if (role == Role.ROLE_CUSTOMER)
+            {
+                for (Account a : user.getAccounts())
+                {
+                    if (user == userService.getUserByIban(a)) ;
+                    {
+                        balance = accountService.getAccountBalanceByIban(iban);
+                        if (balance.equals(null)) return new ResponseEntity<Double>(HttpStatus.NOT_FOUND);
+                        else return new ResponseEntity<Double>(HttpStatus.OK).status(200).body(balance);
+                    }
+                }
+                //If the account is not his/hers return unauthorized
+                return new ResponseEntity<Double>(HttpStatus.UNAUTHORIZED);
+            }
+            //If the user is employee then return iban no matter what
+            else if (role == Role.ROLE_EMPLOYEE)
+            {
+                balance = accountService.getAccountBalanceByIban(iban);
+                if (balance.equals(null)) return new ResponseEntity<Double>(HttpStatus.NOT_FOUND);
+                else return new ResponseEntity<Double>(HttpStatus.OK).status(200).body(balance);
+            }
+            //If the role is something else than customer or employee, return bad request
+            else return new ResponseEntity<Double>(HttpStatus.BAD_REQUEST);
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -98,13 +140,37 @@ public class AccountsApiController implements AccountsApi
         }
     }
 
-    @RolesAllowed("{CUSTOMER}, {EMPLOYEE}")
-    public ResponseEntity<Account> getAccountByIban(@Size(max = 34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required = true, schema = @Schema()) @PathVariable("iban") String iban)
+    @PreAuthorize("hasRole('EMPLOYEE') OR hasRole('CUSTOMER')")
+    public ResponseEntity<Account> getAccountByIban(@Size(max = 34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required = true, schema = @Schema()) @PathVariable("iban") String iban) throws Exception
     {
+        String token = tokenProvider.resolveToken(request);
+        String email = tokenProvider.getUsername(token);
+
+        User user = userService.getUserByEmail(email);
+        Role role = user.getRole();
+
         try
         {
             Account account = accountService.getAccountByIban(iban);
-            return new ResponseEntity<Account>(HttpStatus.CREATED).status(200).body(account);
+
+            //If its a customer, check if the account belongs to him/her
+            if (role == Role.ROLE_CUSTOMER)
+            {
+                for (Account a : user.getAccounts())
+                {
+                    if (user == userService.getUserByIban(a))
+                        return new ResponseEntity<Account>(HttpStatus.OK).status(200).body(a);
+
+                }
+                //If the account is not his/hers return unauthorized
+                return new ResponseEntity<Account>(HttpStatus.UNAUTHORIZED);
+            }
+            //If its an employee, then return the account no matter what
+            else if (role == Role.ROLE_EMPLOYEE)
+                return new ResponseEntity<Account>(HttpStatus.OK).status(200).body(account);
+                //If its not both then return bad request
+            else return new ResponseEntity<Account>(HttpStatus.BAD_REQUEST);
+
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -112,15 +178,22 @@ public class AccountsApiController implements AccountsApi
         }
     }
 
-    @PreAuthorize("hasRole('CUSTOMER')")
-    @GetMapping
-    public ResponseEntity<List<Account>> getAllAccounts(@Min(0) @Parameter(in = ParameterIn.QUERY, description = "The number of items to skip before starting to collect the result set.", schema = @Schema(allowableValues = {})) @Valid @RequestParam(value = "offset", required = false) Integer offset, @Min(10) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The maximum number of items to return.", schema = @Schema(allowableValues = {}, minimum = "10", maximum = "50", defaultValue = "10")) @Valid @RequestParam(value = "max", required = false, defaultValue = "10") Integer max)
+    @PreAuthorize("hasRole('EMPLOYEE') OR hasRole('CUSTOMER')")
+    public ResponseEntity<List<Account>> getAllAccounts(@Min(0) @Parameter(in = ParameterIn.QUERY, description = "The number of items to skip before starting to collect the result set.", schema = @Schema(allowableValues = {})) @Valid @RequestParam(value = "offset", required = false) Integer offset, @Min(10) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The maximum number of items to return.", schema = @Schema(allowableValues = {}, minimum = "10", maximum = "50", defaultValue = "10")) @Valid @RequestParam(value = "max", required = false, defaultValue = "10") Integer max) throws Exception
     {
         List<Account> accountsList = new ArrayList<Account>();
         List<Account> allAccounts = new ArrayList<Account>();
+
+        String token = tokenProvider.resolveToken(request);
+        String email = tokenProvider.getUsername(token);
+
+        User user = userService.getUserByEmail(email);
+        Role role = user.getRole();
+
         try
         {
-            allAccounts = accountService.getAllAccounts();
+            if (role == Role.ROLE_EMPLOYEE) allAccounts = accountService.getAllAccounts();
+            else if (role == Role.ROLE_CUSTOMER) allAccounts = user.getAccounts();
 
             long maxValue = max + offset;
 
@@ -137,13 +210,39 @@ public class AccountsApiController implements AccountsApi
         }
     }
 
-    @PreAuthorize("hasRole('EMPLOYEE')")
-    public ResponseEntity<Void> updateAccountByIban(@Size(max = 34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required = true, schema = @Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Account account)
+    @PreAuthorize("hasRole('EMPLOYEE') OR hasRole('CUSTOMER')")
+    public ResponseEntity<Void> updateAccountByIban(@Size(max = 34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required = true, schema = @Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Account account) throws Exception
     {
+        String token = tokenProvider.resolveToken(request);
+        String email = tokenProvider.getUsername(token);
+
+        User user = userService.getUserByEmail(email);
+        Role role = user.getRole();
+
         try
         {
-            accountService.updateAccountByIban(iban, account);
-            return new ResponseEntity<Void>(HttpStatus.OK);
+            //If its a customer, check if the account belongs to him/her
+            if (role == Role.ROLE_CUSTOMER)
+            {
+                for (Account a : user.getAccounts())
+                {
+                    if (user == userService.getUserByIban(a))
+                    {
+                        accountService.updateAccountByIban(iban, account);
+                        return new ResponseEntity<Void>(HttpStatus.OK);
+                    }
+                }
+                //If the account is not his/hers return unauthorized
+                return new ResponseEntity<Void>(HttpStatus.UNAUTHORIZED);
+            }
+            //If its an employee, then update the account no matter what
+            else if (role == Role.ROLE_EMPLOYEE)
+            {
+                accountService.updateAccountByIban(iban, account);
+                return new ResponseEntity<Void>(HttpStatus.OK);
+            }
+            //If its not both then return bad request
+            else return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
         } catch (Exception e)
         {
             e.printStackTrace();
