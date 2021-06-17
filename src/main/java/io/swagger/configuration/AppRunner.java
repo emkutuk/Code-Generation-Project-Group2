@@ -50,8 +50,8 @@ public class AppRunner implements ApplicationRunner {
     // Customers
     usersList.add(
         new User(
-            "Customer",
-            "Kutuk",
+            "Hein",
+            "Eken",
             "31685032148",
             "customer",
             "customer",
@@ -62,16 +62,16 @@ public class AppRunner implements ApplicationRunner {
     // Employees
     usersList.add(
         new User(
-            "Employee",
-            "Cinarli",
-            "31685032148",
+            "Amst",
+            "Erdam",
+            "31685032149",
             "employee",
             "employee",
             null,
             io.swagger.security.Role.ROLE_EMPLOYEE,
             AccountStatus.ACTIVE));
 
-    for (User u : usersList) userService.register(u.getEmail(), u.getPassword(), u.getRole());
+    for (User u : usersList) userService.register(u);
 
     log.info("Testing transaction");
     testTransaction();

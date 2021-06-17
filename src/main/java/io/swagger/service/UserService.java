@@ -48,23 +48,15 @@ public class UserService
         }
     }
 
-    public String register(String email, String password, io.swagger.security.Role role)
+    public String register(User user)
     {
-        if (userRepo.findUserByEmail(email) == null)
+        if (userRepo.findUserByEmail(user.getEmail()) == null)
         {
-            User user = new User();
-            user.setEmail(email);
             //noinspection SpringConfigurationProxyMethods
-            user.setPassword(passwordEncoder().encode(password));
-            if (role != null)
-                user.setRole(role);
-            else user.setRole(io.swagger.security.Role.ROLE_EMPLOYEE);
+            user.setPassword(passwordEncoder().encode(user.getPassword()));
 
-            //TODO
-            user.setFirstName("Gabe");
-            user.setLastName("Itch");
-            user.setPhoneNumber("XXX");
-
+            if (user.getRole() != null)
+                user.setRole(io.swagger.security.Role.ROLE_EMPLOYEE);
 
             log.info(user.toString());
             userRepo.save(user);

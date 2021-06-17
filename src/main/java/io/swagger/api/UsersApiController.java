@@ -54,7 +54,7 @@ public class UsersApiController implements UsersApi
             try
             {
                 log.info("Trying to create user");
-                userService.register(user.getEmail(), user.getPassword(), user.getRole());
+                userService.register(user);
                 return new ResponseEntity<User>(HttpStatus.CREATED);
             } catch (Exception e)
             {
