@@ -196,7 +196,7 @@ public class AccountsApiController implements AccountsApi
             else if (role == Role.ROLE_CUSTOMER) allAccounts = user.getAccounts();
 
             long maxValue = max + offset;
-
+            //If the maxValue is bigger then existing accounts, max value is equal to account count
             if (maxValue > allAccounts.stream().count()) maxValue = allAccounts.stream().count();
 
             for (int i = offset; i < maxValue; i++)

@@ -73,19 +73,6 @@ public class UserService
         }
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() throws Exception
-    {
-        try
-        {
-            return new BCryptPasswordEncoder(12);
-        } catch (Exception e)
-        {
-            throw new Exception(e.getMessage());
-
-        }
-    }
-
     public User getUserById(UUID id) throws Exception
     {
         try
@@ -157,5 +144,18 @@ public class UserService
         // userToUpdate.setStuff(user.getStuff)
 
         return userRepo.save(userToUpdate);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() throws Exception
+    {
+        try
+        {
+            return new BCryptPasswordEncoder(12);
+        } catch (Exception e)
+        {
+            throw new Exception(e.getMessage());
+
+        }
     }
 }

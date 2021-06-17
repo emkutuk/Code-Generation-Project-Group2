@@ -126,7 +126,7 @@ public interface UsersApi {
   ResponseEntity<User> getUserById(
       @Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema())
           @PathVariable("id")
-          String id);
+          String id) throws Exception;
 
   @Operation(
       summary = "User login.",
@@ -170,5 +170,5 @@ public interface UsersApi {
           @PathVariable("id")
           String id,
       @Parameter(in = ParameterIn.DEFAULT, description = "", schema = @Schema()) @Valid @RequestBody
-          User user);
+          User user) throws Exception;
 }
