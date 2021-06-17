@@ -25,7 +25,7 @@ import java.util.UUID;
 @Entity
 @Data
 @NoArgsConstructor
-@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
+//@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 public abstract class Transaction{
   @Transient // Don't save to DB
   @JsonIgnore
@@ -34,8 +34,8 @@ public abstract class Transaction{
 
   @Id
   @JsonProperty("transactionId")
-  @ManyToOne(targetEntity = Account.class)
-  @JsonBackReference
+  //@ManyToOne(targetEntity = Account.class)
+  //@JsonBackReference
   @GeneratedValue
   private UUID transactionId = null;
 

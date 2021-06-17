@@ -56,7 +56,7 @@ public class TransactionService {
 
   //omar
   public List<Transaction> getTransactionsByUserId(UUID id,Integer max,Integer offset) throws Exception {
-    User user = userService.getUserById(id);
+    /*User user = userService.getUserById(id);
     //validate user
     try{
       List<Transaction> allTransactions = new ArrayList<Transaction>();
@@ -80,12 +80,13 @@ public class TransactionService {
     }
     catch (Exception e){
       throw new Exception("Invalid User ID or no transactions found");
-    }
+    }*/
+    return null;
   }
 
   // omar
   public List<Transaction> getTransactionsByIban(String Iban, Integer max, Integer offset) throws Exception {
-    //validate user
+    /*//validate user
       Account account= accountService.getAccountByIban(Iban);
       List<Transaction> allAccountTransactions = account.getTransactions();
       ArrayList<Transaction> filteredList = new ArrayList<Transaction>();
@@ -99,7 +100,8 @@ public class TransactionService {
     } catch (Exception e) {
       throw new Exception("Transaction not found");
     }
-    return filteredList;
+    return filteredList;*/
+    return null;
   }
 
   // omar
@@ -184,7 +186,8 @@ public class TransactionService {
     }
   }
 
-  private Deposit performDeposit(Deposit deposit) {
+  private Deposit performDeposit(Deposit deposit) throws Exception
+  {
     // Assuming valid user
     // Assuming validation done in account service
     // Assuming deposit is a valid deposit
@@ -192,7 +195,8 @@ public class TransactionService {
     return transactionRepo.save(deposit);
   }
 
-  private Withdrawal performWithdrawal(Withdrawal withdrawal) {
+  private Withdrawal performWithdrawal(Withdrawal withdrawal) throws Exception
+  {
     // Assuming valid user
     // Assuming validation done in account
     // Assuming withdrawal is a valid withdrawal
@@ -200,7 +204,8 @@ public class TransactionService {
     return transactionRepo.save(withdrawal);
   }
 
-  private RegularTransaction performRegularTransaction(RegularTransaction transaction) {
+  private RegularTransaction performRegularTransaction(RegularTransaction transaction) throws Exception
+  {
     // Assuming valid user
     // Assuming validation done in account
     // Assuming transaction is a valid transaction
@@ -221,7 +226,8 @@ public class TransactionService {
   }
 
   private void undoRegularTransaction(
-      RegularTransaction transaction, boolean deductedFrom, boolean addedTo) {
+      RegularTransaction transaction, boolean deductedFrom, boolean addedTo) throws Exception
+  {
     if (deductedFrom) {
       accountService.addBalance(transaction.getAccountFrom(), transaction.getAmount());
     }

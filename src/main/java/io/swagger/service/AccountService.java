@@ -22,7 +22,7 @@ public class AccountService
     {
         try
         {
-            if (account.getIban().equals("") || account.getIban().equals(null))
+            if (account.getIban().equals("") || account.getIban() == null)
             {
                 account.setIban(GenerateIban());
             }

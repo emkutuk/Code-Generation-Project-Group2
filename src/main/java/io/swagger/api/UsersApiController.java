@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.PermitAll;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
@@ -115,6 +116,7 @@ public class UsersApiController implements UsersApi
     }
 
     @PostMapping("/Login")
+    @PermitAll
     public ResponseEntity<String> loginUser(@Parameter(in = ParameterIn.DEFAULT, description = "", schema = @Schema()) @Valid @RequestBody LoginDto loginDto)
     {
         String accept = request.getHeader("Accept");

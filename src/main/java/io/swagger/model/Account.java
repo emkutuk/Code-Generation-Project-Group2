@@ -1,6 +1,5 @@
 package io.swagger.model;
 
-import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.*;
@@ -32,12 +31,12 @@ public class Account
     @JsonProperty("balance")
     private Double balance = 0d;
 
-    @JsonProperty("transactions")
-    @OneToMany(mappedBy = "transactionId")
-    @JsonManagedReference
-    private List<Transaction> transactions = null;
+    //@JsonProperty("transactions")
+    //@OneToMany(mappedBy = "transactionId")
+    //@JsonManagedReference
+    //private List<Transaction> transactions = null;
 
-    public List<Transaction> getTransactions()
+    /*public List<Transaction> getTransactions()
     {
         return transactions;
     }
@@ -45,7 +44,7 @@ public class Account
     public void setTransactions(List<Transaction> transactions)
     {
         this.transactions = transactions;
-    }
+    }*/
 
     public Account iban(String iban)
     {
