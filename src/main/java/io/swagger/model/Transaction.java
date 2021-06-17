@@ -59,6 +59,13 @@ public abstract class Transaction {
     return transactionId;
   }
 
+  public void setTransactionId(UUID transactionId) {
+    if (transactionId == null) {
+      throw new IllegalArgumentException("Invalid id");
+    }
+    this.transactionId = transactionId;
+  }
+
   /**
    * Timestamp of the transaction.
    *
@@ -69,7 +76,11 @@ public abstract class Transaction {
     return this.transactionDate;
   }
 
-  public void setTransactionDate(LocalDateTime date) {
+  public void setTransactionDate(LocalDateTime date)
+  {
+    if(date == null || date.isBefore(LocalDateTime.now())){
+      throw new IllegalArgumentException("Invalid date");
+    }
     this.transactionDate = date;
   }
 
@@ -87,6 +98,22 @@ public abstract class Transaction {
   public Double getAmount() {
     return amount;
   }
+
+  public void setAmount(Double amount) throws IllegalArgumentException
+  {
+    if(amount <= 0){
+      throw new IllegalArgumentException("Amount cannot be 0 or less");
+    }
+    this.amount = amount;
+  }
+
+  public void setPerformedBy(UUID performedBy) {
+    if(performedBy==null){
+      throw new IllegalArgumentException("Invalid id format");
+    }
+    this.performedBy = performedBy;
+  }
+
 
   /**
    * ID of the user performing the transaction.

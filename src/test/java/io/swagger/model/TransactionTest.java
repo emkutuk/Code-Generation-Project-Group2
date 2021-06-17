@@ -9,8 +9,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class TransactionTest {
 
@@ -23,6 +22,32 @@ class TransactionTest {
   }
 
   @Test
+  @DisplayName("AccountTo should match set iban")
+  public void testGetAccountTo(){
+    assertEquals("NL04INHO68681868171", transaction.getAccountTo());
+    String testIban = "NL99INHO99999999999";
+    transaction.setAccountFrom(testIban);
+    assertEquals(testIban, transaction.getAccountFrom());
+  }
+
+  @Test
+  @DisplayName("AccountFrom should match set iban")
+  public void testGetAccountFrom(){
+    assertEquals("NL01INHO00005798481", transaction.getAccountFrom());
+    String testIban = "NL99INHO99999999999";
+    transaction.setAccountFrom(testIban);
+    assertEquals(testIban, transaction.getAccountFrom());
+  }
+
+  @Test
+  @DisplayName("Amount should match amount set")
+  public void testGetAmount(){
+    assertEquals((Double)120d, transaction.getAmount());
+    transaction.setAmount(999d);
+    assertEquals((Double)999d, transaction.getAmount());
+  }
+
+  @Test
   @DisplayName("Transaction should not be null")
   public void transactionShouldNotBeNull() {
     assertNotNull(transaction);
@@ -30,28 +55,28 @@ class TransactionTest {
 
   @Test
   @DisplayName("TransactionId should not be null")
-  public void transactionIdShouldNotBeNull() {
-    assertNotNull(transaction.getTransactionId());
+  public void transactionIdShouldNotAllowNull() {
+    assertThrows(IllegalArgumentException.class, () -> transaction.setTransactionId(null));
   }
 
   @Test
   @DisplayName("AccountTo should not be null")
   public void setAccountToShouldNotAllowNull() {
-    //transaction.setAccountTo(null);
-    //assertNotNull(transaction.getAccountTo());
+    assertThrows(IllegalArgumentException.class, () -> transaction.setAccountTo(null));
+    assertNotNull(transaction.getAccountTo());
   }
 
   @Test
   @DisplayName("AccountFrom should not be null")
   public void setAccountFromShouldNotAllowNull() {
-    //transaction.setAccountFrom(null);
-    //assertNotNull(transaction.getAccountFrom());
+    assertThrows(IllegalArgumentException.class, () -> transaction.setAccountFrom(null));
+    assertNotNull(transaction.getAccountFrom());
   }
 
   @Test
   @DisplayName("AccountFrom should not be less than 18 characters")
   public void setAccountFromThrowsIllegalArgumentExceptionIfLessThanEighteenCharacters() {
-    //assertThrows(IllegalArgumentException.class, () -> transaction.setAccountFrom(""));
+    assertThrows(IllegalArgumentException.class, () -> transaction.setAccountFrom(""));
   }
 
   @ParameterizedTest
@@ -63,7 +88,7 @@ class TransactionTest {
       })
   public void setAccountFromThrowsIllegalArgumentExceptionIfMoreThanThirtyTwoCharacters(
       String string) {
-    //assertThrows(IllegalArgumentException.class, () -> transaction.setAccountFrom(string));
+    assertThrows(IllegalArgumentException.class, () -> transaction.setAccountFrom(string));
   }
 
   @ParameterizedTest
@@ -75,13 +100,13 @@ class TransactionTest {
       })
   public void setAccountToThrowsIllegalArgumentExceptionIfMoreThanThirtyTwoCharacters(
       String string) {
-    //assertThrows(IllegalArgumentException.class, () -> transaction.setAccountFrom(string));
+    assertThrows(IllegalArgumentException.class, () -> transaction.setAccountFrom(string));
   }
 
   @Test
   @DisplayName("AccountTo should not be less than 18 characters")
   public void setAccountToThrowsIllegalArgumentExceptionIfLessThanEighteenCharacters() {
-    //assertThrows(IllegalArgumentException.class, () -> transaction.setAccountTo(""));
+    assertThrows(IllegalArgumentException.class, () -> transaction.setAccountTo(""));
   }
 
   @Test
@@ -94,7 +119,9 @@ class TransactionTest {
   @ParameterizedTest
   @DisplayName("Transaction Amount should not be 0 or less")
   @ValueSource(doubles = {0, -0.01})
-  public void transactionAmountThrowsIllegalArugmentExceptionIfZeroOrLess(double amount) {
+  public void transactionAmountThrowsIllegalArugmentExceptionIfZeroOrLess(double amount)
+  {
+    assertNotNull(transaction.getAmount());
     assertThrows(IllegalArgumentException.class, () -> transaction.setAmount(amount));
   }
 
@@ -102,7 +129,7 @@ class TransactionTest {
   @DisplayName("performedBy should Not be null")
   public void performedByShouldNotBeNull() {
     assertNotNull(transaction.getPerformedBy());
-    transaction.setPerformedBy(null);
+    assertThrows(IllegalArgumentException.class, () -> transaction.setPerformedBy(null));
     assertNotNull(transaction.getPerformedBy());
   }
 
