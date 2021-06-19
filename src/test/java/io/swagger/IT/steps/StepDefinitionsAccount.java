@@ -64,7 +64,7 @@ public class StepDefinitionsAccount
     {
         Assert.assertEquals(actualBalance, "500.0");
     }
-    
+
     //Scenario: As a customer I would like to close my saving account
     @Given("I am already an existing customer with a saving account that is with zero balance")
     public void iAmAlreadyAnExistingCustomerWithASavingAccountThatIsWithZeroBalance() throws JsonProcessingException, URISyntaxException

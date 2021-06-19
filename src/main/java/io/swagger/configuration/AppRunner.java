@@ -35,7 +35,6 @@ public class AppRunner implements ApplicationRunner
     @Override
     public void run(ApplicationArguments args) throws Exception
     {
-
         // Creating the account for the bank
         Account bankAccount = new Account("NL01INHO0000000001", AccountType.CURRENT, 0.0);
         accountService.addANewAccount(bankAccount);
