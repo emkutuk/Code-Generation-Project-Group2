@@ -5,6 +5,7 @@ import io.swagger.model.AccountStatus;
 import io.swagger.model.User;
 import io.swagger.repo.UserRepo;
 import io.swagger.security.JwtTokenProvider;
+import io.swagger.security.Role;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -41,7 +42,7 @@ public class UserService
         try
         {
             manager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-            return jwtTokenProvider.createToken(email, io.swagger.security.Role.valueOf(userRepo.findUserByEmail(email).getRole().toString().toUpperCase(Locale.ROOT)));
+            return jwtTokenProvider.createToken(email, userRepo.findUserByEmail(email).getRole());
         } catch (AuthenticationException ae)
         {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Invalid credentials");
@@ -56,12 +57,9 @@ public class UserService
             {
                 //noinspection SpringConfigurationProxyMethods
                 user.setPassword(passwordEncoder().encode(user.getPassword()));
-
-                if (user.getRole() == null) user.setRole(io.swagger.security.Role.ROLE_EMPLOYEE);
-
-                log.info(user.toString());
+                if (user.getRole() == null) user.setRole(Role.ROLE_CUSTOMER);
                 userRepo.save(user);
-                String token = jwtTokenProvider.createToken(user.getEmail(), io.swagger.security.Role.valueOf(user.getRole().toString().toUpperCase(Locale.ROOT)));
+                String token = jwtTokenProvider.createToken(user.getEmail(), user.getRole());
                 return token;
             } catch (Exception e)
             {

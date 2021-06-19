@@ -77,12 +77,34 @@ public class AccountsApiController implements AccountsApi
         }
     }
 
-    @PreAuthorize("hasRole('EMPLOYEE')")
-    public ResponseEntity<Void> changeAccountStatus(@Size(max = 34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required = true, schema = @Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.PATH, description = "Account status to be changed to.", required = true, schema = @Schema(allowableValues = {"active", "closed"})) @PathVariable("status") String status)
+    @PreAuthorize("hasRole('EMPLOYEE') OR hasRole('CUSTOMER')")
+    public ResponseEntity<Void> changeAccountStatus(@Size(max = 34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required = true, schema = @Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.PATH, description = "Account status to be changed to.", required = true, schema = @Schema(allowableValues = {"active", "closed"})) @PathVariable("status") String status) throws Exception
     {
+        String token = tokenProvider.resolveToken(request);
+        String email = tokenProvider.getUsername(token);
+
+        User user = userService.getUserByEmail(email);
+        Role role = user.getRole();
+
+        int result = 1;
         try
         {
-            int result = accountService.changeAccountStatus(iban, status);
+            //If the user is a customer, check if that iban belongs to him/her
+            if (role == Role.ROLE_CUSTOMER)
+            {
+                for (Account a : user.getAccounts())
+                {
+                    if (user == userService.getUserByIban(a))
+                    {
+                        result = accountService.changeAccountStatus(iban, status);
+                    }
+                }
+            }
+            //If the user is employee then chage the account's status
+            else if (role == Role.ROLE_EMPLOYEE)
+            {
+                result = accountService.changeAccountStatus(iban, status);
+            }
             // 0 Success
             // 1 Account not found
             // 2 Account is banks own account

@@ -12,4 +12,11 @@ public class LoginDto {
 
     @JsonProperty("password")
     private String password = null;
+
+    public LoginDto(String emailAddress, String password)
+    {
+        this.emailAddress = emailAddress;
+        this.password = password;
+    }
+
 }

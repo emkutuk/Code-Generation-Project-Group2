@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.model.AccountType;
 import io.swagger.service.AccountService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -46,7 +47,7 @@ public class AccountsApiControllerTest
     {
         ObjectMapper mapper = new ObjectMapper();
         this.mvc.perform(post("/Accounts").contentType(MediaType.APPLICATION_JSON_VALUE).content(mapper.writeValueAsString(account))).andExpect(status().isCreated());
-    }
+   }
 
     @Test
     public void testChangeAccountType() throws Exception
@@ -67,6 +68,13 @@ public class AccountsApiControllerTest
     {
         accountService.addANewAccount(this.account);
         this.mvc.perform(get("/Accounts/testIban/Balance")).andExpect(status().isOk());
+    }
+
+    @Test
+    public void testGetAccountBalanceByWrongIban() throws Exception
+    {
+        accountService.addANewAccount(this.account);
+        this.mvc.perform(get("/Accounts/wrongIban/Balance")).andExpect(status().isOk());
     }
 
     @Test

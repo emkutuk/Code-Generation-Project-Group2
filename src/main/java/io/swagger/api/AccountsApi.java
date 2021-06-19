@@ -41,7 +41,7 @@ public interface AccountsApi
     @Operation(summary = "Change an Account Status", description = "", security = {@SecurityRequirement(name = "bearerAuth")}, tags = {"Account"})
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "The account status has been changed.", content = @Content(schema = @Schema(implementation = Account.class)))})
     @RequestMapping(value = "/Accounts/{iban}/Status/{status}", produces = {"application/json"}, method = RequestMethod.POST)
-    ResponseEntity<Void> changeAccountStatus(@Size(max = 34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required = true, schema = @Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.PATH, description = "Account status to be changed to.", required = true, schema = @Schema(allowableValues = {"active", "closed"})) @PathVariable("status") String status);
+    ResponseEntity<Void> changeAccountStatus(@Size(max = 34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required = true, schema = @Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.PATH, description = "Account status to be changed to.", required = true, schema = @Schema(allowableValues = {"active", "closed"})) @PathVariable("status") String status) throws Exception;
 
 
     @Operation(summary = "Changes account type.", description = "", security = {@SecurityRequirement(name = "bearerAuth")}, tags = {"Account"})
