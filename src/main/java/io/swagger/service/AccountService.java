@@ -119,7 +119,6 @@ public class AccountService
     public Double getAccountBalanceByIban(String iban) throws Exception
     {
         Account acc = accountRepo.findByIban(iban);
-
         if (acc == null)
         {
             throw new Exception("Account does not exist.");

@@ -73,7 +73,7 @@ public class AccountsApiController implements AccountsApi
         } catch (Exception e)
         {
             e.printStackTrace();
-            return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -115,7 +115,7 @@ public class AccountsApiController implements AccountsApi
         } catch (Exception e)
         {
             e.printStackTrace();
-            return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -128,7 +128,7 @@ public class AccountsApiController implements AccountsApi
         User user = userService.getUserByEmail(email);
         Role role = user.getRole();
 
-        Double balance;
+        Double balance = null;
         try
         {
             //If the user is a customer, check if that iban belongs to him/her
@@ -151,14 +151,18 @@ public class AccountsApiController implements AccountsApi
             {
                 balance = accountService.getAccountBalanceByIban(iban);
                 if (balance.equals(null)) return new ResponseEntity<Double>(HttpStatus.NOT_FOUND);
-                else return new ResponseEntity<Double>(HttpStatus.OK).status(200).body(balance);
+                else
+                {
+                    System.out.printf(String.valueOf(balance));
+                    return new ResponseEntity<Double>(HttpStatus.OK).status(200).body(balance);
+                }
             }
             //If the role is something else than customer or employee, return bad request
             else return new ResponseEntity<Double>(HttpStatus.BAD_REQUEST);
         } catch (Exception e)
         {
             e.printStackTrace();
-            return new ResponseEntity<Double>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<Double>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -174,7 +178,6 @@ public class AccountsApiController implements AccountsApi
         try
         {
             Account account = accountService.getAccountByIban(iban);
-
             //If its a customer, check if the account belongs to him/her
             if (role == Role.ROLE_CUSTOMER)
             {
@@ -182,7 +185,6 @@ public class AccountsApiController implements AccountsApi
                 {
                     if (user == userService.getUserByIban(a))
                         return new ResponseEntity<Account>(HttpStatus.OK).status(200).body(a);
-
                 }
                 //If the account is not his/hers return unauthorized
                 return new ResponseEntity<Account>(HttpStatus.UNAUTHORIZED);
@@ -192,11 +194,10 @@ public class AccountsApiController implements AccountsApi
                 return new ResponseEntity<Account>(HttpStatus.OK).status(200).body(account);
                 //If its not both then return bad request
             else return new ResponseEntity<Account>(HttpStatus.BAD_REQUEST);
-
         } catch (Exception e)
         {
             e.printStackTrace();
-            return new ResponseEntity<Account>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<Account>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -228,7 +229,7 @@ public class AccountsApiController implements AccountsApi
         } catch (Exception e)
         {
             e.printStackTrace();
-            return new ResponseEntity<List<Account>>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<List<Account>>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -268,7 +269,7 @@ public class AccountsApiController implements AccountsApi
         } catch (Exception e)
         {
             e.printStackTrace();
-            return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
     }
 }

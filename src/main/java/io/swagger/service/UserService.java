@@ -55,7 +55,6 @@ public class UserService
         {
             try
             {
-                //noinspection SpringConfigurationProxyMethods
                 user.setPassword(passwordEncoder().encode(user.getPassword()));
                 if (user.getRole() == null) user.setRole(Role.ROLE_CUSTOMER);
                 userRepo.save(user);
@@ -149,11 +148,10 @@ public class UserService
     {
         try
         {
-            return new BCryptPasswordEncoder(12);
+            return new BCryptPasswordEncoder();
         } catch (Exception e)
         {
             throw new Exception(e.getMessage());
-
         }
     }
 }
