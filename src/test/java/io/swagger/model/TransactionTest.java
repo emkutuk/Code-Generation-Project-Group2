@@ -117,20 +117,66 @@ class TransactionTest {
   }
 
   @ParameterizedTest
-  @DisplayName("Transaction Amount should not be 0 or less")
+  @DisplayName("Transaction amount should not be 0 or less")
   @ValueSource(doubles = {0, -0.01})
-  public void transactionAmountThrowsIllegalArugmentExceptionIfZeroOrLess(double amount)
+  public void transactionAmountThrowsIllegalArgumentExceptionIfZeroOrLess(double amount)
   {
     assertNotNull(transaction.getAmount());
     assertThrows(IllegalArgumentException.class, () -> transaction.setAmount(amount));
   }
 
   @Test
-  @DisplayName("performedBy should Not be null")
+  @DisplayName("performedBy should not be null")
   public void performedByShouldNotBeNull() {
     assertNotNull(transaction.getPerformedBy());
     assertThrows(IllegalArgumentException.class, () -> transaction.setPerformedBy(null));
     assertNotNull(transaction.getPerformedBy());
+  }
+
+  @Test
+  @DisplayName("getTransactionId should match setTransactionId")
+  public void setTransactionShouldMatchGivenIdWhenGetTransactionId()
+  {
+    UUID id = UUID.randomUUID();
+    transaction.setTransactionId(id);
+    assertEquals(id, transaction.getTransactionId());
+  }
+
+  @Test
+  @DisplayName("No args constructor should not be null")
+  public void noArgsConstructorShouldNotBeNull()
+  {
+    transaction = new RegularTransaction();
+    assertNotNull(transaction);
+  }
+
+  @Test
+  @DisplayName("getTransactionDate should return now if not set")
+  public void getTransactionDateShouldReturnNowIfNotSet()
+  {
+    assertNotNull(transaction.getTransactionDate());
+    // Shouldn't take longer than a second between initialisation and comparison
+    assertTrue(transaction.getTransactionDate().isAfter(LocalDateTime.now().minusSeconds(1)));
+    assertTrue(transaction.getTransactionDate().isBefore(LocalDateTime.now().plusSeconds(1)));
+  }
+
+  @Test
+  @DisplayName("getTransactionDate should match setTransactionDate")
+  public void getTransactionDateShouldMatchSetTransactionDate()
+  {
+    LocalDateTime expectedDate = LocalDateTime.now().plusMinutes(15);
+    transaction.setTransactionDate(expectedDate);
+    assertEquals(expectedDate, transaction.getTransactionDate());
+  }
+
+  @Test
+  @DisplayName("getTransactionDate should match setTransactionDate")
+  public void getPerformedByShouldMatchSetPerformedBy()
+  {
+    UUID expectedId = UUID.randomUUID();
+    transaction.setPerformedBy(expectedId);
+    assertEquals(expectedId, transaction.getPerformedBy());
+
   }
 
 }
