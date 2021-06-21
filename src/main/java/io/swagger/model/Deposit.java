@@ -27,11 +27,6 @@ public class Deposit extends Transaction {
     this.accountTo = accountTo;
   }
 
-  public Deposit accountTo(String accountTo) {
-    this.accountTo = accountTo;
-    return this;
-  }
-
   /**
    * IBAN of the account receiving the money.
    *
