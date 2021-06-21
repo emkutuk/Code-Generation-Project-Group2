@@ -32,21 +32,62 @@ class TransactionServiceTest {
 
   private List<Transaction> expectedTransactionList;
 
-  // Test Users and Accounts
+  // Test Users, Accounts & Transactions
   private Account accountToCurrent, accountToSavings, accountFromCurrent, accountFromSavings;
   private User customerTo, customerFrom, employee;
 
+  // Performed by employee by default
+  private RegularTransaction transactionCurrentToCurrent,
+      transactionCurrentToSavings,
+      transactionSavingsToCurrent,
+      transactionSavingsToSavings;
+
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     MockitoAnnotations.initMocks(this);
 
     // Create test accounts
-    accountToCurrent = new Account("accountToCurrent", AccountType.CURRENT, 100d);
-    accountToSavings = new Account("accountToSavings", AccountType.SAVING, 100d);
-    accountFromCurrent = new Account("accountFromCurrent", AccountType.CURRENT, 100d);
-    accountFromSavings = new Account("accountFromSavings", AccountType.SAVING, 100d);
-
+    accountSetup();
     // create fake users
+    userSetup();
+    // Transaction Templates
+    transactionSetup();
+    // Service Mocking
+    serviceSetup();
+  }
+
+  private void serviceSetup() {
+
+    // Account Service
+    when(accountService.getAccountByIban(accountToCurrent.getIban())).thenReturn(accountToCurrent);
+    when(accountService.getAccountByIban(accountFromCurrent.getIban()))
+        .thenReturn(accountFromCurrent);
+    when(accountService.getAccountByIban(accountToSavings.getIban())).thenReturn(accountToSavings);
+    when(accountService.getAccountByIban(accountFromSavings.getIban()))
+        .thenReturn(accountFromSavings);
+
+    // User service
+    when(userService.getUserByIban(accountToCurrent)).thenReturn(customerTo);
+    when(userService.getUserByIban(accountToSavings)).thenReturn(customerTo);
+    when(userService.getUserByIban(accountFromCurrent)).thenReturn(customerFrom);
+    when(userService.getUserByIban(accountFromSavings)).thenReturn(customerFrom);
+
+    // Transaction Repo
+    when(transactionRepo.save(transactionCurrentToCurrent)).thenReturn(transactionCurrentToCurrent);
+    when(transactionRepo.save(transactionCurrentToSavings)).thenReturn(transactionCurrentToSavings);
+    when(transactionRepo.save(transactionSavingsToCurrent)).thenReturn(transactionSavingsToCurrent);
+    when(transactionRepo.save(transactionSavingsToSavings)).thenReturn(transactionSavingsToSavings);
+    when(transactionRepo.findAll()).thenReturn(expectedTransactionList);
+  }
+
+  private void accountSetup() {
+    accountToCurrent = new Account("accountToCurrent", AccountType.CURRENT, 1000d);
+    accountToSavings = new Account("accountToSavings", AccountType.SAVING, 1000d);
+    accountFromCurrent = new Account("accountFromCurrent", AccountType.CURRENT, 1000d);
+    accountFromSavings = new Account("accountFromSavings", AccountType.SAVING, 1000d);
+  }
+
+  private void userSetup() {
     customerTo =
         new User(
             "Customer",
@@ -67,8 +108,8 @@ class TransactionServiceTest {
             "Customer",
             "From",
             "12345",
-            "customerTo",
-            "customerTo",
+            "customerFrom",
+            "customerFrom",
             new ArrayList<Account>() {
               {
                 add(accountFromCurrent);
@@ -89,8 +130,60 @@ class TransactionServiceTest {
             AccountStatus.ACTIVE);
   }
 
+  private void transactionSetup() {
+    transactionCurrentToCurrent =
+        new RegularTransaction(
+            accountToCurrent.getIban(),
+            accountFromCurrent.getIban(),
+            400d,
+            employee.getId(),
+            LocalDateTime.now());
+
+    transactionCurrentToSavings =
+        new RegularTransaction(
+            accountToSavings.getIban(),
+            accountFromCurrent.getIban(),
+            400d,
+            employee.getId(),
+            LocalDateTime.now());
+
+    transactionSavingsToCurrent =
+        new RegularTransaction(
+            accountToCurrent.getIban(),
+            accountFromSavings.getIban(),
+            400d,
+            employee.getId(),
+            LocalDateTime.now());
+
+    transactionSavingsToSavings =
+        new RegularTransaction(
+            accountToSavings.getIban(),
+            accountFromSavings.getIban(),
+            400d,
+            employee.getId(),
+            LocalDateTime.now());
+
+    expectedTransactionList =
+        new ArrayList<Transaction>() {
+          {
+            add(transactionCurrentToCurrent);
+            add(transactionCurrentToSavings);
+            add(transactionSavingsToCurrent);
+            add(transactionSavingsToSavings);
+          }
+        };
+  }
+
   @AfterEach
-  void tearDown() {}
+  void tearDown() {
+    // Reset for each test
+    accountToCurrent = accountToSavings = accountFromCurrent = accountFromSavings = null;
+    customerTo = customerFrom = employee = null;
+    transactionCurrentToCurrent =
+        transactionCurrentToSavings =
+            transactionSavingsToCurrent = transactionSavingsToSavings = null;
+    expectedTransactionList = null;
+  }
 
   /*  @Test
   void getTransactions()
@@ -119,8 +212,11 @@ class TransactionServiceTest {
   }*/
 
   @Test
+  @DisplayName("createTransaction throws Illegal state exception if ate older than 15 minutes")
   public void
       createTransactionShouldNotAllowDatesOlderThan5MinutesPast_ThrowsIllegalStateException() {
+
+    // Date can only be set in constructor
     RegularTransaction expectedTransaction =
         new RegularTransaction(
             accountToCurrent.getIban(),
@@ -134,23 +230,16 @@ class TransactionServiceTest {
         () -> transactionService.createTransaction(expectedTransaction, employee));
   }
 
-  @ParameterizedTest
+  @Test
   @DisplayName("createTransaction should not allow accountTo that does not exist")
-  @ValueSource(strings = {"", "fakeAccount", "123"})
-  public void createTransactionShouldNotAllowAccountToThatDoNotExist_ThrowsIllegalArgumentException(
-      String account) {
+  public void
+      createTransactionShouldNotAllowAccountToThatDoNotExist_ThrowsIllegalArgumentException() {
 
-    // Service Mocking
-    when(accountService.getAccountByIban(accountToCurrent.getIban())).thenReturn(accountToCurrent);
-    when(accountService.getAccountByIban(accountFromCurrent.getIban())).thenReturn(accountToCurrent);
-    when(userService.getUserByIban(accountFromCurrent)).thenReturn(customerFrom);
+    transactionCurrentToCurrent.setAccountTo("ThisAccountDoesNotExist");
 
-    RegularTransaction expectedTransaction =
-        new RegularTransaction(
-            account, accountFromCurrent.getIban(), 400d, employee.getId(), LocalDateTime.now());
     assertThrows(
         IllegalArgumentException.class,
-        () -> transactionService.createTransaction(expectedTransaction, employee));
+        () -> transactionService.createTransaction(transactionCurrentToCurrent, employee));
   }
 
   @ParameterizedTest
@@ -161,33 +250,51 @@ class TransactionServiceTest {
           String account) {
     RegularTransaction expectedTransaction =
         new RegularTransaction(account, "", 400d, UUID.randomUUID(), LocalDateTime.now());
-    User fakeUser = new User();
     assertThrows(
         IllegalArgumentException.class,
-        () -> transactionService.createTransaction(expectedTransaction, fakeUser));
+        () -> transactionService.createTransaction(expectedTransaction, employee));
   }
 
   @Test
   @DisplayName("Valid transaction between two current accounts performed by employee")
   public void createTransactionTest() throws Exception {
-    RegularTransaction expectedTransaction =
-        new RegularTransaction(
-            accountToCurrent.getIban(),
-            accountFromCurrent.getIban(),
-            400d,
-            employee.getId(),
-            LocalDateTime.now());
 
-    // Service Mocking
-    when(accountService.getAccountByIban(accountToCurrent.getIban())).thenReturn(accountToCurrent);
-    when(accountService.getAccountByIban(accountFromCurrent.getIban())).thenReturn(accountFromCurrent);
-    when(userService.getUserByIban(accountFromCurrent)).thenReturn(customerFrom);
-    when(transactionRepo.save(expectedTransaction)).thenReturn(expectedTransaction);
-
-    Transaction returnedTransaction = transactionService.createTransaction(expectedTransaction, employee);
+    Transaction returnedTransaction =
+        transactionService.createTransaction(transactionCurrentToCurrent, employee);
 
     assertNotNull(returnedTransaction);
-    assertEquals(expectedTransaction, returnedTransaction);
+    assertEquals(transactionCurrentToCurrent, returnedTransaction);
+  }
+
+  @Test
+  @DisplayName(
+      "createTransaction should not allow customer to transfer from account that is not theirs")
+  public void
+      createTransactionShouldNotAllowUserToTransferFromAccountThatIsNotTheirs_ThrowsIllegalArgumentException() {
+
+    transactionCurrentToCurrent.setAccountFrom(accountFromCurrent.getIban());
+    transactionCurrentToCurrent.setPerformedBy(customerTo.getId());
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> transactionService.createTransaction(transactionCurrentToCurrent, customerTo));
+  }
+
+  @Test
+  @DisplayName(
+      "createTransaction should now allow to transfer between savings account if not same user")
+  public void
+      createTransactionShouldNotAllowUserToTransferFromSavingsAccountToAnotherSavingsAccount_ThrowsIllegalArgumentException() {
+
+    // Savings to another users savings
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> transactionService.createTransaction(transactionSavingsToSavings, employee));
+
+    transactionSavingsToSavings.setAccountTo(accountFromSavings.getIban());
+
+    // Savings to same user (same account)
+    assertDoesNotThrow(
+        () -> transactionService.createTransaction(transactionSavingsToSavings, employee));
   }
 
   @Test

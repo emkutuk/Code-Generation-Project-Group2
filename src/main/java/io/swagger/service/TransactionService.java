@@ -146,11 +146,15 @@ public class TransactionService {
     }
 
     // If user is a customer and does not own the account from which the money is leaving
-
-    if (user.getRole().equals(Role.ROLE_CUSTOMER) && !userFrom.getAccounts().contains(accountFrom)) {
+    if (!userFrom.getId().equals(user.getId()) && user.getRole().equals(Role.ROLE_CUSTOMER)) {
       log.info("User trying to make transaction from another users account");
       throw new IllegalArgumentException("user is not authorized to do this");
     }
+
+//    if (user.getRole().equals(Role.ROLE_CUSTOMER) && !userFrom.getAccounts().contains(accountFrom)) {
+//      log.info("User trying to make transaction from another users account");
+//      throw new IllegalArgumentException("user is not authorized to do this");
+//    }
     // If user does not own the account to and it is a savings account
     else if (!(userFrom.getAccounts().contains(accountTo))
         && accountTo.getAccountType().equals(AccountType.SAVING)) {
