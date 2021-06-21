@@ -10,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 /** RegularTransaction */
@@ -24,6 +25,13 @@ public class RegularTransaction extends Transaction {
   public RegularTransaction(String accountTo, String accountFrom, double amount, UUID performedBy)
   {
     super(amount, performedBy, null);
+    this.accountTo = accountTo;
+    this.accountFrom = accountFrom;
+  }
+
+  public RegularTransaction(String accountTo, String accountFrom, double amount, UUID performedBy, LocalDateTime transactionDate)
+  {
+    super(amount, performedBy, transactionDate);
     this.accountTo = accountTo;
     this.accountFrom = accountFrom;
   }

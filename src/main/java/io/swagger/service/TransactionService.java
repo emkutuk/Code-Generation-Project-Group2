@@ -126,7 +126,7 @@ public class TransactionService {
 
   public RegularTransaction createTransaction(RegularTransaction transaction, User user)
       throws Exception {
-    if (LocalDateTime.now().minusMinutes(3).isAfter(transaction.getTransactionDate())) {
+    if (transaction.getTransactionDate() == null ||LocalDateTime.now().minusMinutes(3).isAfter(transaction.getTransactionDate())) {
       // Transaction is too old
       log.info("Transaction is too old");
       throw new IllegalStateException(
