@@ -29,11 +29,6 @@ public class Withdrawal extends Transaction {
     this.accountFrom = accountFrom;
   }
 
-  public Withdrawal accountFrom(String accountFrom) {
-    this.accountFrom = accountFrom;
-    return this;
-  }
-
   /**
    * IBAN of the account withdrawing the money.
    * @return accountFrom

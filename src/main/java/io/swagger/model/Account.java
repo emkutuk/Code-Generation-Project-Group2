@@ -1,16 +1,17 @@
 package io.swagger.model;
 
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.validation.constraints.*;
+import javax.persistence.OneToMany;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Account
@@ -34,11 +35,28 @@ public class Account
     @JsonProperty("balance")
     private Double balance = 0d;
 
-    public Account iban(String iban)
+    @JsonProperty("absoluteLimit")
+    private Double absoluteLimit = 0d;
+
+    @JsonProperty("transactions")
+    @OneToMany
+    private List<Transaction> transactions = null;
+
+    public List<Transaction> getTransactions()
+    {
+        return transactions;
+    }
+
+    public void setTransactions(List<Transaction> transactions)
+    {
+        this.transactions = transactions;
+    }
+
+    /*public Account iban(String iban)
     {
         this.iban = iban;
         return this;
-    }
+    }*/
 
     /**
      * IBAN number of the account.
@@ -59,11 +77,21 @@ public class Account
         this.iban = iban;
     }
 
-    public Account accountType(AccountType accountType)
+    public Double getAbsoluteLimit()
+    {
+        return absoluteLimit;
+    }
+
+    public void setAbsoluteLimit(Double absoluteLimit)
+    {
+        this.absoluteLimit = absoluteLimit;
+    }
+
+    /*public Account accountType(AccountType accountType)
     {
         this.accountType = accountType;
         return this;
-    }
+    }*/
 
     /**
      * The type of the account. This can be either saving or current.
@@ -83,11 +111,11 @@ public class Account
         this.accountType = accountType;
     }
 
-    public Account accountStatus(AccountStatus accountStatus)
+    /*public Account accountStatus(AccountStatus accountStatus)
     {
         this.accountStatus = accountStatus;
         return this;
-    }
+    }*/
 
     /**
      * The status of the account. This can be either active or closed.
@@ -107,11 +135,11 @@ public class Account
         this.accountStatus = accountStatus;
     }
 
-    public Account balance(Double balance)
+    /*public Account balance(Double balance)
     {
         this.balance = balance;
         return this;
-    }
+    }*/
 
     /**
      * Get balance

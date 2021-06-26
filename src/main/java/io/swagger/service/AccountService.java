@@ -22,9 +22,9 @@ public class AccountService
     {
         try
         {
-            if (account.getIban().equals("") || account.getIban().equals(null))
+            if (account.getIban().equals("") || account.getIban() == null)
             {
-                account.setIban(GenerateIban());
+                account.setIban(generateIban());
             }
             accountRepo.save(account);
         } catch (Exception e)
@@ -33,7 +33,6 @@ public class AccountService
         }
     }
 
-    //TODO Authorization stuff here, I need to check user
     public List<Account> getAllAccounts() throws Exception
     {
         try
@@ -49,89 +48,88 @@ public class AccountService
     public Account getAccountByIban(String iban)
     {
         Account account = accountRepo.findByIban(iban);
-        if (account != null)
-            return account;
+        if (account != null) return account;
             //If there are no accounts, it returns null
-        else
-            return null;
+        else return null;
     }
 
     // 0 Success
     // 1 Account not found
+    // 2 Unauthorized operation
     public int changeAccountStatus(String iban, String status) throws Exception
     {
         Account account = getAccountByIban(iban);
-        if (account == null)
-            return 1;
+        if (account == null) return 1;
+        else if (isBankAccount(account)) return 2;
         else
-            {
-                try
-                {
-                    account.setAccountStatus(AccountStatus.valueOf(status.toUpperCase(Locale.ROOT)));
-                    return 0;
-                } catch (Exception e)
-                {
-                    throw new Exception(e.getMessage());
-                }
-            }
-        }
-
-        public void updateAccountByIban (String iban, Account account) throws Exception {
-        List<Account> allAccounts = (List<Account>) accountRepo.findAll();
-
-        //Checks all accounts by their iban
-        for (Account a : allAccounts)
         {
-            if (a.getIban().equals(iban))
+            try
             {
-                try
-                {
-                    a.setIban(account.getIban());
-                    a.setAccountType(account.getAccountType());
-                    a.setBalance(account.getBalance());
-                    accountRepo.save(a);
-                } catch (Exception e)
-                {
-                    throw new Exception(e.getMessage());
-                }
+                account.setAccountStatus(AccountStatus.valueOf(status.toUpperCase(Locale.ROOT)));
+                return 0;
+            } catch (Exception e)
+            {
+                throw new Exception(e.getMessage());
             }
         }
     }
 
-        public void changeAccountType (String iban, String typeEnum) throws Exception {
-        List<Account> allAccounts = (List<Account>) accountRepo.findAll();
-
-        //Checks all accounts by their iban
-        for (Account a : allAccounts)
+    public void updateAccountByIban(String iban, Account account) throws Exception
+    {
+        Account acc = accountRepo.findByIban(iban);
+        if (acc == null)
         {
-            if (a.getIban().equals(iban))
+            throw new Exception("The account doesn't exist!");
+
+        } else if (isBankAccount(acc))
+        {
+            throw new Exception("This account can not be updated!");
+        } else
+        {
+            try
             {
-                try
-                {
-                    accountRepo.delete(a);
-                    a.setAccountType(AccountType.valueOf(typeEnum.toUpperCase(Locale.ROOT)));
-                    accountRepo.save(a);
-                } catch (Exception e)
-                {
-                    throw new Exception(e.getMessage());
-                }
+                acc.setIban(account.getIban());
+                acc.setAccountType(account.getAccountType());
+                acc.setBalance(account.getBalance());
+                accountRepo.save(acc);
+            } catch (Exception e)
+            {
+                throw new Exception(e.getMessage());
             }
         }
     }
 
-        public Double getAccountBalanceByIban (String iban)
+    public void changeAccountType(String iban, String typeEnum) throws Exception
+    {
+        Account acc = accountRepo.findByIban(iban);
+        if (!isBankAccount(acc))
         {
-            List<Account> allAccounts = (List<Account>) accountRepo.findAll();
-
-            //Checks all accounts by their iban
-            for (Account a : allAccounts)
+            try
             {
-                if (a.getIban().equals(iban)) return a.getBalance();
+                acc.setAccountType(AccountType.valueOf(typeEnum.toUpperCase(Locale.ROOT)));
+                accountRepo.save(acc);
+            } catch (Exception e)
+            {
+                throw new Exception(e.getMessage());
             }
-            return null;
-        }
+        } else throw new Exception("This account type can not be changed!");
 
-        public boolean addBalance (String iban,double amount) throws Exception {
+    }
+
+    public Double getAccountBalanceByIban(String iban) throws Exception
+    {
+        Account acc = accountRepo.findByIban(iban);
+        if (acc == null)
+        {
+            throw new Exception("Account does not exist.");
+        } else
+        {
+            return acc.getBalance();
+        }
+    }
+
+    public boolean addBalance(String iban, double amount) throws Exception
+    {
         try
         {
             Account account = getAccountByIban(iban);
@@ -152,28 +150,35 @@ public class AccountService
         }
     }
 
-        public boolean subtractBalance (String iban,double amount) throws Exception {
+    public boolean subtractBalance(String iban, double amount) throws Exception
+    {
         try
         {
             Account account = getAccountByIban(iban);
             double balance = account.getBalance();
 
             //Checks if amount is valid
-            if (amount > 0 && balance >= amount)
+            if (amount > 0)
             {
-                account.setBalance(balance - amount);
-                return true;
-            } else
-            {
-                throw new Exception("Amount needs to be more than 0 or balance needs to be more than the amount.");
-            }
+                //Checks if balance is sufficient
+                if (balance >= amount)
+                {
+                    //Checks whether absolute limit is reached after the transaction
+                    if ((balance - amount) >= account.getAbsoluteLimit())
+                    {
+                        account.setBalance(balance - amount);
+                        return true;
+                    } else throw new Exception("Absolute limit has been reached.");
+                } else throw new Exception("Balance needs to be more than the amount.");
+            } else throw new Exception("Amount needs to be more than 0.");
         } catch (Exception e)
         {
             throw new Exception(e.getMessage());
         }
     }
 
-        public String GenerateIban () {
+    private String generateIban()
+    {
         //Format : NLxxINHO0xxxxxxxxx
         // 2 digits - 9 digits
 
@@ -199,4 +204,10 @@ public class AccountService
         //Combine all iban together and return the value
         return "NL" + first2Digits + "INHO0" + last9Digits;
     }
+
+    private boolean isBankAccount(Account account)
+    {
+        if (account.getIban() == "NL01INHO0000000001") return true;
+        else return false;
     }
+}

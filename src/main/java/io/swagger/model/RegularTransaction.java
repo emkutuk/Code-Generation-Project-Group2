@@ -4,11 +4,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 /** RegularTransaction */
@@ -27,11 +29,35 @@ public class RegularTransaction extends Transaction {
     this.accountFrom = accountFrom;
   }
 
+  public RegularTransaction(String accountTo, String accountFrom, double amount, UUID performedBy, LocalDateTime transactionDate)
+  {
+    super(amount, performedBy, transactionDate);
+    this.accountTo = accountTo;
+    this.accountFrom = accountFrom;
+  }
+
   @JsonProperty("accountTo")
+  @NonNull
   private String accountTo = null;
 
+  @NotNull
   @JsonProperty("accountFrom")
   private String accountFrom = null;
+
+  public void setAccountTo(String accountTo)
+  {
+    if(accountTo == null || accountTo.length() < 18 || accountTo.length() > 34){
+      throw new IllegalArgumentException("Invalid Account format");
+    }
+    this.accountTo = accountTo;
+  }
+
+  public void setAccountFrom(String accountFrom) {
+    if(accountFrom == null || accountFrom.length() < 18 || accountFrom.length() > 34 ){
+      throw new IllegalArgumentException("Invalid Account format");
+    }
+    this.accountFrom = accountFrom;
+  }
 
   /**
    * IBAN of the account receiving the money.

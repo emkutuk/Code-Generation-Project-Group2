@@ -17,7 +17,7 @@ class TransactionsApiControllerTest
 
   @BeforeEach
   public void init(){
-    transactionService = new TransactionService();
+    //transactionService = new TransactionService();
   }
 
   @Test
