@@ -13,4 +13,3 @@ Feature: User Tests
   Scenario: As a user, I want to login into my account
     When I want to login with email "employee", password "employee"
     Then Show HTTPStatus 200
-
