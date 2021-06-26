@@ -14,6 +14,7 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 @Component
 @Transactional
@@ -50,6 +51,9 @@ public class AppRunner implements ApplicationRunner
         User customer = new User("Hein", "Eken", "31685032148", "customer", "customer", new ArrayList<>(), io.swagger.security.Role.ROLE_CUSTOMER, AccountStatus.ACTIVE);
         User employee = new User("Amst", "Erdam", "31685032149", "employee", "employee", new ArrayList<>(), io.swagger.security.Role.ROLE_EMPLOYEE, AccountStatus.ACTIVE);
 
+        // User for Cucumber
+        User cucumberUser = new User(UUID.fromString("3fa85f64-5717-4562-b3fc-2c963f66afa6"), "Cuc", "Umber", "31685222149", "testCucumber", "testCucumber", new ArrayList<>(), io.swagger.security.Role.ROLE_EMPLOYEE, AccountStatus.ACTIVE);
+
         Account customerCurrentAcc = new Account(AccountType.CURRENT);
         Account customerSavingAcc = new Account(AccountType.SAVING, 500D);
 
@@ -61,6 +65,7 @@ public class AppRunner implements ApplicationRunner
 
         userService.register(customer);
         userService.register(employee);
+        userService.register(cucumberUser);
 
         log.info("Testing transaction");
         testTransaction();

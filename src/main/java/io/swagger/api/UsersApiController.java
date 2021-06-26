@@ -153,7 +153,7 @@ public class UsersApiController implements UsersApi
                 //If its an employee then update the user
             } else
             {
-                user.setId(loggedInUser.getId());
+                user.setId(UUID.fromString(id));
                 userService.updateUser(user);
             }
         }

@@ -25,7 +25,6 @@ public class StepDefinitionsAccount
     private ResponseEntity<String> responseEntity;
     private ObjectMapper mapper;
     private String loginUrl = "http://localhost:8080/api/Login";
-    private String userUrl = "http://localhost:8080/api/Users";
     private String accountUrl = "http://localhost:8080/api/Accounts";
 
 
