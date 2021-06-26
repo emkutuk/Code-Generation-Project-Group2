@@ -43,7 +43,7 @@ class TransactionServiceTest {
       transactionSavingsToSavings;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
 
     // Create test accounts
@@ -56,7 +56,7 @@ class TransactionServiceTest {
     serviceSetup();
   }
 
-  private void serviceSetup() {
+  private void serviceSetup() throws Exception {
 
     // Account Service
     when(accountService.getAccountByIban(accountToCurrent.getIban())).thenReturn(accountToCurrent);
