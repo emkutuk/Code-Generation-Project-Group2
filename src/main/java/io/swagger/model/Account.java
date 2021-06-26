@@ -54,11 +54,11 @@ public class Account
         this.transactions = transactions;
     }
 
-    public Account iban(String iban)
+    /*public Account iban(String iban)
     {
         this.iban = iban;
         return this;
-    }
+    }*/
 
     /**
      * IBAN number of the account.
@@ -89,11 +89,11 @@ public class Account
         this.absoluteLimit = absoluteLimit;
     }
 
-    public Account accountType(AccountType accountType)
+    /*public Account accountType(AccountType accountType)
     {
         this.accountType = accountType;
         return this;
-    }
+    }*/
 
     /**
      * The type of the account. This can be either saving or current.
@@ -113,11 +113,11 @@ public class Account
         this.accountType = accountType;
     }
 
-    public Account accountStatus(AccountStatus accountStatus)
+    /*public Account accountStatus(AccountStatus accountStatus)
     {
         this.accountStatus = accountStatus;
         return this;
-    }
+    }*/
 
     /**
      * The status of the account. This can be either active or closed.
@@ -137,11 +137,11 @@ public class Account
         this.accountStatus = accountStatus;
     }
 
-    public Account balance(Double balance)
+    /*public Account balance(Double balance)
     {
         this.balance = balance;
         return this;
-    }
+    }*/
 
     /**
      * Get balance

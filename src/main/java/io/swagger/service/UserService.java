@@ -83,13 +83,10 @@ public class UserService
 
     public List<User> getAllUsers() throws Exception
     {
-        try
-        {
+        if(userRepo.findAll() != null)
             return userRepo.findAll();
-        } catch (Exception e)
-        {
-            throw new Exception(e.getMessage());
-        }
+        else
+            throw new NullPointerException("Users cannot be null!");
     }
 
     public User getUserByIban(Account account) throws Exception
@@ -138,7 +135,15 @@ public class UserService
     public User updateUser(User user)
     {
         User userToUpdate = userRepo.getOne(user.getId());
-        // userToUpdate.setStuff(user.getStuff)
+
+        userToUpdate.setPassword(user.getPassword());
+        userToUpdate.setAccounts(user.getAccounts());
+        userToUpdate.setEmail(user.getEmail());
+        userToUpdate.setRole(user.getRole());
+        userToUpdate.setAccountStatus(user.getAccountStatus());
+        userToUpdate.setPhoneNumber(user.getPhoneNumber());
+        userToUpdate.setLastName(user.getLastName());
+        userToUpdate.setFirstName(user.getFirstName());
 
         return userRepo.save(userToUpdate);
     }

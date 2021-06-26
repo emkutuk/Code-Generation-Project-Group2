@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class UserTest
 {
     private User user;
+    private User userConstructor;
     private List<Account> accounts;
 
     @BeforeEach
@@ -19,6 +20,7 @@ class UserTest
         accounts = new ArrayList<>();
         accounts.add(new Account("testIban", AccountType.CURRENT, 500D));
         user = new User("firstNameTest", "lastNameTest", "3100000000", "emailTest", "passwordTest", accounts, Role.ROLE_CUSTOMER, AccountStatus.ACTIVE);
+        userConstructor = new User();
     }
 
     @Test
@@ -111,5 +113,25 @@ class UserTest
     {
         user.setAccountStatus(AccountStatus.DISABLED);
         assertEquals(user.getAccountStatus(), AccountStatus.DISABLED);
+    }
+
+    @Test
+    void getPassword()
+    {
+        assertEquals(user.getPassword(), "passwordTest");
+    }
+
+    @Test
+    void setPassword()
+    {
+        user.setPassword("newPasswordTest");
+        assertEquals("newPasswordTest", user.getPassword());
+    }
+
+    @Test
+    void constructorWithNoParameters()
+    {
+        User actualUser = new User();
+        assertEquals(userConstructor, actualUser);
     }
 }
