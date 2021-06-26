@@ -2,6 +2,7 @@ package io.swagger.IT.steps;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -10,7 +11,6 @@ import org.junit.Assert;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -18,25 +18,30 @@ import java.net.URISyntaxException;
 public class StepDefinitionsAccount
 {
     private String token;
-    private String actualBalance;
 
-    private String actualResult;
-
-    private RestTemplate template = new RestTemplate();
+    private RestTemplate template;
+    private HttpHeaders headers;
+    private HttpEntity<String> entity;
+    private ResponseEntity<String> responseEntity;
+    private ObjectMapper mapper;
     private String loginUrl = "http://localhost:8080/api/Login";
     private String userUrl = "http://localhost:8080/api/Users";
     private String accountUrl = "http://localhost:8080/api/Accounts";
-    private HttpHeaders headers = new HttpHeaders();
 
-    private ResponseEntity<String> responseEntity;
 
-    //Scenario: As a customer I would like to create a saving account
-    @Given("I have an account")
-    public void iHaveAnAccount() throws Exception
+    @Before
+    public void setup()
+    {
+        template = new RestTemplate();
+        headers = new HttpHeaders();
+        mapper = new ObjectMapper();
+    }
+
+    public void Login(String email, String password) throws JsonProcessingException, URISyntaxException
     {
         //Login user
         ObjectMapper mapper = new ObjectMapper();
-        LoginDto loginDto = new LoginDto("customer", "customer");
+        LoginDto loginDto = new LoginDto(email, password);
 
         URI userUri = new URI(loginUrl);
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -46,76 +51,106 @@ public class StepDefinitionsAccount
         token = responseEntity.getBody();
     }
 
-    @When("I want to learn about my account's balance")
-    public void iWantToLearnAboutMyAccountSBalance() throws IOException, URISyntaxException
+
+    @Given("I am a customer")
+    public void iAmACustomer() throws JsonProcessingException, URISyntaxException
     {
-        URI uri = new URI(accountUrl + "/NL01INHO0000000053/Balance");
+        Login("customer", "customer");
+    }
+
+    @Given("I am an employee")
+    public void iAmAnEmployee() throws URISyntaxException, JsonProcessingException
+    {
+        Login("employee", "employee");
+    }
+
+    @When("I want to see all accounts")
+    public void iWantToSeeAllAccounts() throws URISyntaxException
+    {
+        String parameters = "?max=10&offset=0";
+        URI uri = new URI(accountUrl + parameters);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(token);
+        entity = new HttpEntity<>(headers);
+        responseEntity = template.exchange(uri, HttpMethod.GET, entity, String.class);
+    }
+
+    @Then("Display HTTPStatus {int}")
+    public void displayHTTPStatus(int statusCode)
+    {
+        Assert.assertEquals(statusCode, responseEntity.getStatusCodeValue());
+    }
+
+    @When("I want to get the account with iban {string}")
+    public void iWantToGetTheAccountWithIban(String iban) throws URISyntaxException
+    {
+        URI uri = new URI(accountUrl + "/" + iban);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(token);
+        entity = new HttpEntity<>(headers);
+        responseEntity = template.exchange(uri, HttpMethod.GET, entity, String.class);
+    }
+
+    @When("I want to create a new {string} account")
+    public void iWantToCreateANewAccount(String accountType) throws Exception
+    {
+        URI uri = new URI(accountUrl);
 
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(token);
 
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        responseEntity = template.exchange(uri, HttpMethod.GET, entity, String.class);
-        actualBalance = responseEntity.getBody();
+        Account accountToBeAdded = new Account(AccountType.fromValue(accountType));
+
+        HttpEntity<String> entity = new HttpEntity<>(mapper.writeValueAsString(accountToBeAdded), headers);
+        responseEntity = template.postForEntity(uri, entity, String.class);
     }
 
-    @Then("I should be able to see my account's balance")
-    public void iShouldBeAbleToSeeMyAccountSBalance()
+
+    @When("I want to change account with iban {string} type to {string}")
+    public void iWantToChangeAccountWithIbanTypeTo(String iban, String accountType) throws URISyntaxException
     {
-        Assert.assertEquals(actualBalance, "500.0");
-    }
-
-    //Scenario: As a customer I would like to close my saving account
-    @Given("I am already an existing customer with a saving account that is with zero balance")
-    public void iAmAlreadyAnExistingCustomerWithASavingAccountThatIsWithZeroBalance() throws JsonProcessingException, URISyntaxException
-    {
-        //Login user
-        ObjectMapper mapper = new ObjectMapper();
-        LoginDto loginDto = new LoginDto("customer", "customer");
-
-        URI userUri = new URI(loginUrl);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> entity = new HttpEntity<>(mapper.writeValueAsString(loginDto), headers);
-
-        responseEntity = template.postForEntity(userUri, entity, String.class);
-        token = responseEntity.getBody();
-    }
-
-    @When("I want to close my account")
-    public void iWantToCloseMyAccount() throws URISyntaxException
-    {
-        URI uri = new URI(accountUrl + "/NL01INHO0000000053/Status/disabled");
+        URI uri = new URI(accountUrl + "/" + iban + "/" + accountType);
 
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(token);
 
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
         responseEntity = template.postForEntity(uri, entity, String.class);
-        actualResult = responseEntity.getStatusCode().toString();
     }
 
-    @Then("I should be able to delete my account")
-    public void iShouldBeAbleToDeleteMyAccount()
+    @When("I want to change account with iban {string} status to {string}")
+    public void iWantToChangeAccountWithIbanStatusTo(String iban, String accountStatus) throws URISyntaxException
     {
-        Assert.assertEquals("200 OK", actualResult);
+        URI uri = new URI(accountUrl + "/" + iban + "/Status/" + accountStatus);
+
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(token);
+
+        HttpEntity<String> entity = new HttpEntity<>(null, headers);
+        responseEntity = template.postForEntity(uri, entity, String.class);
     }
 
-    @Given("I am a customer")
-    public void iAmACustomer()
+    @When("I want to get account's balance with iban {string}")
+    public void iWantToGetAccountSBalanceWithIban(String iban) throws URISyntaxException
     {
+        URI uri = new URI(accountUrl + "/" + iban + "/Balance");
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(token);
+        entity = new HttpEntity<>(headers);
+        responseEntity = template.exchange(uri, HttpMethod.GET, entity, String.class);
     }
 
-    @When("I want to open a new account")
-    public void iWantToOpenANewAccount()
+    @When("I want to update an account iban {string} with a new {string} account")
+    public void iWantToUpdateAnAccountIbanWithANewAccount(String iban, String accountType) throws Exception
     {
-        //Create an account, add it to the customer
+        URI uri = new URI(accountUrl + "/" + iban);
+
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("Authorization", "Bearer " + token);
+
+        Account newAccount = new Account(AccountType.fromValue(accountType));
+        HttpEntity<String> entity = new HttpEntity<>(mapper.writeValueAsString(newAccount), headers);
+
+        responseEntity = template.exchange(uri, HttpMethod.PUT, entity, String.class);
     }
-
-    @Then("I should be able to open a new account")
-    public void iShouldBeAbleToOpenANewAccount()
-    {
-        //Check if testIban belongs to that customer
-    }
-
-
 }

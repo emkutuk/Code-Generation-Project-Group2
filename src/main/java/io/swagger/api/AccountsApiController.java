@@ -157,7 +157,7 @@ public class AccountsApiController implements AccountsApi
             {
                 for (Account a : user.getAccounts())
                 {
-                    if (user == userService.getUserByIban(a))
+                    if (user == userService.getUserByIban(account))
                         return new ResponseEntity<Account>(HttpStatus.OK).status(200).body(a);
                 }
                 //If the account is not his/hers return unauthorized

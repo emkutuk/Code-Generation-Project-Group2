@@ -89,9 +89,10 @@ public class AccountService
         {
             try
             {
-                acc.setIban(account.getIban());
+                acc.setAccountStatus(account.getAccountStatus());
                 acc.setAccountType(account.getAccountType());
-                acc.setBalance(account.getBalance());
+                acc.setAbsoluteLimit(account.getAbsoluteLimit());
+
                 accountRepo.save(acc);
                 return acc;
             } catch (Exception e)

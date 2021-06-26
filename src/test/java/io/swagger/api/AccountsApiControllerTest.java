@@ -206,11 +206,18 @@ public class AccountsApiControllerTest
     @Test
     public void changeAccountStatusReturnsUnauthorized() throws Exception
     {
-        given (accountService.changeAccountStatus(account.getIban(), "disabled")).willReturn(2);
+        given(accountService.changeAccountStatus(account.getIban(), "disabled")).willReturn(2);
 
         this.mvc.perform(post("/Accounts/"+account.getIban()+"/Status/disabled")
                 .header("authorization", "Bearer " + employeeToken))
                 .andExpect(status().isUnauthorized());
+    }
 
+    @Test
+    public void getAccountBalanceByIbanReturnsUnauthorizedIfAccountIsNotCustomers() throws Exception
+    {
+        this.mvc.perform(get("/Accounts/"+account.getIban()+"/Balance")
+                .header("authorization", "Bearer " + customerToken))
+                .andExpect(status().isUnauthorized());
     }
 }

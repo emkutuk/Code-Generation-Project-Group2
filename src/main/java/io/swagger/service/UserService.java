@@ -83,10 +83,8 @@ public class UserService
 
     public List<User> getAllUsers() throws Exception
     {
-        if(userRepo.findAll() != null)
-            return userRepo.findAll();
-        else
-            throw new NullPointerException("Users cannot be null!");
+        if (userRepo.findAll() != null) return userRepo.findAll();
+        else throw new NullPointerException("Users cannot be null!");
     }
 
     public User getUserByIban(Account account) throws Exception
@@ -127,8 +125,12 @@ public class UserService
     public User deleteUserById(UUID id)
     {
         User userToDelete = userRepo.getOne(id);
-        userToDelete.setAccountStatus(AccountStatus.DISABLED);
-        return userRepo.save(userToDelete);
+        if (userToDelete == null) return null;
+        else
+        {
+            userToDelete.setAccountStatus(AccountStatus.DISABLED);
+            return userRepo.save(userToDelete);
+        }
     }
 
     @Transient
