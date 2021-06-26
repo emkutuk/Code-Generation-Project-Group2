@@ -18,7 +18,7 @@ public class AccountService
     @Autowired
     private AccountRepo accountRepo;
 
-    public void addANewAccount(Account account) throws Exception
+    public Account addANewAccount(Account account) throws Exception
     {
         try
         {
@@ -27,6 +27,7 @@ public class AccountService
                 account.setIban(generateIban());
             }
             accountRepo.save(account);
+            return account;
         } catch (Exception e)
         {
             throw new Exception(e.getMessage());
@@ -74,7 +75,7 @@ public class AccountService
         }
     }
 
-    public void updateAccountByIban(String iban, Account account) throws Exception
+    public Account updateAccountByIban(String iban, Account account) throws Exception
     {
         Account acc = accountRepo.findByIban(iban);
         if (acc == null)
@@ -92,6 +93,7 @@ public class AccountService
                 acc.setAccountType(account.getAccountType());
                 acc.setBalance(account.getBalance());
                 accountRepo.save(acc);
+                return acc;
             } catch (Exception e)
             {
                 throw new Exception(e.getMessage());
@@ -99,7 +101,7 @@ public class AccountService
         }
     }
 
-    public void changeAccountType(String iban, String typeEnum) throws Exception
+    public Account changeAccountType(String iban, String typeEnum) throws Exception
     {
         Account acc = accountRepo.findByIban(iban);
         if (!isBankAccount(acc))
@@ -108,12 +110,12 @@ public class AccountService
             {
                 acc.setAccountType(AccountType.valueOf(typeEnum.toUpperCase(Locale.ROOT)));
                 accountRepo.save(acc);
+                return acc;
             } catch (Exception e)
             {
                 throw new Exception(e.getMessage());
             }
         } else throw new Exception("This account type can not be changed!");
-
     }
 
     public Double getAccountBalanceByIban(String iban) throws Exception
