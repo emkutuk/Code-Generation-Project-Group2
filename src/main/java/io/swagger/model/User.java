@@ -1,8 +1,11 @@
 package io.swagger.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.*;
@@ -15,6 +18,7 @@ import java.util.UUID;
 /**
  * User
  */
+@JsonIgnoreProperties(value = {"handler","hibernateLazyInitializer","fieldHandler"})
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-06T11:20:30.422Z[GMT]")
 @Data
@@ -23,7 +27,7 @@ public class User
 {
     public User(String firstName, String lastName, String phoneNumber, String email, String password, List<Account> accounts, io.swagger.security.Role role, AccountStatus accountStatus)
     {
-        this.id =UUID.randomUUID();
+        this.id = UUID.randomUUID();
         this.firstName = firstName;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
@@ -60,6 +64,7 @@ public class User
     private String password = null;
 
     //@JsonProperty("accounts")
+    @NotFound(action = NotFoundAction.IGNORE)
     @OneToMany
     private List<Account> accounts = null;
 
@@ -80,11 +85,6 @@ public class User
     public UUID getId()
     {
         return id;
-    }
-
-    public void setId(UUID id)
-    {
-        this.id = id;
     }
 
     /**

@@ -35,6 +35,9 @@ public class Account
     @JsonProperty("balance")
     private Double balance = 0d;
 
+    @JsonProperty("absoluteLimit")
+    private Double absoluteLimit = 0d;
+
     @JsonProperty("transactions")
     @OneToMany
     private List<Transaction> transactions = null;
@@ -49,11 +52,11 @@ public class Account
         this.transactions = transactions;
     }
 
-    public Account iban(String iban)
+    /*public Account iban(String iban)
     {
         this.iban = iban;
         return this;
-    }
+    }*/
 
     /**
      * IBAN number of the account.
@@ -74,11 +77,21 @@ public class Account
         this.iban = iban;
     }
 
-    public Account accountType(AccountType accountType)
+    public Double getAbsoluteLimit()
+    {
+        return absoluteLimit;
+    }
+
+    public void setAbsoluteLimit(Double absoluteLimit)
+    {
+        this.absoluteLimit = absoluteLimit;
+    }
+
+    /*public Account accountType(AccountType accountType)
     {
         this.accountType = accountType;
         return this;
-    }
+    }*/
 
     /**
      * The type of the account. This can be either saving or current.
@@ -98,11 +111,11 @@ public class Account
         this.accountType = accountType;
     }
 
-    public Account accountStatus(AccountStatus accountStatus)
+    /*public Account accountStatus(AccountStatus accountStatus)
     {
         this.accountStatus = accountStatus;
         return this;
-    }
+    }*/
 
     /**
      * The status of the account. This can be either active or closed.
@@ -122,11 +135,11 @@ public class Account
         this.accountStatus = accountStatus;
     }
 
-    public Account balance(Double balance)
+    /*public Account balance(Double balance)
     {
         this.balance = balance;
         return this;
-    }
+    }*/
 
     /**
      * Get balance

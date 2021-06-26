@@ -1,9 +1,12 @@
 package io.swagger.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.model.Account;
 import io.swagger.model.BearerTokenDto;
 import io.swagger.model.LoginDto;
 import io.swagger.model.User;
+import io.swagger.security.JwtTokenProvider;
+import io.swagger.security.Role;
 import io.swagger.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -13,12 +16,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.PermitAll;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,6 +39,9 @@ public class UsersApiController implements UsersApi
     private final HttpServletRequest request;
 
     @Autowired
+    private JwtTokenProvider tokenProvider;
+
+    @Autowired
     private UserService userService;
 
     @org.springframework.beans.factory.annotation.Autowired
@@ -42,112 +51,150 @@ public class UsersApiController implements UsersApi
         this.request = request;
     }
 
+    @PreAuthorize("hasRole('EMPLOYEE')")
     public ResponseEntity<User> createUser(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody User user)
     {
-        String accept = request.getHeader("Accept");
-
-        // Validate user
-
-        if (accept != null && accept.contains("application/json"))
+        try
         {
-            try
-            {
-                log.info("Trying to create user");
-                userService.register(user.getEmail(), user.getPassword(), user.getRole());
-                return new ResponseEntity<User>(HttpStatus.CREATED);
-            } catch (Exception e)
-            {
-                e.printStackTrace();
-                // return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+            log.info("Trying to create user");
+            userService.register(user);
+            return new ResponseEntity<User>(HttpStatus.CREATED);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
+
     }
 
+    @PreAuthorize("hasRole('EMPLOYEE')")
     public ResponseEntity<Void> deleteUserById(@Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema()) @PathVariable("id") String id)
     {
-        String accept = request.getHeader("Accept");
-
-        // Validate user
-        log.info("Change user status to disabled");
-        userService.deleteUserById(UUID.fromString(id));
-        return new ResponseEntity<Void>(HttpStatus.OK);
+        try
+        {
+            log.info("Change user status to disabled");
+            userService.deleteUserById(UUID.fromString(id));
+            return new ResponseEntity<Void>(HttpStatus.OK);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
+    @PreAuthorize("hasRole('EMPLOYEE')")
     public ResponseEntity<List<User>> getAllUsers(@Min(0) @Parameter(in = ParameterIn.QUERY, description = "The number of items to skip before starting to collect the result set.", schema = @Schema(allowableValues = {})) @Valid @RequestParam(value = "offset", required = false) Integer offset, @Min(10) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The maximum number of items to return.", schema = @Schema(allowableValues = {}, minimum = "10", maximum = "50", defaultValue = "10")) @Valid @RequestParam(value = "max", required = false, defaultValue = "10") Integer max)
     {
-        String accept = request.getHeader("Accept");
-        // Validate user
-        // Employee Only
-
-        if (accept != null && accept.contains("application/json"))
-        {
-            try
-            {
-                log.info("Returning all users");
-                return new ResponseEntity<List<User>>(userService.getAllUsers(), HttpStatus.OK);
-            } catch (Exception e)
-            {
-                // return new ResponseEntity<List<User>>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
-
-        return new ResponseEntity<List<User>>(HttpStatus.BAD_REQUEST);
-    }
-
-    public ResponseEntity<User> getUserById(@Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema()) @PathVariable("id") String id)
-    {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json"))
-        {
-            try
-            {
-                log.info("Getting user by ID");
-                return new ResponseEntity<User>(userService.getUserById(UUID.fromString(id)), HttpStatus.OK);
-            } catch (Exception e)
-            {
-                //return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
-
-        return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
-    }
-
-    @PostMapping("/Login")
-    public ResponseEntity<String> loginUser(@Parameter(in = ParameterIn.DEFAULT, description = "", schema = @Schema()) @Valid @RequestBody LoginDto loginDto)
-    {
-        String accept = request.getHeader("Accept");
+        List <User> allUsers = new ArrayList<User>();
+        List <User> usersList = new ArrayList<User>();
 
         try
         {
+            allUsers = userService.getAllUsers();
+            log.info("Returning all users");
 
-            return new ResponseEntity<String>(userService.login(loginDto.getEmailAddress(), loginDto.getPassword()), HttpStatus.OK);
+            long maxValue = max + offset;
+
+            //If the maxValue is bigger then existing users, max value is equal to user count
+            if (maxValue > allUsers.stream().count())
+                maxValue = allUsers.stream().count();
+
+            for (int i = offset; i < maxValue; i++)
+                usersList.add(allUsers.get(i));
+
+            return new ResponseEntity<List<Account>>(HttpStatus.OK).status(200).body(usersList);
         } catch (Exception e)
         {
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            e.printStackTrace();
+            return new ResponseEntity<List<User>>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+
+    }
+
+    @PreAuthorize("hasRole('EMPLOYEE') OR hasRole('CUSTOMER')")
+    public ResponseEntity<User> getUserById(@Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema()) @PathVariable("id") String id) throws Exception
+    {
+        String token = tokenProvider.resolveToken(request);
+        String email = tokenProvider.getUsername(token);
+
+        User loggedInUser = userService.getUserByEmail(email);
+        Role role = loggedInUser.getRole();
+        try
+        {
+            log.info("Getting user by ID");
+            //If its a user then check if this is him/her
+            if (role == Role.ROLE_CUSTOMER)
+            {
+                if (id.equals(loggedInUser.getId().toString()))
+                {
+                    return new ResponseEntity<User>(userService.getUserById(UUID.fromString(id)), HttpStatus.OK);
+                }
+                //If its not him/her, return unauthorized
+                else return new ResponseEntity<User>(HttpStatus.UNAUTHORIZED);
+
+                //If its an employee then return the user
+            } else if (role == Role.ROLE_EMPLOYEE)
+                return new ResponseEntity<User>(userService.getUserById(UUID.fromString(id)), HttpStatus.OK);
+            else return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
 
-    public ResponseEntity<User> updateUserById(@Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema()) @PathVariable("id") String id, @Parameter(in = ParameterIn.DEFAULT, description = "", schema = @Schema()) @Valid @RequestBody User user)
+    @PostMapping("/Login")
+    @PermitAll
+    public ResponseEntity<String> loginUser(@Parameter(in = ParameterIn.DEFAULT, description = "", schema = @Schema()) @Valid @RequestBody LoginDto loginDto)
     {
-
-        String accept = request.getHeader("Accept");
-        // Validate User
-
-        if (accept != null && accept.contains("application/json"))
+        try
         {
-            try
-            {
-                log.info("Updating a user");
-                return new ResponseEntity<User>(userService.updateUser(user), HttpStatus.NOT_IMPLEMENTED);
-            } catch (Exception e)
-            {
-                // return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+            return new ResponseEntity<String>(userService.login(loginDto.getEmailAddress(), loginDto.getPassword()), HttpStatus.OK);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
 
-        return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
+    @PreAuthorize("hasRole('EMPLOYEE') OR hasRole('CUSTOMER')")
+    public ResponseEntity<User> updateUserById(@Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema()) @PathVariable("id") String id, @Parameter(in = ParameterIn.DEFAULT, description = "", schema = @Schema()) @Valid @RequestBody User user) throws Exception
+    {
+        String token = tokenProvider.resolveToken(request);
+        String email = tokenProvider.getUsername(token);
+
+        User loggedInUser = userService.getUserByEmail(email);
+        Role role = loggedInUser.getRole();
+
+        try
+        {
+            log.info("Updating a user");
+            //If its a user then check if this is him/her
+            if (role == Role.ROLE_CUSTOMER)
+            {
+                if (id.equals(loggedInUser.getId().toString()))
+                {
+                    user.setId(loggedInUser.getId());
+                    userService.updateUser(user);
+                    return new ResponseEntity<User>(user, HttpStatus.OK);
+                }
+                //If its not him/her, return unauthorized
+                else return new ResponseEntity<User>(HttpStatus.UNAUTHORIZED);
+                //If its an employee then update the user
+            } else if (role == Role.ROLE_EMPLOYEE)
+            {
+                user.setId(loggedInUser.getId());
+                userService.updateUser(user);
+            } else return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
+
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return null;
     }
 }

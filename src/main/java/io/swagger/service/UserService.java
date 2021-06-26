@@ -5,6 +5,7 @@ import io.swagger.model.AccountStatus;
 import io.swagger.model.User;
 import io.swagger.repo.UserRepo;
 import io.swagger.security.JwtTokenProvider;
+import io.swagger.security.Role;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -41,65 +42,84 @@ public class UserService
         try
         {
             manager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-            return jwtTokenProvider.createToken(email, io.swagger.security.Role.valueOf(userRepo.findUserByEmail(email).getRole().toString().toUpperCase(Locale.ROOT)));
+            return jwtTokenProvider.createToken(email, userRepo.findUserByEmail(email).getRole());
         } catch (AuthenticationException ae)
         {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Invalid credentials");
         }
     }
 
-    public String register(String email, String password, io.swagger.security.Role role)
+    public String register(User user) throws Exception
     {
-        if (userRepo.findUserByEmail(email) == null)
+        if (userRepo.findUserByEmail(user.getEmail()) == null)
         {
-            User user = new User();
-            user.setEmail(email);
-            //noinspection SpringConfigurationProxyMethods
-            user.setPassword(passwordEncoder().encode(password));
-            if (role != null)
-                user.setRole(role);
-            else user.setRole(io.swagger.security.Role.ROLE_EMPLOYEE);
-
-            //TODO
-            user.setFirstName("Gabe");
-            user.setLastName("Itch");
-            user.setPhoneNumber("XXX");
-
-
-            log.info(user.toString());
-            userRepo.save(user);
-            String token = jwtTokenProvider.createToken(user.getEmail(), io.swagger.security.Role.valueOf(user.getRole().toString().toUpperCase(Locale.ROOT)));
-            return token;
+            try
+            {
+                user.setPassword(passwordEncoder().encode(user.getPassword()));
+                if (user.getRole() == null) user.setRole(Role.ROLE_CUSTOMER);
+                userRepo.save(user);
+                String token = jwtTokenProvider.createToken(user.getEmail(), user.getRole());
+                return token;
+            } catch (Exception e)
+            {
+                throw new Exception(e.getMessage());
+            }
         } else
         {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Email address already in use.");
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Email address is already in use.");
         }
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder()
+    public User getUserById(UUID id) throws Exception
     {
-        return new BCryptPasswordEncoder(12);
+        try
+        {
+            return userRepo.getOne(id);
+        } catch (Exception e)
+        {
+            throw new Exception(e.getMessage());
+        }
     }
 
-    public User getUserById(UUID id)
+    public List<User> getAllUsers() throws Exception
     {
-        return userRepo.getOne(id);
+        if(userRepo.findAll() != null)
+            return userRepo.findAll();
+        else
+            throw new NullPointerException("Users cannot be null!");
     }
 
-    public List<User> getAllUsers()
+    public User getUserByIban(Account account) throws Exception
     {
-        return userRepo.findAll();
+        try
+        {
+            return userRepo.findUserByAccountsContaining(account);
+        } catch (Exception e)
+        {
+            throw new Exception(e.getMessage());
+        }
     }
 
-    public User getUserByIban(Account account)
+    public User getUserByEmail(String email) throws Exception
     {
-        return userRepo.findUserByAccountsContaining(account);
+        try
+        {
+            return userRepo.findUserByEmail(email);
+        } catch (Exception e)
+        {
+            throw new Exception(e.getMessage());
+        }
     }
 
-    public User createUser(User user)
+    public User createUser(User user) throws Exception
     {
-        return userRepo.save(user);
+        try
+        {
+            return userRepo.save(user);
+        } catch (Exception e)
+        {
+            throw new Exception(e.getMessage());
+        }
     }
 
     // Sets account to inactive
@@ -115,8 +135,28 @@ public class UserService
     public User updateUser(User user)
     {
         User userToUpdate = userRepo.getOne(user.getId());
-        // userToUpdate.setStuff(user.getStuff)
+
+        userToUpdate.setPassword(user.getPassword());
+        userToUpdate.setAccounts(user.getAccounts());
+        userToUpdate.setEmail(user.getEmail());
+        userToUpdate.setRole(user.getRole());
+        userToUpdate.setAccountStatus(user.getAccountStatus());
+        userToUpdate.setPhoneNumber(user.getPhoneNumber());
+        userToUpdate.setLastName(user.getLastName());
+        userToUpdate.setFirstName(user.getFirstName());
 
         return userRepo.save(userToUpdate);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() throws Exception
+    {
+        try
+        {
+            return new BCryptPasswordEncoder();
+        } catch (Exception e)
+        {
+            throw new Exception(e.getMessage());
+        }
     }
 }
