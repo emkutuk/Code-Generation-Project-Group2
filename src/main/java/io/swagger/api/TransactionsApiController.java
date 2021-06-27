@@ -58,7 +58,13 @@ public class TransactionsApiController implements TransactionsApi
           @Valid
           @RequestBody
           RegularTransaction transaction) {
+
     String accept = request.getHeader("Accept");
+
+    log.info(transaction.getPerformedBy().toString());
+    // It only adds the fields of the child class now???
+
+    if (accept != null) {
       try {
         User user = getUserFromToken();
         log.info("should be creating transaction");
@@ -66,9 +72,12 @@ public class TransactionsApiController implements TransactionsApi
             transactionService.createTransaction(transaction, user), HttpStatus.CREATED);
       } catch (Exception e) {
         e.printStackTrace();
+        // Handle exceptions
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
       }
+    }
 
+    return new ResponseEntity<RegularTransaction>(HttpStatus.BAD_REQUEST);
   }
 
     @PreAuthorize("hasRole('EMPLOYEE') OR hasRole('CUSTOMER')")
@@ -93,6 +102,8 @@ public class TransactionsApiController implements TransactionsApi
           Deposit deposit) {
 
     String accept = request.getHeader("Accept");
+
+    if (accept != null) {
       try {
         log.info("Trying to save deposit");
         return new ResponseEntity<Deposit>(
@@ -101,6 +112,7 @@ public class TransactionsApiController implements TransactionsApi
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
   }
+    }
 
     @PreAuthorize("hasRole('EMPLOYEE') OR hasRole('CUSTOMER')")
     public ResponseEntity<List<Transaction>> getTransactionByIBAN(@Size(max = 34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required = true, schema = @Schema()) @PathVariable("iban") String iban, @Min(10) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The maximum number of items to return.", schema = @Schema(allowableValues = {}, minimum = "10", maximum = "50", defaultValue = "10")) @Valid @RequestParam(value = "max", required = false, defaultValue = "10") Integer max, @Min(0) @Parameter(in = ParameterIn.QUERY, description = "The number of items to skip before starting to collect the result set.", schema = @Schema(allowableValues = {})) @Valid @RequestParam(value = "offset", required = false) Integer offset)
@@ -154,7 +166,8 @@ public class TransactionsApiController implements TransactionsApi
           @Valid
           @RequestBody
           Withdrawal withdrawal) {
-
+    String accept = request.getHeader("Accept");
+    if (accept != null) {
       try {
         log.info("Trying to save withdrawal");
         return new ResponseEntity<Withdrawal>(
@@ -163,7 +176,7 @@ public class TransactionsApiController implements TransactionsApi
         log.error("Couldn't serialize response for content type application/json", e);
         return new ResponseEntity<Withdrawal>(HttpStatus.BAD_REQUEST);
       }
-  }
+  }}
 
   private User getUserFromToken() throws Exception {
     String token = tokenProvider.resolveToken(request);

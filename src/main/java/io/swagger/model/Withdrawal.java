@@ -20,6 +20,7 @@ import java.util.UUID;
 
 @Entity
 @NoArgsConstructor
+@Schema(allOf = Transaction.class)
 public class Withdrawal extends Transaction {
   @JsonProperty("accountFrom")
   private String accountFrom = null;

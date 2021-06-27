@@ -18,6 +18,7 @@ import java.util.UUID;
     date = "2021-06-06T11:20:30.422Z[GMT]")
 @Entity
 @NoArgsConstructor
+@Schema(allOf = Transaction.class)
 public class Deposit extends Transaction {
   @JsonProperty("accountTo")
   private String accountTo = null;

@@ -21,6 +21,7 @@ import java.util.UUID;
 @Data
 @Entity
 @NoArgsConstructor
+@Schema(allOf = Transaction.class)
 public class RegularTransaction extends Transaction {
   public RegularTransaction(String accountTo, String accountFrom, double amount, UUID performedBy)
   {
@@ -28,6 +29,7 @@ public class RegularTransaction extends Transaction {
     this.accountTo = accountTo;
     this.accountFrom = accountFrom;
   }
+
 
   public RegularTransaction(String accountTo, String accountFrom, double amount, UUID performedBy, LocalDateTime transactionDate)
   {

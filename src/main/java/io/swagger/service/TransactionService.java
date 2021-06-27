@@ -98,7 +98,7 @@ public class TransactionService
         ArrayList<Transaction> filteredList = new ArrayList<Transaction>();
         try
         {
-            for (int i = offset; i <= allAccountTransactions.size(); i++)
+            for (int i = offset; i < allAccountTransactions.size(); i++)
             {
                 filteredList.add(allAccountTransactions.get(i));
                 if (filteredList.size() == max)
@@ -132,16 +132,13 @@ public class TransactionService
         }
     }
 
-    public List<Transaction> getTransactionsPaginated(Integer offset, Integer max)
-    {
-        return transactionRepo.findAll();
-    }
-
   public RegularTransaction createTransaction(RegularTransaction transaction, User user) throws Exception {
     isValidTransactionDate(transaction);
     Account accountFrom = accountService.getAccountByIban(transaction.getAccountFrom());
     User userFrom = userService.getUserByIban(accountFrom);
     Account accountTo = accountService.getAccountByIban(transaction.getAccountTo());
+
+    log.info("Test");
 
     if (userFrom == null || accountFrom == null || accountTo == null) {
       log.info("User or account doesn't exist");
@@ -202,18 +199,6 @@ public class TransactionService
     }
     else{
       throw new IllegalArgumentException("user is not authorized to do this");
-    }
-  }
-
-  /*
-   * Add a list of transactions. Used for test transactions
-   */
-
-  public void AddTransactions(List<Transaction> transactionList) {
-    try {
-      transactionRepo.saveAll(transactionList);
-    } catch (Exception e) {
-      e.printStackTrace();
     }
   }
 
