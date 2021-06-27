@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -57,9 +58,10 @@ public class UsersApiController implements UsersApi
     }
 
     @PreAuthorize("hasRole('EMPLOYEE')")
-    public ResponseEntity<Void> deleteUserById(@Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema()) @PathVariable("id") String id)
+    public ResponseEntity<Void> deleteUserById(@Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema()) @PathVariable("id") String id) throws Exception
     {
-        User userToBeDeleted = userService.deleteUserById(UUID.fromString(id));
+        UUID userID = userService.convertID(id);
+        User userToBeDeleted = userService.deleteUserById(userID);
         if (userToBeDeleted != null) return new ResponseEntity<Void>(HttpStatus.OK);
         else return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
     }
@@ -96,19 +98,21 @@ public class UsersApiController implements UsersApi
 
         if (loggedInUser != null)
         {
+            UUID userID = userService.convertID(id);
+
             //If its a user then check if this is him/her
             if (role == Role.ROLE_CUSTOMER)
             {
-                if (id.equals(loggedInUser.getId().toString()))
+                if (userID.equals(loggedInUser.getId()))
                 {
-                    return new ResponseEntity<User>(userService.getUserById(UUID.fromString(id)), HttpStatus.OK);
+                    return new ResponseEntity<User>(userService.getUserById(userID), HttpStatus.OK);
                 }
                 //If its not him/her, return unauthorized
                 else return new ResponseEntity<User>(HttpStatus.UNAUTHORIZED);
 
                 //If its an employee then return the user
             } else if (role == Role.ROLE_EMPLOYEE)
-                return new ResponseEntity<User>(userService.getUserById(UUID.fromString(id)), HttpStatus.OK);
+                return new ResponseEntity<User>(userService.getUserById(userID), HttpStatus.OK);
             else return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
         } else return new ResponseEntity<User>(HttpStatus.NOT_FOUND);
     }
@@ -139,10 +143,11 @@ public class UsersApiController implements UsersApi
 
         if (loggedInUser != null)
         {
+            UUID userID = userService.convertID(id);
             //If its a user then check if this is him/her
             if (role == Role.ROLE_CUSTOMER)
             {
-                if (id.equals(loggedInUser.getId().toString()))
+                if (userID.equals(loggedInUser.getId()))
                 {
                     user.setId(loggedInUser.getId());
                     userService.updateUser(user);
@@ -153,7 +158,7 @@ public class UsersApiController implements UsersApi
                 //If its an employee then update the user
             } else
             {
-                user.setId(UUID.fromString(id));
+                user.setId(userID);
                 userService.updateUser(user);
             }
         }

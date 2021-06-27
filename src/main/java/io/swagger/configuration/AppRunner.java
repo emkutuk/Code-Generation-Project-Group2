@@ -42,23 +42,25 @@ public class AppRunner implements ApplicationRunner
 
         for (int i = 0; i < 50; i++)
         {
-            if (rnd.nextBoolean()) accountList.add(new Account(AccountType.SAVING, (double) rnd.nextInt(500000)));
+            if (rnd.nextBoolean()) accountList.add(new Account(AccountType.CURRENT, (double) rnd.nextInt(500000)));
             else accountList.add(new Account(AccountType.CURRENT, (double) rnd.nextInt(500000)));
         }
         for (Account a : accountList) accountService.addANewAccount(a);
 
         // Users
-        User customer = new User("Hein", "Eken", "31685032148", "customer", "customer", new ArrayList<>(), io.swagger.security.Role.ROLE_CUSTOMER, AccountStatus.ACTIVE);
-        User employee = new User("Amst", "Erdam", "31685032149", "employee", "employee", new ArrayList<>(), io.swagger.security.Role.ROLE_EMPLOYEE, AccountStatus.ACTIVE);
+        User customer = new User(UUID.randomUUID(), "Hein", "Eken", "31685032148", "customer", "customer", new ArrayList<>(), io.swagger.security.Role.ROLE_CUSTOMER, AccountStatus.ACTIVE);
+        User employee = new User(UUID.randomUUID(),"Amst", "Erdam", "31685032149", "employee", "employee", new ArrayList<>(), io.swagger.security.Role.ROLE_EMPLOYEE, AccountStatus.ACTIVE);
 
         // User for Cucumber
         User cucumberUser = new User(UUID.fromString("3fa85f64-5717-4562-b3fc-2c963f66afa6"), "Cuc", "Umber", "31685222149", "testCucumber", "testCucumber", new ArrayList<>(), io.swagger.security.Role.ROLE_EMPLOYEE, AccountStatus.ACTIVE);
 
-        Account customerCurrentAcc = new Account(AccountType.CURRENT);
+        Account customerCurrentAcc = new Account(AccountType.CURRENT, 500D);
         Account customerSavingAcc = new Account(AccountType.SAVING, 500D);
 
         customer.getAccounts().add(customerCurrentAcc);
         customer.getAccounts().add(customerSavingAcc);
+
+        RegularTransaction testTransactionForCustomer = new RegularTransaction("NL01INHO0000000003", customerCurrentAcc.getIban(), 20.00, customer.getId());
 
         accountService.addANewAccount(customerCurrentAcc);
         accountService.addANewAccount(customerSavingAcc);
@@ -66,6 +68,9 @@ public class AppRunner implements ApplicationRunner
         userService.register(customer);
         userService.register(employee);
         userService.register(cucumberUser);
+
+        transactionService.createTransaction(testTransactionForCustomer, customer);
+        customerCurrentAcc.getTransactions().add(testTransactionForCustomer);
 
         log.info("Testing transaction");
         testTransaction();

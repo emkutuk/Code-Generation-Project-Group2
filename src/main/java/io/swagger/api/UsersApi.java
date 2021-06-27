@@ -38,7 +38,7 @@ public interface UsersApi
     @Operation(summary = "Delete a user.", description = "Change user accountStatus to Inactive.", security = {@SecurityRequirement(name = "bearerAuth")}, tags = {"User"})
     @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "User set as inactive.")})
     @RequestMapping(value = "/Users/{id}/Delete", method = RequestMethod.POST)
-    ResponseEntity<Void> deleteUserById(@Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema()) @PathVariable("id") String id);
+    ResponseEntity<Void> deleteUserById(@Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema()) @PathVariable("id") String id) throws Exception;
 
     @Operation(summary = "Get all users registered on the system.", description = "Fetches the entire list of users stored on the system.", security = {@SecurityRequirement(name = "bearerAuth")}, tags = {"User"})
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Returns a list of users", content = @Content(array = @ArraySchema(schema = @Schema(implementation = User.class))))})

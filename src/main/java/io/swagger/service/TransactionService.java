@@ -57,7 +57,9 @@ public class TransactionService {
   //omar
   public List<Transaction> getTransactionsByUserId(UUID id,Integer max,Integer offset) throws Exception {
     User user = userService.getUserById(id);
-    //validate user
+    System.out.println(user.getAccounts().get(0));
+    System.out.println(user.getAccounts().get(0).getTransactions());
+
     try{
       List<Transaction> allTransactions = new ArrayList<Transaction>();
       List<Transaction> filteredList = new ArrayList<>();
@@ -135,12 +137,17 @@ public class TransactionService {
 
     log.info(transaction.toString());
 
-
     Account accountFrom = accountService.getAccountByIban(transaction.getAccountFrom());
     User userFrom = userService.getUserByIban(accountFrom);
     Account accountTo = accountService.getAccountByIban(transaction.getAccountTo());
 
     if (userFrom == null || accountFrom == null || accountTo == null) {
+      System.out.println(userFrom);
+      System.out.println("--------");
+      System.out.println(accountFrom);
+      System.out.println("--------");
+      System.out.println(accountTo);
+
       log.info("User or account doesn't exist");
       throw new IllegalArgumentException("one of these doesn't exist");
     }
