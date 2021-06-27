@@ -3,10 +3,7 @@ package io.swagger.service;
 import io.swagger.model.*;
 import io.swagger.repo.TransactionRepo;
 import io.swagger.security.Role;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
@@ -45,7 +42,6 @@ class TransactionServiceTest {
       transaction1,
       transaction2,
       transaction3;
-
 
   @BeforeEach
   void setUp() throws Exception {
@@ -139,9 +135,19 @@ class TransactionServiceTest {
   }
 
   private void transactionSetup() {
-    transaction1 = new RegularTransaction(accountToCurrent.getIban(),accountFromCurrent.getIban(),690d,employee.getId(),LocalDateTime.now());
-    transaction2 = new RegularTransaction(accountToCurrent.getIban(),accountToSavings.getIban(),50.0,customerTo.getId());
-    transaction3 = new RegularTransaction(accountToCurrent.getIban(),accountFromCurrent.getIban(),80.0,customerFrom.getId());
+    transaction1 =
+        new RegularTransaction(
+            accountToCurrent.getIban(),
+            accountFromCurrent.getIban(),
+            690d,
+            employee.getId(),
+            LocalDateTime.now());
+    transaction2 =
+        new RegularTransaction(
+            accountToCurrent.getIban(), accountToSavings.getIban(), 50.0, customerTo.getId());
+    transaction3 =
+        new RegularTransaction(
+            accountToCurrent.getIban(), accountFromCurrent.getIban(), 80.0, customerFrom.getId());
     transactionRepo.save(transaction1);
     transactionCurrentToCurrent =
         new RegularTransaction(
@@ -188,8 +194,8 @@ class TransactionServiceTest {
           }
         };
 
-//    transactionRepo.save(transaction2);
-//    transactionRepo.save(transaction3);
+    //    transactionRepo.save(transaction2);
+    //    transactionRepo.save(transaction3);
   }
 
   @AfterEach
@@ -205,15 +211,15 @@ class TransactionServiceTest {
 
   @Test
   @DisplayName("Returns a list of Transactions")
-  void getTransactions()
-  {
+  void getTransactions() {
     assertNotNull(transactionService.getTransactions());
   }
 
   @Test
   @DisplayName("Returns a transaction with the requested valid id")
   void getTransactionById() throws Exception {
-    assertNotNull(transactionService.getTransactionById(transaction1.getTransactionId().toString()));
+    assertNotNull(
+        transactionService.getTransactionById(transaction1.getTransactionId().toString()));
   }
 
   /*@Test
@@ -230,50 +236,69 @@ class TransactionServiceTest {
     assertThrows(Exception.class, () -> transactionService.getTransactionById("testtesttesttest"));
   }
 
-  //does not work yet, seems like customerFrom has no transactions?
+  // does not work yet, seems like customerFrom has no transactions?
   @Test
   @DisplayName("Returns a filtered list based on user id provided")
   void getTransactionsByUserId() throws Exception {
-    assertNotNull(transactionService.getTransactionsByUserId(customerFrom.getId(),10,0));
+    assertNotNull(transactionService.getTransactionsByUserId(customerFrom.getId(), 10, 0));
   }
 
   @Test
   @DisplayName("Throws an if user ID provided is not a real user")
   void getTransactionsByUserIdThrowsExceptionIfProvidedWrongID() {
-    assertThrows(Exception.class, () -> transactionService.getTransactionsByUserId(UUID.randomUUID(),10,0));
+    assertThrows(
+        Exception.class,
+        () -> transactionService.getTransactionsByUserId(UUID.randomUUID(), 10, 0));
   }
 
   @Test
   @DisplayName("Throws an if no transactions are present")
   void getTransactionsByUserIdThrowsExceptionIfNoTransactionsPresent() {
-    assertThrows(Exception.class, () -> transactionService.getTransactionsByUserId(customerFrom.getId(),10,0));
+    assertThrows(
+        Exception.class,
+        () -> transactionService.getTransactionsByUserId(customerFrom.getId(), 10, 0));
   }
 
-  //does not work, requires a transaction
+  // does not work, requires a transaction
   @Test
   @DisplayName("Returns a list of transactions associated with provided iban")
   void getTransactionsByIban() throws Exception {
-    assertNotNull(transactionService.getTransactionsByIban(accountFromCurrent.getIban(),10,0));
+    assertNotNull(transactionService.getTransactionsByIban(accountFromCurrent.getIban(), 10, 0));
   }
 
   @Test
   @DisplayName("Throws an exception when provided an iban with no transactions")
   void getTransactionsByIbanThrowsExceptionIfProvidedIbanWithNoTransactions() {
-    assertThrows(Exception.class, () -> transactionService.getTransactionsByIban(accountFromCurrent.getIban(),10,0));
+    assertThrows(
+        Exception.class,
+        () -> transactionService.getTransactionsByIban(accountFromCurrent.getIban(), 10, 0));
   }
 
   @Test
   @DisplayName("Throws an exception when provided an invalid iban")
   void getTransactionsByIbanThrowsExceptionIfProvidedInvalidIban() {
-    assertThrows(Exception.class, () -> transactionService.getTransactionsByIban("invalidIban",10,0));
+    assertThrows(
+        Exception.class, () -> transactionService.getTransactionsByIban("invalidIban", 10, 0));
   }
 
-  //i have no idea why this isnt working correctly, apparenntly transaction1 is returning null??
   @Test
   @DisplayName("Deletes a transaction")
   void deleteTransactionById() throws Exception {
     transactionService.deleteTransactionById(transaction1.getTransactionId().toString());
-    assertNull(transactionService.getTransactionById(transaction1.getTransactionId().toString()));
+
+    verify(transactionRepo).deleteById(any());
+  }
+
+  @Test
+  @DisplayName("Error thrown when deleteById fails")
+  void deleteTransactionByIdThrowsException() throws Exception {
+
+    doThrow(new IllegalStateException("DB Error")).when(transactionRepo).deleteById(any());
+    assertThrows(
+        Exception.class,
+        () -> transactionService.deleteTransactionById(transaction1.getTransactionId().toString()));
+
+    verify(transactionRepo).deleteById(any());
   }
 
   @Test
@@ -284,8 +309,7 @@ class TransactionServiceTest {
 
   @Test
   @DisplayName("")
-  void getTransactionsPaginated() {
-  }
+  void getTransactionsPaginated() {}
 
   @Test
   @DisplayName("createTransaction throws Illegal state exception if date older than 5 minutes")
@@ -380,18 +404,28 @@ class TransactionServiceTest {
             transactionCurrentToCurrent.getAccountFrom(), transactionCurrentToCurrent.getAmount()))
         .thenThrow(new Exception());
 
-    assertThrows(Exception.class, () -> transactionService.createTransaction(transactionCurrentToCurrent, employee));
+    assertThrows(
+        Exception.class,
+        () -> transactionService.createTransaction(transactionCurrentToCurrent, employee));
     verify(accountService).subtractBalance(Mockito.anyString(), Mockito.anyDouble());
   }
 
   @Test
   @DisplayName("undoTransactionShould call subtractBalance and addBalance twice when error occurs")
-  public void undoTransactionShouldCallSubtractBalanceAndAddBalanceTwiceWhenErrorOccurs() throws Exception{
-    when(transactionRepo.save(transactionCurrentToCurrent)).thenThrow(new IllegalStateException("Bad stuff happened"));
-    when(accountService.subtractBalance(transactionCurrentToCurrent.getAccountFrom(), transactionCurrentToCurrent.getAmount())).thenReturn(true);
-    when(accountService.addBalance(transactionCurrentToCurrent.getAccountTo(), transactionCurrentToCurrent.getAmount())).thenReturn(true);
+  public void undoTransactionShouldCallSubtractBalanceAndAddBalanceTwiceWhenErrorOccurs()
+      throws Exception {
+    when(transactionRepo.save(transactionCurrentToCurrent))
+        .thenThrow(new IllegalStateException("Bad stuff happened"));
+    when(accountService.subtractBalance(
+            transactionCurrentToCurrent.getAccountFrom(), transactionCurrentToCurrent.getAmount()))
+        .thenReturn(true);
+    when(accountService.addBalance(
+            transactionCurrentToCurrent.getAccountTo(), transactionCurrentToCurrent.getAmount()))
+        .thenReturn(true);
 
-    assertThrows(Exception.class, () -> transactionService.createTransaction(transactionCurrentToCurrent, employee));
+    assertThrows(
+        Exception.class,
+        () -> transactionService.createTransaction(transactionCurrentToCurrent, employee));
     verify(accountService, times(2)).subtractBalance(Mockito.anyString(), Mockito.anyDouble());
     verify(accountService, times(2)).addBalance(Mockito.anyString(), Mockito.anyDouble());
   }
@@ -399,7 +433,7 @@ class TransactionServiceTest {
   @Test
   @DisplayName("withdrawMoney calls transaction repo and accountService")
   public void withdrawMoney() throws Exception {
-    Withdrawal withdrawal = new Withdrawal("AccountFrom" , 100d, employee.getId());
+    Withdrawal withdrawal = new Withdrawal("AccountFrom", 100d, employee.getId());
     transactionService.withdrawMoney(withdrawal, employee);
     verify(transactionRepo).save(withdrawal);
     verify(accountService).subtractBalance(withdrawal.getAccountFrom(), withdrawal.getAmount());
@@ -411,16 +445,9 @@ class TransactionServiceTest {
   @Test
   @DisplayName("depositMoney calls transaction repo and accountService")
   void depositMoney() throws Exception {
-    Deposit deposit = new Deposit("AccountTo", 100d , employee.getId());
+    Deposit deposit = new Deposit("AccountTo", 100d, employee.getId());
     transactionService.depositMoney(deposit);
     verify(transactionRepo).save(deposit);
     verify(accountService).addBalance(deposit.getAccountTo(), deposit.getAmount());
-
-  }
-
-  @Test
-  void addTransactions()
-  {
-
   }
 }
