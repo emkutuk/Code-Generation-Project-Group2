@@ -14,7 +14,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +44,7 @@ class TransactionsApiControllerTest {
   @BeforeEach
   public void setup() throws Exception {
     mapper = new ObjectMapper();
-    mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+    mapper.findAndRegisterModules();
 
     user =
         new User(
@@ -153,7 +152,7 @@ class TransactionsApiControllerTest {
     given(transactionService.createTransaction(transactionCurrentToCurrent, user))
         .willReturn(transactionCurrentToCurrent);
 
-    // writes out full date time as object instead of using the format
+    // Can't test getting user without breaking security
     this.mvc
         .perform(
             post("/Transactions")
@@ -187,6 +186,7 @@ class TransactionsApiControllerTest {
   }
 
   @Test
+  @DisplayName("Delete Transaction should delete transaction with specified id")
   void deleteTransactionById() throws Exception {
     this.mvc
         .perform(
@@ -196,6 +196,7 @@ class TransactionsApiControllerTest {
   }
 
   @Test
+  @DisplayName("Deposit money should create Deposit and return it with status OK")
   void depositMoney() throws Exception {
     this.mvc
         .perform(
@@ -207,6 +208,7 @@ class TransactionsApiControllerTest {
   }
 
   @Test
+  @DisplayName("Edit Transaction should update transaction and return OK")
   void editTransactionById() throws Exception {
     this.mvc
         .perform(
@@ -218,26 +220,29 @@ class TransactionsApiControllerTest {
   }
 
   @Test
+  @DisplayName("Get Transaction by IBAN should return list of transactions related to IBAN")
   void getTransactionByIBAN() throws Exception {
     this.mvc
         .perform(
-            get("/Transactions")
+            get("/Transactions/" + accountFromCurrent.getIban())
                 .header("authorization", "Bearer " + employeeToken)
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
         .andExpect(status().isOk());
   }
 
   @Test
+  @DisplayName("Get transaction by id should return transaction with specified id")
   void getTransactionById() throws Exception {
     this.mvc
         .perform(
-            get("/Transactions")
+            get("/Transactions/" + transactionCurrentToCurrent.getTransactionId())
                 .header("authorization", "Bearer " + employeeToken)
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
         .andExpect(status().isOk());
   }
 
   @Test
+  @DisplayName("Withdraw money returns OK")
   void withdrawMoney() throws Exception {
     this.mvc
         .perform(
