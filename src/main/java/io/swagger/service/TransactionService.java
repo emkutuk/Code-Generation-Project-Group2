@@ -98,7 +98,7 @@ public class TransactionService
         ArrayList<Transaction> filteredList = new ArrayList<Transaction>();
         try
         {
-            for (int i = offset; i <= allAccountTransactions.size(); i++)
+            for (int i = offset; i < allAccountTransactions.size(); i++)
             {
                 filteredList.add(allAccountTransactions.get(i));
                 if (filteredList.size() == max)

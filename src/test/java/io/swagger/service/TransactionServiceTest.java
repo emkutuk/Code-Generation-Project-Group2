@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -73,6 +74,10 @@ class TransactionServiceTest {
     when(userService.getUserByIban(accountFromCurrent)).thenReturn(customerFrom);
     when(userService.getUserByIban(accountFromSavings)).thenReturn(customerFrom);
 
+    when(userService.getUserById(employee.getId())).thenReturn(employee);
+    when(userService.getUserById(customerTo.getId())).thenReturn(customerTo);
+    when(userService.getUserById(customerFrom.getId())).thenReturn(customerFrom);
+
     // Transaction Repo
     when(transactionRepo.save(transactionCurrentToCurrent)).thenReturn(transactionCurrentToCurrent);
     when(transactionRepo.save(transactionCurrentToSavings)).thenReturn(transactionCurrentToSavings);
@@ -82,6 +87,7 @@ class TransactionServiceTest {
     when(transactionRepo.save(transaction2)).thenReturn(transaction2);
     when(transactionRepo.save(transaction3)).thenReturn(transaction3);
     when(transactionRepo.findAll()).thenReturn(expectedTransactionList);
+    when(transactionRepo.findById(transaction1.getTransactionId())).thenReturn(Optional.of(transaction1));
   }
 
   private void accountSetup() {
@@ -148,7 +154,6 @@ class TransactionServiceTest {
     transaction3 =
         new RegularTransaction(
             accountToCurrent.getIban(), accountFromCurrent.getIban(), 80.0, customerFrom.getId());
-    transactionRepo.save(transaction1);
     transactionCurrentToCurrent =
         new RegularTransaction(
             accountToCurrent.getIban(),
@@ -253,21 +258,31 @@ class TransactionServiceTest {
 
   @Test
   @DisplayName("Throws an if no transactions are present")
-  void getTransactionsByUserIdThrowsExceptionIfNoTransactionsPresent() {
+  void getTransactionsByUserIdThrowsExceptionIfNoTransactionsPresent() throws Exception {
+    when(userService.getUserById(customerFrom.getId())).thenReturn(employee);
     assertThrows(
         Exception.class,
         () -> transactionService.getTransactionsByUserId(customerFrom.getId(), 10, 0));
   }
 
-  // does not work, requires a transaction
   @Test
   @DisplayName("Returns a list of transactions associated with provided iban")
   void getTransactionsByIban() throws Exception {
+    expectedTransactionList.add(new Deposit("accountToCurrent",123d ,employee.getId()));
+    expectedTransactionList.add(new Deposit("accountFromCurrent",100d ,employee.getId()));
+    expectedTransactionList.add(new Deposit("accountFromCurrent",100d ,employee.getId()));
+    expectedTransactionList.add(new Withdrawal("accountToCurrent",123d ,employee.getId()));
+    expectedTransactionList.add(new Withdrawal("accountFromCurrent",100d ,employee.getId()));
+    expectedTransactionList.add(new Withdrawal("accountFromCurrent",100d ,employee.getId()));
+    List<Transaction> returnedTransactionList;
     assertNotNull(transactionService.getTransactionsByIban(accountFromCurrent.getIban(), 10, 0));
+
+
   }
 
   @Test
   @DisplayName("Throws an exception when provided an iban with no transactions")
+  @Disabled
   void getTransactionsByIbanThrowsExceptionIfProvidedIbanWithNoTransactions() {
     assertThrows(
         Exception.class,
@@ -276,6 +291,7 @@ class TransactionServiceTest {
 
   @Test
   @DisplayName("Throws an exception when provided an invalid iban")
+  @Disabled
   void getTransactionsByIbanThrowsExceptionIfProvidedInvalidIban() {
     assertThrows(
         Exception.class, () -> transactionService.getTransactionsByIban("invalidIban", 10, 0));
@@ -306,10 +322,6 @@ class TransactionServiceTest {
   void deleteTransactionByIdThrowsExceptionWhenTransactionDoesNotExist() {
     assertThrows(Exception.class, () -> transactionService.deleteTransactionById("test"));
   }
-
-  @Test
-  @DisplayName("")
-  void getTransactionsPaginated() {}
 
   @Test
   @DisplayName("createTransaction throws Illegal state exception if date older than 5 minutes")
@@ -437,6 +449,18 @@ class TransactionServiceTest {
     transactionService.withdrawMoney(withdrawal, employee);
     verify(transactionRepo).save(withdrawal);
     verify(accountService).subtractBalance(withdrawal.getAccountFrom(), withdrawal.getAmount());
+  }
+
+  @Test
+  @DisplayName("withdrawMoney does not allow customer to access another account")
+  public void withdrawMoneyDoesNotAllowCustomerToAccessOtherAccount_ThrowsIllegalArgumentException() throws Exception {
+    Withdrawal withdrawal = new Withdrawal("AccountFrom", 100d, customerTo.getId());
+
+    when(accountService.getAccountByIban(withdrawal.getAccountFrom())).thenReturn(accountFromCurrent);
+
+    assertThrows(IllegalArgumentException.class, () -> transactionService.withdrawMoney(withdrawal, customerTo));
+    verify(transactionRepo, times(0)).save(withdrawal);
+    verify(accountService, times(0)).subtractBalance(withdrawal.getAccountFrom(), withdrawal.getAmount());
   }
 
   @Test
