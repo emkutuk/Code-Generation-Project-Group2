@@ -61,15 +61,15 @@ public class AppRunner implements ApplicationRunner
 
         userService.register(customer);
         userService.register(employee);
-
+        System.out.println(customer.getId());
+        System.out.println(customerCurrentAcc.getIban());
         log.info("Testing transaction");
         testTransaction();
 
         log.info("The application has started successfully.");
     }
 
-    private void testTransaction()
-    {
+    private void testTransaction() throws Exception {
         User testUser1 = new User("Test", "User1", "whocareslmao", "test", "test", new ArrayList<>(), io.swagger.security.Role.ROLE_EMPLOYEE, AccountStatus.ACTIVE);
 
         Account testAccount1 = new Account("NL03INHO0000009000", AccountType.CURRENT, 100d);
@@ -78,8 +78,12 @@ public class AppRunner implements ApplicationRunner
         User testUser2 = new User("Test", "User2", "whocareslmao", "test", "test", new ArrayList<>(), io.swagger.security.Role.ROLE_EMPLOYEE, AccountStatus.ACTIVE);
         Account testAccount2 = new Account("NL03INHO0000009001", AccountType.CURRENT, 100d);
         testUser2.getAccounts().add(testAccount2);
+        userService.createUser(testUser2);
+
+
 
         RegularTransaction testTransaction = new RegularTransaction("NL03INHO0000009000", "NL03INHO0000009001", 20.00, testUser2.getId());
+        System.out.println(testTransaction.getTransactionId());
 
         try
         {

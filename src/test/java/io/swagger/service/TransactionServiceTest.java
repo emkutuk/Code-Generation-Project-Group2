@@ -138,11 +138,15 @@ class TransactionServiceTest {
   }
 
   private void transactionSetup() {
+    transaction1 = new RegularTransaction(accountToCurrent.getIban(),accountFromCurrent.getIban(),690d,employee.getId(),LocalDateTime.now());
+    transaction2 = new RegularTransaction(accountToCurrent.getIban(),accountToSavings.getIban(),50.0,customerTo.getId());
+    transaction3 = new RegularTransaction(accountToCurrent.getIban(),accountFromCurrent.getIban(),80.0,customerFrom.getId());
+    transactionRepo.save(transaction1);
     transactionCurrentToCurrent =
         new RegularTransaction(
             accountToCurrent.getIban(),
             accountFromCurrent.getIban(),
-            400d,
+            200d,
             employee.getId(),
             LocalDateTime.now());
 
@@ -177,11 +181,14 @@ class TransactionServiceTest {
             add(transactionCurrentToSavings);
             add(transactionSavingsToCurrent);
             add(transactionSavingsToSavings);
+            add(transaction1);
+            add(transaction2);
+            add(transaction3);
           }
         };
-    transaction1 = new RegularTransaction(accountToCurrent.getIban(),accountFromCurrent.getIban(),50.0,UUID.randomUUID());
-    transaction2 = new RegularTransaction(accountToCurrent.getIban(),accountToSavings.getIban(),50.0,UUID.randomUUID());
-    transaction3 = new RegularTransaction(accountToCurrent.getIban(),accountFromCurrent.getIban(),80.0,UUID.randomUUID());
+
+//    transactionRepo.save(transaction2);
+//    transactionRepo.save(transaction3);
   }
 
   @AfterEach
@@ -205,7 +212,7 @@ class TransactionServiceTest {
   @Test
   @DisplayName("Returns a transaction with the requested valid id")
   void getTransactionById() throws Exception {
-    assertNotNull(transactionService.getTransactionById(transactionSavingsToCurrent.getTransactionId().toString()));
+    assertNotNull(transactionService.getTransactionById(transaction1.getTransactionId().toString()));
   }
 
   /*@Test
@@ -219,7 +226,7 @@ class TransactionServiceTest {
   @Test
   @DisplayName("Throws an exception if provided a wrong/non-existent id")
   void getTransactionByIdThrowsExceptionIfProvidedWrongID() throws Exception {
-    assertThrows(Exception.class, () -> transactionService.getTransactionById("thisdoesnotexist"));
+    assertThrows(Exception.class, () -> transactionService.getTransactionById("testtesttesttest"));
   }
 
   //does not work yet, seems like customerFrom has no transactions?

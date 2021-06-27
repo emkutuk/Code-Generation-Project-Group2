@@ -40,10 +40,16 @@ public class TransactionService {
 
   public Transaction getTransactionById(String id) throws Exception {
     //validate user
+    UUID uuid;
+    try{
     String s = id.replace("-", "");
-    UUID uuid = new UUID(
+    uuid = new UUID(
             new BigInteger(s.substring(0, 16), 16).longValue(),
             new BigInteger(s.substring(16), 16).longValue());
+    }
+    catch (Exception e){
+      throw new Exception("Invalid uuid");
+    }
     Optional<?> transaction = transactionRepo.findById(uuid);
     if (transaction.isPresent()) {
       return (Transaction) transaction.get();
