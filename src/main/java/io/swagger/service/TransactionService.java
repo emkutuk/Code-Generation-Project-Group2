@@ -205,18 +205,6 @@ public class TransactionService
     }
   }
 
-  /*
-   * Add a list of transactions. Used for test transactions
-   */
-
-  public void AddTransactions(List<Transaction> transactionList) {
-    try {
-      transactionRepo.saveAll(transactionList);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-
   private Deposit performDeposit(Deposit deposit) throws Exception {
     // Assuming valid user
     // Assuming validation done in account service
