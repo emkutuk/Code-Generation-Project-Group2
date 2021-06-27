@@ -61,7 +61,6 @@ public class TransactionsApiController implements TransactionsApi
 
     String accept = request.getHeader("Accept");
 
-    if (accept != null && accept.contains("application/json")) {
       try {
         User user = getUserFromToken();
         log.info("should be creating transaction");
@@ -72,9 +71,7 @@ public class TransactionsApiController implements TransactionsApi
         // Handle exceptions
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
       }
-    }
 
-    return new ResponseEntity<RegularTransaction>(HttpStatus.BAD_REQUEST);
   }
 
     @PreAuthorize("hasRole('EMPLOYEE') OR hasRole('CUSTOMER')")
@@ -87,7 +84,7 @@ public class TransactionsApiController implements TransactionsApi
             return new ResponseEntity<Void>(HttpStatus.ACCEPTED);
         } catch (Exception e)
         {
-            return new ResponseEntity<Void>(HttpStatus.I_AM_A_TEAPOT);
+            return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
         }
     }
 

@@ -1,6 +1,7 @@
 package io.swagger.configuration;
 
 import io.swagger.model.*;
+import io.swagger.security.Role;
 import io.swagger.service.AccountService;
 import io.swagger.service.TransactionService;
 import io.swagger.service.UserService;
@@ -52,7 +53,12 @@ public class AppRunner implements ApplicationRunner
         User employee = new User(UUID.randomUUID(),"Amst", "Erdam", "31685032149", "employee", "employee", new ArrayList<>(), io.swagger.security.Role.ROLE_EMPLOYEE, AccountStatus.ACTIVE);
 
         // User for Cucumber
-        User cucumberUser = new User(UUID.fromString("3fa85f64-5717-4562-b3fc-2c963f66afa6"), "Cuc", "Umber", "31685222149", "testCucumber", "testCucumber", new ArrayList<>(), io.swagger.security.Role.ROLE_EMPLOYEE, AccountStatus.ACTIVE);
+        User cucumberUserEmployee = new User(UUID.fromString("3fa85f64-5717-4562-b3fc-2c963f66afa6"), "Cuc", "Umber", "31685222149", "testCucumber", "testCucumber", new ArrayList<>(), io.swagger.security.Role.ROLE_EMPLOYEE, AccountStatus.ACTIVE);
+        User cucumberUserCustomer = new User(UUID.fromString("3fa85f64-5717-4562-b3fc-2c963f66afa7"), "Cuc2", "Umber2", "31685222150", "testCucumber2", "testCucumber2", new ArrayList<>(), Role.ROLE_CUSTOMER, AccountStatus.ACTIVE);
+
+        //Accounts for cucumberUser
+        Account cucumberCurrentAcc = new Account(AccountType.CURRENT, 500D);
+        Account cucumberSavingAcc = new Account(AccountType.SAVING, 500D);
 
         Account customerCurrentAcc = new Account(AccountType.CURRENT, 500D);
         Account customerSavingAcc = new Account(AccountType.SAVING, 500D);
@@ -60,12 +66,23 @@ public class AppRunner implements ApplicationRunner
         customer.getAccounts().add(customerCurrentAcc);
         customer.getAccounts().add(customerSavingAcc);
 
+        cucumberUserCustomer.getAccounts().add(cucumberCurrentAcc);
+        cucumberUserCustomer.getAccounts().add(cucumberSavingAcc);
+
         accountService.addANewAccount(customerCurrentAcc);
         accountService.addANewAccount(customerSavingAcc);
 
+        accountService.addANewAccount(cucumberSavingAcc);
+        accountService.addANewAccount(cucumberCurrentAcc);
+
         userService.register(customer);
         userService.register(employee);
-        userService.register(cucumberUser);
+        userService.register(cucumberUserEmployee);
+        userService.register(cucumberUserCustomer);
+
+        RegularTransaction transactionForCucumber = new RegularTransaction("NL01INHO0000000054", "NL01INHO0000000055", 20.00, cucumberUserCustomer.getId());
+        transactionService.createTransaction(transactionForCucumber, cucumberUserCustomer);
+
 
         log.info("Testing transaction");
         testTransaction();
