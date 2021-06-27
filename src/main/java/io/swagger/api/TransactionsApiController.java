@@ -56,26 +56,10 @@ public class TransactionsApiController implements TransactionsApi {
           RegularTransaction transaction) {
 
     String accept = request.getHeader("Accept");
-    String tokenHeader = request.getHeader("bearerToken");
-
-    tokenHeader = "testToken";
-
-    if (tokenHeader == null || tokenHeader.isEmpty()) {
-      log.info("Unauthorised");
-      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-    } else {
-
-      log.info("Would be checking for if token is valid");
-      // If not valid token
-      // return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-    }
-
-    User user = new User(); // Get User from token
-    // null check user
 
     if (accept != null && accept.contains("application/json")) {
       try {
-
+        User user = getUserFromToken();
         log.info("should be creating transaction");
         return new ResponseEntity<>(
             transactionService.createTransaction(transaction, user), HttpStatus.CREATED);
