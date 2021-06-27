@@ -166,7 +166,7 @@ public class TransactionsApiController implements TransactionsApi
 
         User loggedInUser = userService.getUserByEmail(email);
         UUID userid = loggedInUser.getId();
-
+        System.out.println(userid);
         try
         {
             return new ResponseEntity<List<Transaction>>(transactionService.getTransactionsByUserId(userid, max, offset), HttpStatus.OK);

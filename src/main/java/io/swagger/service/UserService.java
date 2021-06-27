@@ -74,7 +74,6 @@ public class UserService
     {
         try
         {
-            System.out.println(id);
             return userRepo.getOne(id);
         } catch (Exception e)
         {
@@ -90,25 +89,13 @@ public class UserService
 
     public User getUserByIban(Account account) throws Exception
     {
-        List<User> allUsers = userRepo.findAll();
-
-        for(User u : allUsers)
-        {
-            for(Account a : u.getAccounts())
-            {
-                if(a.equals(account))
-                    return u;
-            }
-        }
-        return null;
-        /*
         try
         {
             return userRepo.findUserByAccountsContaining(account);
         } catch (Exception e)
         {
             throw new Exception(e.getMessage());
-        }*/
+        }
     }
 
     public User getUserByEmail(String email) throws Exception
