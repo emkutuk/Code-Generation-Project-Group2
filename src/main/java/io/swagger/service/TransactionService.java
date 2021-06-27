@@ -81,7 +81,7 @@ public class TransactionService {
     }
   }
 
-  // omar
+  // what happens if you dont provide an offset?
   public List<Transaction> getTransactionsByIban(String Iban, Integer max, Integer offset) throws Exception {
     //validate user
       Account account= accountService.getAccountByIban(Iban);
