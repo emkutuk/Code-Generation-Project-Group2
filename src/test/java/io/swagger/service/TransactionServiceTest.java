@@ -21,8 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class TransactionServiceTest {
@@ -375,34 +374,48 @@ class TransactionServiceTest {
   }
 
   @Test
-  @DisplayName("")
+  @DisplayName("undoTransaction should be called when error is thrown")
   public void undoTransactionShouldBeCalledWhenErrorThrown() throws Exception {
     when(accountService.subtractBalance(
             transactionCurrentToCurrent.getAccountFrom(), transactionCurrentToCurrent.getAmount()))
         .thenThrow(new Exception());
 
     assertThrows(Exception.class, () -> transactionService.createTransaction(transactionCurrentToCurrent, employee));
-
-
-
     verify(accountService).subtractBalance(Mockito.anyString(), Mockito.anyDouble());
   }
 
   @Test
-  @DisplayName("Withdrawmoney")
+  @DisplayName("undoTransactionShould call subtractBalance and addBalance twice when error occurs")
+  public void undoTransactionShouldCallSubtractBalanceAndAddBalanceTwiceWhenErrorOccurs() throws Exception{
+    when(transactionRepo.save(transactionCurrentToCurrent)).thenThrow(new IllegalStateException("Bad stuff happened"));
+    when(accountService.subtractBalance(transactionCurrentToCurrent.getAccountFrom(), transactionCurrentToCurrent.getAmount())).thenReturn(true);
+    when(accountService.addBalance(transactionCurrentToCurrent.getAccountTo(), transactionCurrentToCurrent.getAmount())).thenReturn(true);
+
+    assertThrows(Exception.class, () -> transactionService.createTransaction(transactionCurrentToCurrent, employee));
+    verify(accountService, times(2)).subtractBalance(Mockito.anyString(), Mockito.anyDouble());
+    verify(accountService, times(2)).addBalance(Mockito.anyString(), Mockito.anyDouble());
+  }
+
+  @Test
+  @DisplayName("withdrawMoney calls transaction repo and accountService")
   public void withdrawMoney() throws Exception {
-    Withdrawal withdrawal = new Withdrawal();
+    Withdrawal withdrawal = new Withdrawal("AccountFrom" , 100d, employee.getId());
     transactionService.withdrawMoney(withdrawal, employee);
+    verify(transactionRepo).save(withdrawal);
+    verify(accountService).subtractBalance(withdrawal.getAccountFrom(), withdrawal.getAmount());
   }
 
   @Test
   void getAllTransactionsForAccountByIban() {}
 
   @Test
-  @DisplayName("Deposit money")
+  @DisplayName("depositMoney calls transaction repo and accountService")
   void depositMoney() throws Exception {
-    Deposit deposit = new Deposit();
+    Deposit deposit = new Deposit("AccountTo", 100d , employee.getId());
     transactionService.depositMoney(deposit);
+    verify(transactionRepo).save(deposit);
+    verify(accountService).addBalance(deposit.getAccountTo(), deposit.getAmount());
+
   }
 
   @Test
