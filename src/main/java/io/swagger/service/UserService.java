@@ -57,6 +57,7 @@ public class UserService
             {
                 user.setPassword(passwordEncoder().encode(user.getPassword()));
                 if (user.getRole() == null) user.setRole(Role.ROLE_CUSTOMER);
+                user.setId(UUID.randomUUID());
                 userRepo.save(user);
                 String token = jwtTokenProvider.createToken(user.getEmail(), user.getRole());
                 return token;
@@ -113,6 +114,7 @@ public class UserService
     {
         try
         {
+
             return userRepo.save(user);
         } catch (Exception e)
         {

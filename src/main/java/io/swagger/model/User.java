@@ -92,7 +92,6 @@ public class User
      * @return id
      */
     @Schema(required = true, accessMode = Schema.AccessMode.READ_ONLY, description = "")
-    @NotNull
     @Valid
     public UUID getId()
     {
