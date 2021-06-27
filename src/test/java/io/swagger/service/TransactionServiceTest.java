@@ -18,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -214,6 +215,7 @@ class TransactionServiceTest {
   @Test
   @DisplayName("Returns a transaction with the requested valid id")
   void getTransactionById() throws Exception {
+    when(transactionRepo.findById(transaction1.getTransactionId())).thenReturn(Optional.of(transaction1));
     assertNotNull(transactionService.getTransactionById(transaction1.getTransactionId().toString()));
   }
 
@@ -269,12 +271,13 @@ class TransactionServiceTest {
     assertThrows(Exception.class, () -> transactionService.getTransactionsByIban("invalidIban",10,0));
   }
 
-  //i have no idea why this isnt working correctly, apparenntly transaction1 is returning null??
   @Test
   @DisplayName("Deletes a transaction")
   void deleteTransactionById() throws Exception {
+    when(transactionRepo.findById(transaction1.getTransactionId())).thenReturn(Optional.of(transaction1));
     transactionService.deleteTransactionById(transaction1.getTransactionId().toString());
-    assertNull(transactionService.getTransactionById(transaction1.getTransactionId().toString()));
+    when(transactionRepo.findById(transaction1.getTransactionId())).thenReturn(Optional.empty());
+    assertThrows(Exception.class, () -> transactionService.getTransactionById(transaction1.getTransactionId().toString()));
   }
 
   @Test
