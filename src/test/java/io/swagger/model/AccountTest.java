@@ -76,7 +76,7 @@ public class AccountTest
     @Test
     void getTransactions()
     {
-        assertNull(account.getTransactions());
+        assertEquals(account.getTransactions().stream().count(), 0);
     }
 
     @Test

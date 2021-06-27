@@ -69,9 +69,6 @@ public class AppRunner implements ApplicationRunner
 
         RegularTransaction testTransactionForCustomer = new RegularTransaction("NL01INHO0000000003", userService.getUserByEmail(customer.getEmail()).getAccounts().get(0).getIban(), 20.00, customer.getId());
 
-        transactionService.createTransaction(testTransactionForCustomer, customer);
-        customerCurrentAcc.getTransactions().add(testTransactionForCustomer);
-
         log.info("Testing transaction");
         testTransaction();
 
