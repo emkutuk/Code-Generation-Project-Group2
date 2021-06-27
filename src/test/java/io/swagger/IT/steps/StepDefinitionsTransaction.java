@@ -140,12 +140,12 @@ public class StepDefinitionsTransaction
         responseEntity = template.exchange(uri, HttpMethod.POST, entity, String.class);
     }
 
-    @When("I want to withdraw {string} Euros from my account")
-    public void iWantToWithdrawEurosFromMyAccount(String amount) throws URISyntaxException {
+    @When("I want to withdraw {string} Euros from my account with iban {string} and user id {string}")
+    public void iWantToWithdrawEurosFromMyAccount(String amount, String accountFrom, String userId ) throws URISyntaxException {
         String requestBody = "{\n" + "  \"accountFrom\": \"NL01INHO0000000055\"," +
                 "\n" + " \"amount\": 15.0,\n" + " \"performedBy\": " + "\"3fa85f64-5717-4562-b3fc-2c963f66afa7\", \n" + " " +
                 "\"transactionDate\": \"2021-12-01 16:02:06\", \n" + " " +
-                "\"transactionId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\"\n"+"}";
+                "\"transactionId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa5\"\n"+"}";
 
         URI uri = new URI(transactionsUrl + "/Withdraw");
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -166,12 +166,32 @@ public class StepDefinitionsTransaction
     }
 
     @When("I want to transfer {string} Euro from my account that has {string} to their account that has {string}")
-    public void iWantToTransferEuroFromMyAccountThatHasToTheirAccountThatHas(String amount, String accountFromIban, String accountToIban) throws URISyntaxException {
+    public void iWantToTransferEuroFromMyAccountThatHasToTheirAccountThatHas(String amount, String accountFromIban, String accountToIban) throws URISyntaxException, JsonProcessingException {
         URI uri = new URI(transactionsUrl);
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(token);
         RegularTransaction transaction = new RegularTransaction("NL01INHO0000000054", "NL01INHO0000000055", 20.0, customerId);
-        HttpEntity<String> entity = new HttpEntity<>(transaction.toString(), headers);
-        responseEntity = template.postForEntity(uri, entity, String.class);
+        HttpEntity<String> entity = new HttpEntity<>(mapper.writeValueAsString(transaction), headers);
+        responseEntity = template.exchange(uri, HttpMethod.POST, entity, String.class);
+    }
+
+    @When("I want to transfer {string} Euros from current account {string} to savings account {string} on behalf of a customer")
+    public void iWantToTransferEurosFromCurrentAccountToSavingsAccountOnBehalfOfACustomer(String arg0, String arg1, String arg2) throws URISyntaxException, JsonProcessingException {
+        URI uri = new URI(transactionsUrl);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(token);
+        RegularTransaction transaction = new RegularTransaction("NL01INHO0000000054", "NL01INHO0000000055", 15.0, customerId);
+        HttpEntity<String> entity = new HttpEntity<>(mapper.writeValueAsString(transaction), headers);
+        responseEntity = template.exchange(uri, HttpMethod.POST, entity, String.class);
+    }
+
+    @When("I want to transfer {string} Euros from current account with iban {string} to another customers account with iban {string} on behalf of a customer")
+    public void iWantToTransferEurosFromCurrentAccountWithIbanToAnotherCustomersAccountWithIbanOnBehalfOfACustomer(String amount, String accountToIban, String accountFromIban) throws JsonProcessingException, URISyntaxException {
+        URI uri = new URI(transactionsUrl);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(token);
+        RegularTransaction transaction = new RegularTransaction("NL01INHO0000000052", "NL01INHO0000000055", 25.0, customerId);
+        HttpEntity<String> entity = new HttpEntity<>(mapper.writeValueAsString(transaction), headers);
+        responseEntity = template.exchange(uri, HttpMethod.POST, entity, String.class);
     }
 }
