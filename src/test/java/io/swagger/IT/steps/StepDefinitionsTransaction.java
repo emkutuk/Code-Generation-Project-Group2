@@ -41,6 +41,10 @@ public class StepDefinitionsTransaction
     private String loginUrl = "http://localhost:8080/api/Login";
     private String transactionsUrl = "http://localhost:8080/api/Transactions";
     private UUID customerId;
+    private UUID transactionID;
+
+    public StepDefinitionsTransaction() throws URISyntaxException {
+    }
 
     @Before
     public void setup() throws URISyntaxException, JsonProcessingException
@@ -48,8 +52,10 @@ public class StepDefinitionsTransaction
         template = new RestTemplate();
         headers = new HttpHeaders();
         mapper = new ObjectMapper();
+        mapper.findAndRegisterModules();
 
         customerId = new UUID(new BigInteger("3fa85f6457174562b3fc2c963f66afa7".substring(0, 16), 16).longValue(), new BigInteger("3fa85f6457174562b3fc2c963f66afa7".substring(16), 16).longValue());
+        transactionID = new UUID(new BigInteger("cae6a16b6e424a8badbdde9a636d229f".substring(0, 16), 16).longValue(), new BigInteger("cae6a16b6e424a8badbdde9a636d229f".substring(16), 16).longValue());
     }
 
 
@@ -73,6 +79,21 @@ public class StepDefinitionsTransaction
         Login("testCucumber2", "testCucumber2");
     }
 
+    @Given("I am another employee")
+    public void iAmAnEmployee() throws Exception
+    {
+        Login("testCucumber", "testCucumber");
+    }
+
+    @When("I want to review a customer's transaction with id {string}")
+    public void iWantToReviewACustomersTransaction(String id) throws URISyntaxException
+    {
+        URI uri = new URI(transactionsUrl + "/" + id);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(token);
+        entity = new HttpEntity<>(headers);
+        responseEntity = template.exchange(uri, HttpMethod.GET, entity, String.class);
+    }
 
     @When("I want to return all my transactions with offset {string} and max {string}")
     public void iWantToReturnAllMyTransactionsWithOffsetAndMax(String offset, String max) throws URISyntaxException
@@ -99,16 +120,58 @@ public class StepDefinitionsTransaction
 
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(token);
-
-        //String accountTo, String accountFrom, double amount, UUID performedBy)
         RegularTransaction transaction = new RegularTransaction(accountToIban, accountFromIban, Double.parseDouble(amount), customerId);
-        /*DateFormat myFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date transactionDate = myFormat.parse(transaction.getTransactionDate().toString());
-        transaction.setTransactionDate(transactionDate);
-        System.out.println(transactionDate);*/
-
         HttpEntity<String> entity = new HttpEntity<>(mapper.writeValueAsString(transaction), headers);
 
+        responseEntity = template.postForEntity(uri, entity, String.class);
+    }
+
+    @When("I want to deposit {string} Euros into my account")
+    public void iWantToDepositEurosIntoMyAccount(String amount) throws URISyntaxException, JsonProcessingException {
+        String requestBody = "{\n" + "  \"accountTo\": \"NL01INHO0000000055\"," +
+                "\n" + " \"amount\": 15.0,\n" + " \"performedBy\": " + "\"3fa85f64-5717-4562-b3fc-2c963f66afa7\", \n" + " " +
+                "\"transactionDate\": \"2021-12-01 16:02:06\", \n" + " " +
+                "\"transactionId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\"\n"+"}";
+
+        URI uri = new URI(transactionsUrl + "/Deposit");
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(token);
+        entity = new HttpEntity<>(requestBody, headers);
+        responseEntity = template.exchange(uri, HttpMethod.POST, entity, String.class);
+    }
+
+    @When("I want to withdraw {string} Euros from my account")
+    public void iWantToWithdrawEurosFromMyAccount(String amount) throws URISyntaxException {
+        String requestBody = "{\n" + "  \"accountFrom\": \"NL01INHO0000000055\"," +
+                "\n" + " \"amount\": 15.0,\n" + " \"performedBy\": " + "\"3fa85f64-5717-4562-b3fc-2c963f66afa7\", \n" + " " +
+                "\"transactionDate\": \"2021-12-01 16:02:06\", \n" + " " +
+                "\"transactionId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\"\n"+"}";
+
+        URI uri = new URI(transactionsUrl + "/Withdraw");
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(token);
+        entity = new HttpEntity<>(requestBody, headers);
+        responseEntity = template.exchange(uri, HttpMethod.POST, entity, String.class);
+    }
+    
+
+
+    @When("I want to return my transaction with id {string}")
+    public void iWantToReturnMyTransactionWithId(String transactionId) throws URISyntaxException {
+        URI uri = new URI(transactionsUrl + "/cae6a16b6e424a8badbdde9a636d229f");
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(token);
+        entity = new HttpEntity<>(headers);
+        responseEntity = template.exchange(uri, HttpMethod.GET, entity, String.class);
+    }
+
+    @When("I want to transfer {string} Euro from my account that has {string} to their account that has {string}")
+    public void iWantToTransferEuroFromMyAccountThatHasToTheirAccountThatHas(String amount, String accountFromIban, String accountToIban) throws URISyntaxException {
+        URI uri = new URI(transactionsUrl);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(token);
+        RegularTransaction transaction = new RegularTransaction("NL01INHO0000000054", "NL01INHO0000000055", 20.0, customerId);
+        HttpEntity<String> entity = new HttpEntity<>(transaction.toString(), headers);
         responseEntity = template.postForEntity(uri, entity, String.class);
     }
 }

@@ -29,7 +29,6 @@ public abstract class Transaction {
 
   @Id
   @JsonProperty("transactionId")
-  @GeneratedValue
   private UUID transactionId = null;
 
   @JsonProperty("transactionDate")

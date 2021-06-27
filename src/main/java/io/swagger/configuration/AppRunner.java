@@ -12,6 +12,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -81,7 +82,13 @@ public class AppRunner implements ApplicationRunner
         userService.register(cucumberUserCustomer);
 
         RegularTransaction transactionForCucumber = new RegularTransaction("NL01INHO0000000054", "NL01INHO0000000055", 20.00, cucumberUserCustomer.getId());
+        RegularTransaction transactionForCucumber2 = new RegularTransaction("NL01INHO0000000054","NL01INHO0000000055",15.0,cucumberUserCustomer.getId());
+        UUID transactionId = new UUID(new BigInteger("cae6a16b6e424a8badbdde9a636d229f".substring(0, 16), 16).longValue(), new BigInteger("cae6a16b6e424a8badbdde9a636d229f".substring(16), 16).longValue());
+        transactionForCucumber.setTransactionId(UUID.fromString("748e68b9-812a-4312-88b7-0020fc08405f"));
+        transactionForCucumber2.setTransactionId(transactionId);
         transactionService.createTransaction(transactionForCucumber, cucumberUserCustomer);
+        transactionService.createTransaction(transactionForCucumber2, cucumberUserCustomer);
+
 
 
         log.info("Testing transaction");

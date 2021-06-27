@@ -58,9 +58,7 @@ public class TransactionsApiController implements TransactionsApi
           @Valid
           @RequestBody
           RegularTransaction transaction) {
-
     String accept = request.getHeader("Accept");
-
       try {
         User user = getUserFromToken();
         log.info("should be creating transaction");
@@ -68,7 +66,6 @@ public class TransactionsApiController implements TransactionsApi
             transactionService.createTransaction(transaction, user), HttpStatus.CREATED);
       } catch (Exception e) {
         e.printStackTrace();
-        // Handle exceptions
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
       }
 
@@ -96,18 +93,13 @@ public class TransactionsApiController implements TransactionsApi
           Deposit deposit) {
 
     String accept = request.getHeader("Accept");
-
-    if (accept != null && accept.contains("application/json")) {
       try {
         log.info("Trying to save deposit");
         return new ResponseEntity<Deposit>(
             transactionService.depositMoney(deposit), HttpStatus.CREATED);
       } catch (Exception e) {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-      }
     }
-
-    return new ResponseEntity<Deposit>(HttpStatus.BAD_REQUEST);
   }
 
     @PreAuthorize("hasRole('EMPLOYEE') OR hasRole('CUSTOMER')")
@@ -162,8 +154,7 @@ public class TransactionsApiController implements TransactionsApi
           @Valid
           @RequestBody
           Withdrawal withdrawal) {
-    String accept = request.getHeader("Accept");
-    if (accept != null && accept.contains("application/json")) {
+
       try {
         log.info("Trying to save withdrawal");
         return new ResponseEntity<Withdrawal>(
@@ -172,9 +163,6 @@ public class TransactionsApiController implements TransactionsApi
         log.error("Couldn't serialize response for content type application/json", e);
         return new ResponseEntity<Withdrawal>(HttpStatus.BAD_REQUEST);
       }
-    }
-
-    return new ResponseEntity<Withdrawal>(HttpStatus.BAD_REQUEST);
   }
 
   private User getUserFromToken() throws Exception {
