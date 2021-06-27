@@ -11,6 +11,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -212,7 +214,7 @@ class TransactionServiceTest {
   }*/
 
   @Test
-  @DisplayName("createTransaction throws Illegal state exception if ate older than 15 minutes")
+  @DisplayName("createTransaction throws Illegal state exception if date older than 5 minutes")
   public void
       createTransactionShouldNotAllowDatesOlderThan5MinutesPast_ThrowsIllegalStateException() {
 
@@ -298,25 +300,39 @@ class TransactionServiceTest {
   }
 
   @Test
-  void createTransaction() {
-    // account not exist bad
-    // user not exist bad
-    // user not own account bad
-    // savings to savings bad
+  @DisplayName("")
+  public void undoTransactionShouldBeCalledWhenErrorThrown() throws Exception {
+    when(accountService.subtractBalance(
+            transactionCurrentToCurrent.getAccountFrom(), transactionCurrentToCurrent.getAmount()))
+        .thenThrow(new Exception());
 
-    // own accounts good
-    // employee
+    assertThrows(Exception.class, () -> transactionService.createTransaction(transactionCurrentToCurrent, employee));
+
+
+
+    verify(accountService).subtractBalance(Mockito.anyString(), Mockito.anyDouble());
+  }
+
+  @Test
+  @DisplayName("Withdrawmoney")
+  public void withdrawMoney() throws Exception {
+    Withdrawal withdrawal = new Withdrawal();
+    transactionService.withdrawMoney(withdrawal, employee);
   }
 
   @Test
   void getAllTransactionsForAccountByIban() {}
 
   @Test
-  void depositMoney() {}
+  @DisplayName("Deposit money")
+  void depositMoney() throws Exception {
+    Deposit deposit = new Deposit();
+    transactionService.depositMoney(deposit);
+  }
 
   @Test
-  void withdrawMoney() {}
+  void addTransactions()
+  {
 
-  @Test
-  void addTransactions() {}
+  }
 }

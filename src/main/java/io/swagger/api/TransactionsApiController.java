@@ -2,7 +2,9 @@ package io.swagger.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.model.*;
+import io.swagger.security.JwtTokenProvider;
 import io.swagger.service.TransactionService;
+import io.swagger.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -36,7 +38,9 @@ public class TransactionsApiController implements TransactionsApi {
 
   private final HttpServletRequest request;
 
-  @Autowired TransactionService transactionService;
+  @Autowired private TransactionService transactionService;
+  @Autowired private JwtTokenProvider tokenProvider;
+  @Autowired private UserService userService;
 
   @org.springframework.beans.factory.annotation.Autowired
   public TransactionsApiController(ObjectMapper objectMapper, HttpServletRequest request) {
@@ -52,26 +56,10 @@ public class TransactionsApiController implements TransactionsApi {
           RegularTransaction transaction) {
 
     String accept = request.getHeader("Accept");
-    String tokenHeader = request.getHeader("bearerToken");
-
-    tokenHeader = "testToken";
-
-    if (tokenHeader == null || tokenHeader.isEmpty()) {
-      log.info("Unauthorised");
-      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-    } else {
-
-      log.info("Would be checking for if token is valid");
-      // If not valid token
-      // return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-    }
-
-    User user = new User(); // Get User from token
-    // null check user
 
     if (accept != null && accept.contains("application/json")) {
       try {
-
+        User user = getUserFromToken();
         log.info("should be creating transaction");
         return new ResponseEntity<>(
             transactionService.createTransaction(transaction, user), HttpStatus.CREATED);
@@ -90,13 +78,13 @@ public class TransactionsApiController implements TransactionsApi {
       @Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema())
           @PathVariable("id")
           String id) {
-      try {
-        System.out.println(id);
-        transactionService.deleteTransactionById(id);
-        return new ResponseEntity<Void>(HttpStatus.ACCEPTED);
-      } catch (Exception e) {
-        return new ResponseEntity<Void>(HttpStatus.I_AM_A_TEAPOT);
-      }
+    try {
+      System.out.println(id);
+      transactionService.deleteTransactionById(id);
+      return new ResponseEntity<Void>(HttpStatus.ACCEPTED);
+    } catch (Exception e) {
+      return new ResponseEntity<Void>(HttpStatus.I_AM_A_TEAPOT);
+    }
   }
 
   @PreAuthorize("hasRole('EMPLOYEE') OR hasRole('CUSTOMER')")
@@ -154,13 +142,13 @@ public class TransactionsApiController implements TransactionsApi {
           @Valid
           @RequestParam(value = "offset", required = false)
           Integer offset) {
-      try {
-        return new ResponseEntity<List<Transaction>>(
-            transactionService.getTransactionsByIban(iban,max,offset), HttpStatus.OK);
-      } catch (Exception e) {
-          e.printStackTrace();
-        log.error("Couldn't serialize response for content type application/json", e);
-        return new ResponseEntity<List<Transaction>>(HttpStatus.BAD_REQUEST);
+    try {
+      return new ResponseEntity<List<Transaction>>(
+          transactionService.getTransactionsByIban(iban, max, offset), HttpStatus.OK);
+    } catch (Exception e) {
+      e.printStackTrace();
+      log.error("Couldn't serialize response for content type application/json", e);
+      return new ResponseEntity<List<Transaction>>(HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -169,13 +157,13 @@ public class TransactionsApiController implements TransactionsApi {
       @Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema())
           @PathVariable("id")
           String id) {
-      try {
-        return new ResponseEntity<Transaction>(
-            transactionService.getTransactionById(id), HttpStatus.OK);
-      } catch (Exception e) {
-        log.error("Couldn't serialize response for content type application/json", e);
-        return new ResponseEntity<Transaction>(HttpStatus.BAD_REQUEST);
-      }
+    try {
+      return new ResponseEntity<Transaction>(
+          transactionService.getTransactionById(id), HttpStatus.OK);
+    } catch (Exception e) {
+      log.error("Couldn't serialize response for content type application/json", e);
+      return new ResponseEntity<Transaction>(HttpStatus.BAD_REQUEST);
+    }
   }
 
   @PreAuthorize("hasRole('EMPLOYEE') OR hasRole('CUSTOMER')")
@@ -204,12 +192,15 @@ public class TransactionsApiController implements TransactionsApi {
           @RequestParam(value = "offset", required = false, defaultValue = "1")
           Integer offset) {
 
-      try {
-        return new ResponseEntity<List<Transaction>>(transactionService.getTransactionsByUserId(null,max,offset), HttpStatus.OK);
-      } catch (Exception e) {
-        log.error("Couldn't serialize response for content type application/json", e);
-        return new ResponseEntity<List<Transaction>>(HttpStatus.FORBIDDEN);
-      }
+    try {
+      User user = getUserFromToken();
+
+      return new ResponseEntity<List<Transaction>>(
+          transactionService.getTransactionsByUserId(user.getId(), max, offset), HttpStatus.OK);
+    } catch (Exception e) {
+      log.error("Couldn't serialize response for content type application/json", e);
+      return new ResponseEntity<List<Transaction>>(HttpStatus.FORBIDDEN);
+    }
   }
 
   @PreAuthorize("hasRole('EMPLOYEE') OR hasRole('CUSTOMER')")
@@ -223,7 +214,7 @@ public class TransactionsApiController implements TransactionsApi {
       try {
         log.info("Trying to save withdrawal");
         return new ResponseEntity<Withdrawal>(
-            transactionService.withdrawMoney(withdrawal), HttpStatus.OK);
+            transactionService.withdrawMoney(withdrawal, getUserFromToken()), HttpStatus.OK);
       } catch (Exception e) {
         log.error("Couldn't serialize response for content type application/json", e);
         return new ResponseEntity<Withdrawal>(HttpStatus.BAD_REQUEST);
@@ -231,5 +222,11 @@ public class TransactionsApiController implements TransactionsApi {
     }
 
     return new ResponseEntity<Withdrawal>(HttpStatus.BAD_REQUEST);
+  }
+
+  private User getUserFromToken() throws Exception {
+    String token = tokenProvider.resolveToken(request);
+    String email = tokenProvider.getUsername(token);
+    return userService.getUserByEmail(email);
   }
 }

@@ -33,13 +33,11 @@ public class TransactionService {
     this.userService = userService;
   }
 
-  //omar
   public List<Transaction> getTransactions() {
     // validate user
     return transactionRepo.findAll();
   }
 
-  //omar
   public Transaction getTransactionById(String id) throws Exception {
     //validate user
     String s = id.replace("-", "");
@@ -102,16 +100,18 @@ public class TransactionService {
     return filteredList;
   }
 
-  // omar
   @Transient
   public void deleteTransactionById(String id) throws Exception {
     //validate user
+    isValidTransactionDate(getTransactionById(id));
+
     try {
       //Converting String to UUID (Using UUID.toString(id) causes an illegal argument exception
       String s = id.replace("-", "");
       UUID uuid = new UUID(
               new BigInteger(s.substring(0, 16), 16).longValue(),
               new BigInteger(s.substring(16), 16).longValue());
+
       transactionRepo.deleteById(uuid);
     } catch (Exception e) {
       e.printStackTrace();
@@ -124,18 +124,8 @@ public class TransactionService {
     return transactionRepo.findAll();
   }
 
-  public RegularTransaction createTransaction(RegularTransaction transaction, User user)
-      throws Exception {
-    if (transaction.getTransactionDate() == null ||LocalDateTime.now().minusMinutes(3).isAfter(transaction.getTransactionDate())) {
-      // Transaction is too old
-      log.info("Transaction is too old");
-      throw new IllegalStateException(
-          String.format("Date %s is too old to be valid", transaction.getTransactionDate()));
-    }
-
-    log.info(transaction.toString());
-
-
+  public RegularTransaction createTransaction(RegularTransaction transaction, User user) throws Exception {
+    isValidTransactionDate(transaction);
     Account accountFrom = accountService.getAccountByIban(transaction.getAccountFrom());
     User userFrom = userService.getUserByIban(accountFrom);
     Account accountTo = accountService.getAccountByIban(transaction.getAccountTo());
@@ -150,12 +140,6 @@ public class TransactionService {
       log.info("User trying to make transaction from another users account");
       throw new IllegalArgumentException("user is not authorized to do this");
     }
-
-//    if (user.getRole().equals(Role.ROLE_CUSTOMER) && !userFrom.getAccounts().contains(accountFrom)) {
-//      log.info("User trying to make transaction from another users account");
-//      throw new IllegalArgumentException("user is not authorized to do this");
-//    }
-    // If user does not own the account to and it is a savings account
     else if (!(userFrom.getAccounts().contains(accountTo))
         && accountTo.getAccountType().equals(AccountType.SAVING)) {
       log.info("User trying to make transaction to savings account of another user");
@@ -165,7 +149,6 @@ public class TransactionService {
 
     return performRegularTransaction(transaction);
   }
-
 
   public List<Transaction> getAllTransactionsForAccountByIban(String iban) {
     List<Transaction> transactionList = transactionRepo.findAll();
@@ -184,16 +167,20 @@ public class TransactionService {
   }
 
   public Deposit depositMoney(Deposit deposit) throws Exception {
-    // Validate stuff
-
     return performDeposit(deposit);
   }
 
-  public Withdrawal withdrawMoney(Withdrawal withdrawal) throws Exception {
-    // Validate balance
-    // Check Transaction Limits Limits
+  public Withdrawal withdrawMoney(Withdrawal withdrawal, User user) throws Exception {
 
-    return performWithdrawal(withdrawal);
+    Account account = accountService.getAccountByIban(withdrawal.getAccountFrom());
+    User accountOwner = userService.getUserByIban(account);
+
+    if(user.getRole().equals(Role.ROLE_EMPLOYEE) || accountOwner.getId() == user.getId() ){
+      return performWithdrawal(withdrawal);
+    }
+    else{
+      throw new IllegalArgumentException("user is not authorized to do this");
+    }
   }
 
   /*
@@ -252,5 +239,15 @@ public class TransactionService {
     if (addedTo) {
       accountService.subtractBalance(transaction.getAccountTo(), transaction.getAmount());
     }
+  }
+
+  private boolean isValidTransactionDate(Transaction transaction) {
+    if (transaction.getTransactionDate() == null ||LocalDateTime.now().minusMinutes(3).isAfter(transaction.getTransactionDate())) {
+      // Transaction is too old
+      log.info("Transaction is too old");
+      throw new IllegalStateException(
+              String.format("Date %s is too old to be valid", transaction.getTransactionDate()));
+    }
+    return true;
   }
 }
