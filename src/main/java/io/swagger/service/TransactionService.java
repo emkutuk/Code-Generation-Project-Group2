@@ -138,6 +138,8 @@ public class TransactionService
     User userFrom = userService.getUserByIban(accountFrom);
     Account accountTo = accountService.getAccountByIban(transaction.getAccountTo());
 
+    log.info("Test");
+
     if (userFrom == null || accountFrom == null || accountTo == null) {
       log.info("User or account doesn't exist");
       throw new IllegalArgumentException("one of these doesn't exist");

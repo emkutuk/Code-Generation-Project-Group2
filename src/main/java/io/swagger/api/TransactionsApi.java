@@ -43,7 +43,7 @@ public interface TransactionsApi {
         @ApiResponse(
             responseCode = "201",
             description = "Created",
-            content = @Content(schema = @Schema(implementation = RegularTransaction.class)))
+            content = @Content(schema = @Schema(allOf = Transaction.class, implementation = RegularTransaction.class)))
       })
   @RequestMapping(
       value = "/Transactions",
@@ -51,7 +51,7 @@ public interface TransactionsApi {
       consumes = {"application/json"},
       method = RequestMethod.POST)
   ResponseEntity<RegularTransaction> createTransaction(
-      @Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema())
+      @Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema(allOf = Transaction.class, implementation = RegularTransaction.class))
           @Valid
           @RequestBody
           RegularTransaction body);

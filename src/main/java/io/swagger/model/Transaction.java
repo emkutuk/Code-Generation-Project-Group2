@@ -25,6 +25,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @ToString
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@Schema(oneOf = {RegularTransaction.class, Deposit.class, Withdrawal.class})
 public abstract class Transaction {
 
   @Id

@@ -61,7 +61,10 @@ public class TransactionsApiController implements TransactionsApi
 
     String accept = request.getHeader("Accept");
 
-    if (accept != null && accept.contains("application/json")) {
+    log.info(transaction.getPerformedBy().toString());
+    // It only adds the fields of the child class now???
+
+    if (accept != null) {
       try {
         User user = getUserFromToken();
         log.info("should be creating transaction");
@@ -100,7 +103,7 @@ public class TransactionsApiController implements TransactionsApi
 
     String accept = request.getHeader("Accept");
 
-    if (accept != null && accept.contains("application/json")) {
+    if (accept != null) {
       try {
         log.info("Trying to save deposit");
         return new ResponseEntity<Deposit>(
@@ -166,7 +169,7 @@ public class TransactionsApiController implements TransactionsApi
           @RequestBody
           Withdrawal withdrawal) {
     String accept = request.getHeader("Accept");
-    if (accept != null && accept.contains("application/json")) {
+    if (accept != null) {
       try {
         log.info("Trying to save withdrawal");
         return new ResponseEntity<Withdrawal>(
