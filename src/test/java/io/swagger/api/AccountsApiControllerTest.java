@@ -1,33 +1,21 @@
 package io.swagger.api;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import io.swagger.model.*;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.repo.AccountRepo;
-import io.swagger.repo.UserRepo;
+import io.swagger.model.*;
 import io.swagger.service.AccountService;
-import io.swagger.service.UserService;
-import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.util.NestedServletException;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
