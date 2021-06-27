@@ -230,7 +230,7 @@ public class TransactionsApiController implements TransactionsApi {
       try {
         log.info("Trying to save withdrawal");
         return new ResponseEntity<Withdrawal>(
-            transactionService.withdrawMoney(withdrawal), HttpStatus.OK);
+            transactionService.withdrawMoney(withdrawal, getUserFromToken()), HttpStatus.OK);
       } catch (Exception e) {
         log.error("Couldn't serialize response for content type application/json", e);
         return new ResponseEntity<Withdrawal>(HttpStatus.BAD_REQUEST);

@@ -18,12 +18,13 @@ class TransactionTest {
   @BeforeEach
   public void createTestTransaction() {
     transaction =
-        new RegularTransaction("NL04INHO68681868171", "NL01INHO00005798481", 120D, UUID.randomUUID());
+        new RegularTransaction(
+            "NL04INHO68681868171", "NL01INHO00005798481", 120D, UUID.randomUUID());
   }
 
   @Test
   @DisplayName("AccountTo should match set iban")
-  public void testGetAccountTo(){
+  public void testGetAccountTo() {
     assertEquals("NL04INHO68681868171", transaction.getAccountTo());
     String testIban = "NL99INHO99999999999";
     transaction.setAccountFrom(testIban);
@@ -32,7 +33,7 @@ class TransactionTest {
 
   @Test
   @DisplayName("AccountFrom should match set iban")
-  public void testGetAccountFrom(){
+  public void testGetAccountFrom() {
     assertEquals("NL01INHO00005798481", transaction.getAccountFrom());
     String testIban = "NL99INHO99999999999";
     transaction.setAccountFrom(testIban);
@@ -41,10 +42,10 @@ class TransactionTest {
 
   @Test
   @DisplayName("Amount should match amount set")
-  public void testGetAmount(){
-    assertEquals((Double)120d, transaction.getAmount());
+  public void testGetAmount() {
+    assertEquals((Double) 120d, transaction.getAmount());
     transaction.setAmount(999d);
-    assertEquals((Double)999d, transaction.getAmount());
+    assertEquals((Double) 999d, transaction.getAmount());
   }
 
   @Test
@@ -119,8 +120,7 @@ class TransactionTest {
   @ParameterizedTest
   @DisplayName("Transaction amount should not be 0 or less")
   @ValueSource(doubles = {0, -0.01})
-  public void transactionAmountThrowsIllegalArgumentExceptionIfZeroOrLess(double amount)
-  {
+  public void transactionAmountThrowsIllegalArgumentExceptionIfZeroOrLess(double amount) {
     assertNotNull(transaction.getAmount());
     assertThrows(IllegalArgumentException.class, () -> transaction.setAmount(amount));
   }
@@ -135,8 +135,7 @@ class TransactionTest {
 
   @Test
   @DisplayName("getTransactionId should match setTransactionId")
-  public void setTransactionShouldMatchGivenIdWhenGetTransactionId()
-  {
+  public void setTransactionShouldMatchGivenIdWhenGetTransactionId() {
     UUID id = UUID.randomUUID();
     transaction.setTransactionId(id);
     assertEquals(id, transaction.getTransactionId());
@@ -144,16 +143,14 @@ class TransactionTest {
 
   @Test
   @DisplayName("No args constructor should not be null")
-  public void noArgsConstructorShouldNotBeNull()
-  {
+  public void noArgsConstructorShouldNotBeNull() {
     transaction = new RegularTransaction();
     assertNotNull(transaction);
   }
 
   @Test
   @DisplayName("getTransactionDate should return now if not set")
-  public void getTransactionDateShouldReturnNowIfNotSet()
-  {
+  public void getTransactionDateShouldReturnNowIfNotSet() {
     assertNotNull(transaction.getTransactionDate());
     // Shouldn't take longer than a second between initialisation and comparison
     assertTrue(transaction.getTransactionDate().isAfter(LocalDateTime.now().minusSeconds(1)));
@@ -162,8 +159,7 @@ class TransactionTest {
 
   @Test
   @DisplayName("getTransactionDate should match setTransactionDate")
-  public void getTransactionDateShouldMatchSetTransactionDate()
-  {
+  public void getTransactionDateShouldMatchSetTransactionDate() {
     LocalDateTime expectedDate = LocalDateTime.now().plusMinutes(15);
     transaction.setTransactionDate(expectedDate);
     assertEquals(expectedDate, transaction.getTransactionDate());
@@ -171,12 +167,39 @@ class TransactionTest {
 
   @Test
   @DisplayName("getTransactionDate should match setTransactionDate")
-  public void getPerformedByShouldMatchSetPerformedBy()
-  {
+  public void getPerformedByShouldMatchSetPerformedBy() {
     UUID expectedId = UUID.randomUUID();
     transaction.setPerformedBy(expectedId);
     assertEquals(expectedId, transaction.getPerformedBy());
-
   }
 
+  @Test
+  @DisplayName("Transaction constructor test")
+  public void transactionConstructorTest() {
+    RegularTransaction transaction =
+        new RegularTransaction(
+            "accountTo", "accountFrom", 100d, UUID.randomUUID(), LocalDateTime.now());
+    assertNotNull(transaction);
+    assertNotNull(transaction.getAccountFrom());
+    assertNotNull(transaction.getAccountTo());
+    assertNotNull(transaction.getAmount());
+    assertNotNull(transaction.getTransactionDate());
+    assertNotNull(transaction.getPerformedBy());
+  }
+
+  @Test
+  @DisplayName("getAccountTo should match setAccountTo")
+  public void getAccountToShouldMatchSetAccountTo()
+  {
+    RegularTransaction transaction = new RegularTransaction();
+    String testString = "NL04INHO68681868171";
+    transaction.setAccountTo(testString);
+    assertEquals(testString, transaction.getAccountTo());
+  }
+
+  @Test
+  @DisplayName("toString should return string")
+  public void transactionToStringShouldReturnString(){
+    assertNotNull(transaction.toString());
+  }
 }

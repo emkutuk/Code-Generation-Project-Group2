@@ -167,16 +167,20 @@ public class TransactionService {
   }
 
   public Deposit depositMoney(Deposit deposit) throws Exception {
-    // Validate stuff
-
     return performDeposit(deposit);
   }
 
-  public Withdrawal withdrawMoney(Withdrawal withdrawal) throws Exception {
-    // Validate balance
-    // Check Transaction Limits Limits
+  public Withdrawal withdrawMoney(Withdrawal withdrawal, User user) throws Exception {
 
-    return performWithdrawal(withdrawal);
+    Account account = accountService.getAccountByIban(withdrawal.getAccountFrom());
+    User accountOwner = userService.getUserByIban(account);
+
+    if(user.getRole().equals(Role.ROLE_EMPLOYEE) || accountOwner.getId() == user.getId() ){
+      return performWithdrawal(withdrawal);
+    }
+    else{
+      throw new IllegalArgumentException("user is not authorized to do this");
+    }
   }
 
   /*

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.*;
@@ -22,6 +23,7 @@ import java.util.UUID;
 @Entity
 @Data
 @NoArgsConstructor
+@ToString
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public abstract class Transaction {
 
@@ -130,13 +132,14 @@ public abstract class Transaction {
     return performedBy;
   }
 
-  /**
-   * Convert the given object to string with each line indented by 4 spaces (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
-    }
-    return o.toString().replace("\n", "\n    ");
-  }
+//  Can probably remove
+//  /**
+//   * Convert the given object to string with each line indented by 4 spaces (except the first line).
+//   */
+//  private String toIndentedString(java.lang.Object o) {
+//    if (o == null) {
+//      return "null";
+//    }
+//    return o.toString().replace("\n", "\n    ");
+//  }
 }
