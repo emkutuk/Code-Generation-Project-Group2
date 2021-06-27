@@ -132,11 +132,6 @@ public class TransactionService
         }
     }
 
-    public List<Transaction> getTransactionsPaginated(Integer offset, Integer max)
-    {
-        return transactionRepo.findAll();
-    }
-
   public RegularTransaction createTransaction(RegularTransaction transaction, User user) throws Exception {
     isValidTransactionDate(transaction);
     Account accountFrom = accountService.getAccountByIban(transaction.getAccountFrom());
