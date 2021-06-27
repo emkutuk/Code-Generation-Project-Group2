@@ -44,7 +44,6 @@ class UserServiceTest
         account = new Account("testIban", AccountType.SAVING, 500D);
         user = new User("Hein", "Eken", "31685032148", "customer", "customer", new ArrayList<>(), io.swagger.security.Role.ROLE_CUSTOMER, AccountStatus.ACTIVE);
         user2 = new User("Amst", "Erdam", "31685032149", "employee", "employee", new ArrayList<>(), io.swagger.security.Role.ROLE_EMPLOYEE, AccountStatus.ACTIVE);
-
     }
 
     @Test
@@ -90,15 +89,15 @@ class UserServiceTest
     @Test
     void getUserByEmail() throws Exception
     {
-        when(userRepo.findUserByEmail("customer")).thenReturn(user);
-        Assertions.assertEquals(userService.getUserByEmail("customer"), user);
+        when(userRepo.findUserByEmail(user.getEmail())).thenReturn(user);
+        Assertions.assertEquals(userService.getUserByEmail(user.getEmail()), user);
     }
 
     @Test
     void getUserByEmailThatDoesNotExist()
     {
-        when(userRepo.findUserByEmail("customer")).thenReturn(user);
-        Exception exception = assertThrows(Exception.class, () -> userService.getUserByEmail("invaliedMail"));
+        when(userRepo.findUserByEmail(user.getEmail())).thenReturn(user);
+        Exception exception = assertThrows(Exception.class, () -> userService.getUserByEmail("invalidMail"));
         Assertions.assertNotNull(exception);
     }
 

@@ -42,7 +42,11 @@ class TransactionServiceTest {
   private RegularTransaction transactionCurrentToCurrent,
       transactionCurrentToSavings,
       transactionSavingsToCurrent,
-      transactionSavingsToSavings;
+      transactionSavingsToSavings,
+      transaction1,
+      transaction2,
+      transaction3;
+
 
   @BeforeEach
   void setUp() throws Exception {
@@ -79,6 +83,9 @@ class TransactionServiceTest {
     when(transactionRepo.save(transactionCurrentToSavings)).thenReturn(transactionCurrentToSavings);
     when(transactionRepo.save(transactionSavingsToCurrent)).thenReturn(transactionSavingsToCurrent);
     when(transactionRepo.save(transactionSavingsToSavings)).thenReturn(transactionSavingsToSavings);
+    when(transactionRepo.save(transaction1)).thenReturn(transaction1);
+    when(transactionRepo.save(transaction2)).thenReturn(transaction2);
+    when(transactionRepo.save(transaction3)).thenReturn(transaction3);
     when(transactionRepo.findAll()).thenReturn(expectedTransactionList);
   }
 
@@ -133,11 +140,15 @@ class TransactionServiceTest {
   }
 
   private void transactionSetup() {
+    transaction1 = new RegularTransaction(accountToCurrent.getIban(),accountFromCurrent.getIban(),690d,employee.getId(),LocalDateTime.now());
+    transaction2 = new RegularTransaction(accountToCurrent.getIban(),accountToSavings.getIban(),50.0,customerTo.getId());
+    transaction3 = new RegularTransaction(accountToCurrent.getIban(),accountFromCurrent.getIban(),80.0,customerFrom.getId());
+    transactionRepo.save(transaction1);
     transactionCurrentToCurrent =
         new RegularTransaction(
             accountToCurrent.getIban(),
             accountFromCurrent.getIban(),
-            400d,
+            200d,
             employee.getId(),
             LocalDateTime.now());
 
@@ -172,8 +183,14 @@ class TransactionServiceTest {
             add(transactionCurrentToSavings);
             add(transactionSavingsToCurrent);
             add(transactionSavingsToSavings);
+            add(transaction1);
+            add(transaction2);
+            add(transaction3);
           }
         };
+
+//    transactionRepo.save(transaction2);
+//    transactionRepo.save(transaction3);
   }
 
   @AfterEach
@@ -187,31 +204,89 @@ class TransactionServiceTest {
     expectedTransactionList = null;
   }
 
-  /*  @Test
+  @Test
+  @DisplayName("Returns a list of Transactions")
   void getTransactions()
   {
-
+    assertNotNull(transactionService.getTransactions());
   }
 
   @Test
-  void getTransactionById() {
+  @DisplayName("Returns a transaction with the requested valid id")
+  void getTransactionById() throws Exception {
+    assertNotNull(transactionService.getTransactionById(transaction1.getTransactionId().toString()));
   }
 
-  @Test
-  void getTransactionsByUserId() {
-  }
-
-  @Test
-  void getTransactionsByIban() {
-  }
-
-  @Test
-  void deleteTransactionById() {
-  }
-
-  @Test
-  void getTransactionsPaginated() {
+  /*@Test
+  @DisplayName("Removes Dashes from the provided string during UUID conversion")
+  void getTransactionByIdRemovesDashesInString() {
+    String testUUID = transaction3.getTransactionDate().toString();
+    UUID newTestUUID = UUID.fromString(testUUID.replace("-",""));
+    assertEquals(newTestUUID,transaction3.getTransactionId());
   }*/
+
+  @Test
+  @DisplayName("Throws an exception if provided a wrong/non-existent id")
+  void getTransactionByIdThrowsExceptionIfProvidedWrongID() throws Exception {
+    assertThrows(Exception.class, () -> transactionService.getTransactionById("testtesttesttest"));
+  }
+
+  //does not work yet, seems like customerFrom has no transactions?
+  @Test
+  @DisplayName("Returns a filtered list based on user id provided")
+  void getTransactionsByUserId() throws Exception {
+    assertNotNull(transactionService.getTransactionsByUserId(customerFrom.getId(),10,0));
+  }
+
+  @Test
+  @DisplayName("Throws an if user ID provided is not a real user")
+  void getTransactionsByUserIdThrowsExceptionIfProvidedWrongID() {
+    assertThrows(Exception.class, () -> transactionService.getTransactionsByUserId(UUID.randomUUID(),10,0));
+  }
+
+  @Test
+  @DisplayName("Throws an if no transactions are present")
+  void getTransactionsByUserIdThrowsExceptionIfNoTransactionsPresent() {
+    assertThrows(Exception.class, () -> transactionService.getTransactionsByUserId(customerFrom.getId(),10,0));
+  }
+
+  //does not work, requires a transaction
+  @Test
+  @DisplayName("Returns a list of transactions associated with provided iban")
+  void getTransactionsByIban() throws Exception {
+    assertNotNull(transactionService.getTransactionsByIban(accountFromCurrent.getIban(),10,0));
+  }
+
+  @Test
+  @DisplayName("Throws an exception when provided an iban with no transactions")
+  void getTransactionsByIbanThrowsExceptionIfProvidedIbanWithNoTransactions() {
+    assertThrows(Exception.class, () -> transactionService.getTransactionsByIban(accountFromCurrent.getIban(),10,0));
+  }
+
+  @Test
+  @DisplayName("Throws an exception when provided an invalid iban")
+  void getTransactionsByIbanThrowsExceptionIfProvidedInvalidIban() {
+    assertThrows(Exception.class, () -> transactionService.getTransactionsByIban("invalidIban",10,0));
+  }
+
+  //i have no idea why this isnt working correctly, apparenntly transaction1 is returning null??
+  @Test
+  @DisplayName("Deletes a transaction")
+  void deleteTransactionById() throws Exception {
+    transactionService.deleteTransactionById(transaction1.getTransactionId().toString());
+    assertNull(transactionService.getTransactionById(transaction1.getTransactionId().toString()));
+  }
+
+  @Test
+  @DisplayName("Throws an exception when a transaction that does not exist")
+  void deleteTransactionByIdThrowsExceptionWhenTransactionDoesNotExist() {
+    assertThrows(Exception.class, () -> transactionService.deleteTransactionById("test"));
+  }
+
+  @Test
+  @DisplayName("")
+  void getTransactionsPaginated() {
+  }
 
   @Test
   @DisplayName("createTransaction throws Illegal state exception if date older than 5 minutes")
@@ -225,7 +300,7 @@ class TransactionServiceTest {
             accountToCurrent.getIban(),
             400d,
             employee.getId(),
-            LocalDateTime.now().minusMinutes(15));
+            LocalDateTime.now().minusMinutes(5));
 
     assertThrows(
         IllegalStateException.class,

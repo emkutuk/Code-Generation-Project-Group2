@@ -19,110 +19,123 @@ import java.util.UUID;
 @Service
 @Log
 @NoArgsConstructor
-public class TransactionService {
+public class TransactionService
+{
 
-  private TransactionRepo transactionRepo;
-  private AccountService accountService;
-  private UserService userService;
+    private TransactionRepo transactionRepo;
+    private AccountService accountService;
+    private UserService userService;
 
-  @Autowired
-  public TransactionService(
-      TransactionRepo repo, AccountService accountService, UserService userService) {
-    this.transactionRepo = repo;
-    this.accountService = accountService;
-    this.userService = userService;
-  }
-
-  public List<Transaction> getTransactions() {
-    // validate user
-    return transactionRepo.findAll();
-  }
-
-  public Transaction getTransactionById(String id) throws Exception {
-    //validate user
-    String s = id.replace("-", "");
-    UUID uuid = new UUID(
-            new BigInteger(s.substring(0, 16), 16).longValue(),
-            new BigInteger(s.substring(16), 16).longValue());
-    Optional<?> transaction = transactionRepo.findById(uuid);
-    if (transaction.isPresent()) {
-      return (Transaction) transaction.get();
-    } else {
-      throw new Exception("Transaction not found");
+    @Autowired
+    public TransactionService(TransactionRepo repo, AccountService accountService, UserService userService)
+    {
+        this.transactionRepo = repo;
+        this.accountService = accountService;
+        this.userService = userService;
     }
-  }
 
-  //omar
-  public List<Transaction> getTransactionsByUserId(UUID id,Integer max,Integer offset) throws Exception {
-    User user = userService.getUserById(id);
-    //validate user
-    try{
-      List<Transaction> allTransactions = new ArrayList<Transaction>();
-      List<Transaction> filteredList = new ArrayList<>();
-      List<Transaction> accountTransactions;
-      List<Account> userAccounts = user.getAccounts();
+    //omar
+    public List<Transaction> getTransactions()
+    {
+        // validate user
+        return transactionRepo.findAll();
+    }
 
-      for (Account a : userAccounts){
-         accountTransactions = a.getTransactions();
-        if(!accountTransactions.isEmpty()){
-          allTransactions.addAll(accountTransactions);
+    //omar
+    public Transaction getTransactionById(String id) throws Exception
+    {
+        //validate user
+        String s = id.replace("-", "");
+        UUID uuid = new UUID(new BigInteger(s.substring(0, 16), 16).longValue(), new BigInteger(s.substring(16), 16).longValue());
+        Optional<?> transaction = transactionRepo.findById(uuid);
+        if (transaction.isPresent())
+        {
+            return (Transaction) transaction.get();
+        } else
+        {
+            throw new Exception("Transaction not found");
         }
-      }
-      for (int i = offset; i <= allTransactions.size(); i++) {
-        filteredList.add(allTransactions.get(i));
-        if (allTransactions.size() == max) {
-          break;
+    }
+
+    //omar
+    public List<Transaction> getTransactionsByUserId(UUID id, Integer max, Integer offset) throws Exception
+    {
+        User user = userService.getUserById(id);
+        try
+        {
+            List<Transaction> allTransactions = new ArrayList<Transaction>();
+            List<Transaction> filteredList = new ArrayList<>();
+            List<Transaction> accountTransactions;
+            List<Account> userAccounts = user.getAccounts();
+
+            for (Account a : userAccounts)
+            {
+                accountTransactions = getAllTransactionsForAccountByIban(a.getIban());
+                if (!accountTransactions.isEmpty())
+                {
+                    allTransactions.addAll(accountTransactions);
+                }
+            }
+            long maxValue = max + offset;
+            //If the maxValue is bigger then existing transactions, max value is equal to allTransactions count
+            if (maxValue > allTransactions.stream().count()) maxValue = allTransactions.stream().count();
+
+            for (int i = offset; i < maxValue; i++)
+                filteredList.add(allTransactions.get(i));
+
+            return filteredList;
+        } catch (Exception e)
+        {
+            throw new Exception("Invalid User ID or no transactions found");
         }
+    }
+
+    // omar
+    public List<Transaction> getTransactionsByIban(String Iban, Integer max, Integer offset) throws Exception
+    {
+        //validate user
+        List<Transaction> allAccountTransactions = getAllTransactionsForAccountByIban(Iban);
+        ArrayList<Transaction> filteredList = new ArrayList<Transaction>();
+        try
+        {
+            for (int i = offset; i <= allAccountTransactions.size(); i++)
+            {
+                filteredList.add(allAccountTransactions.get(i));
+                if (filteredList.size() == max)
+                {
+                    break;
+                }
+            }
+        } catch (Exception e)
+        {
+            throw new Exception("Transaction not found");
         }
-      return filteredList;
+        return filteredList;
     }
-    catch (Exception e){
-      throw new Exception("Invalid User ID or no transactions found");
+
+    // omar
+    @Transient
+    public void deleteTransactionById(String id) throws Exception
+    {
+        //validate user
+        try
+        {
+            //Converting String to UUID (Using UUID.toString(id) causes an illegal argument exception
+            String s = id.replace("-", "");
+            UUID uuid = new UUID(new BigInteger(s.substring(0, 16), 16).longValue(), new BigInteger(s.substring(16), 16).longValue());
+            transactionRepo.deleteById(uuid);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            System.out.println("Something went wrong");
+            throw new Exception("Unable to delete transaction");
+        }
     }
-  }
 
-  // omar
-  public List<Transaction> getTransactionsByIban(String Iban, Integer max, Integer offset) throws Exception {
-    //validate user
-      Account account= accountService.getAccountByIban(Iban);
-      List<Transaction> allAccountTransactions = account.getTransactions();
-      ArrayList<Transaction> filteredList = new ArrayList<Transaction>();
-    try{
-      for (int i = offset; i <= allAccountTransactions.size(); i++){
-          filteredList.add(allAccountTransactions.get(i));
-          if (filteredList.size() == max){
-              break;
-          }
-      }
-    } catch (Exception e) {
-      throw new Exception("Transaction not found");
+    public List<Transaction> getTransactionsPaginated(Integer offset, Integer max)
+    {
+        return transactionRepo.findAll();
     }
-    return filteredList;
-  }
-
-  @Transient
-  public void deleteTransactionById(String id) throws Exception {
-    //validate user
-    isValidTransactionDate(getTransactionById(id));
-
-    try {
-      //Converting String to UUID (Using UUID.toString(id) causes an illegal argument exception
-      String s = id.replace("-", "");
-      UUID uuid = new UUID(
-              new BigInteger(s.substring(0, 16), 16).longValue(),
-              new BigInteger(s.substring(16), 16).longValue());
-
-      transactionRepo.deleteById(uuid);
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.out.println("Something went wrong");
-      throw new Exception("Unable to delete transaction");
-    }
-  }
-
-  public List<Transaction> getTransactionsPaginated(Integer offset, Integer max) {
-    return transactionRepo.findAll();
-  }
 
   public RegularTransaction createTransaction(RegularTransaction transaction, User user) throws Exception {
     isValidTransactionDate(transaction);
@@ -150,21 +163,30 @@ public class TransactionService {
     return performRegularTransaction(transaction);
   }
 
-  public List<Transaction> getAllTransactionsForAccountByIban(String iban) {
-    List<Transaction> transactionList = transactionRepo.findAll();
-    List<Transaction> returnTransactionList = new ArrayList<>();
 
-    for (Transaction t : transactionList) {
-      if (t instanceof Deposit && ((Deposit) t).getAccountTo().equals(iban)) {
-        returnTransactionList.add(t);
-      } else if (t instanceof RegularTransaction && ((RegularTransaction) t).getAccountTo().equals(iban)) {
-        returnTransactionList.add(t);
-      }else if (t instanceof Withdrawal && ((Withdrawal) t).getAccountFrom().equals(iban)){
-        returnTransactionList.add(t);
-      }
+    public List<Transaction> getAllTransactionsForAccountByIban(String iban)
+    {
+        List<Transaction> returnTransactionList = new ArrayList<>();
+        List<Transaction> transactionList = transactionRepo.findAll();
+
+        for (Transaction t : transactionList)
+        {
+            if (t instanceof Deposit && ((Deposit) t).getAccountTo().equals(iban))
+            {
+                returnTransactionList.add(t);
+            } else if (t instanceof RegularTransaction && ((RegularTransaction) t).getAccountTo().equals(iban))
+            {
+                returnTransactionList.add(t);
+            } else if (t instanceof RegularTransaction && ((RegularTransaction) t).getAccountFrom().equals(iban))
+            {
+                returnTransactionList.add(t);
+            } else if (t instanceof Withdrawal && ((Withdrawal) t).getAccountFrom().equals(iban))
+            {
+                returnTransactionList.add(t);
+            }
+        }
+        return returnTransactionList;
     }
-    return returnTransactionList;
-  }
 
   public Deposit depositMoney(Deposit deposit) throws Exception {
     return performDeposit(deposit);

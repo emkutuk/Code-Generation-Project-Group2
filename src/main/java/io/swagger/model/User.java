@@ -43,9 +43,21 @@ public class User
 
     }
 
+    public User(UUID userID, String firstName, String lastName, String phoneNumber, String email, String password, List<Account> accounts, io.swagger.security.Role role, AccountStatus accountStatus)
+    {
+        this.id = userID;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.password = password;
+        this.accounts = accounts;
+        this.role = role;
+        this.accountStatus = accountStatus;
+    }
+
     @JsonProperty("id")
     @Id
-    @GeneratedValue
     private UUID id = null;
 
     @JsonProperty("firstName")

@@ -55,14 +55,14 @@ class AccountServiceTest
     @Test
     void getAccountByIbanReturnsAccountWhenExists()
     {
-        when(accountRepo.findByIban("testIban")).thenReturn(account);
+        when(accountRepo.findByIban(account.getIban())).thenReturn(account);
         assertEquals(accountService.getAccountByIban("testIban"), account);
     }
 
     @Test
     void changeAccountStatusHappyFlow() throws Exception
     {
-        when(accountRepo.findByIban("testIban")).thenReturn(account);
+        when(accountRepo.findByIban(account.getIban())).thenReturn(account);
         accountService.changeAccountStatus("testIban", "disabled");
         assertEquals(account.getAccountStatus(), AccountStatus.DISABLED);
     }
@@ -70,14 +70,14 @@ class AccountServiceTest
     @Test
     void substractHappyFlow() throws Exception
     {
-        when(accountRepo.findByIban("testIban")).thenReturn(account);
+        when(accountRepo.findByIban(account.getIban())).thenReturn(account);
         assertTrue(accountService.subtractBalance("testIban", 200D));
     }
 
     @Test
     void substractTheAmountMoreThanBalance() throws Exception
     {
-        when(accountRepo.findByIban("testIban")).thenReturn(account);
+        when(accountRepo.findByIban(account.getIban())).thenReturn(account);
         Exception exception = assertThrows(Exception.class, () -> accountService.subtractBalance("testIban", 600D));
         Assertions.assertEquals("Balance needs to be more than the amount.", exception.getMessage());
     }
@@ -85,7 +85,7 @@ class AccountServiceTest
     @Test
     void substractMinusAmount() throws Exception
     {
-        when(accountRepo.findByIban("testIban")).thenReturn(account);
+        when(accountRepo.findByIban(account.getIban())).thenReturn(account);
         Exception exception = assertThrows(Exception.class, () -> accountService.subtractBalance("testIban", -100D));
         Assertions.assertEquals("Amount needs to be more than 0.", exception.getMessage());
     }
@@ -94,7 +94,7 @@ class AccountServiceTest
     void substractionLeavesLessThanAbstractLimit() throws Exception
     {
         account.setAbsoluteLimit(100D);
-        when(accountRepo.findByIban("testIban")).thenReturn(account);
+        when(accountRepo.findByIban(account.getIban())).thenReturn(account);
         Exception exception = assertThrows(Exception.class, () -> accountService.subtractBalance("testIban", 500D));
         Assertions.assertEquals("Absolute limit has been reached.", exception.getMessage());
     }
@@ -102,7 +102,7 @@ class AccountServiceTest
     @Test
     void addAMinusBalance()
     {
-        when(accountRepo.findByIban("testIban")).thenReturn(account);
+        when(accountRepo.findByIban(account.getIban())).thenReturn(account);
         Exception exception = assertThrows(Exception.class, () -> accountService.addBalance("testIban", -100D));
         Assertions.assertEquals("Amount needs to be more than 0.", exception.getMessage());
     }
@@ -110,14 +110,14 @@ class AccountServiceTest
     @Test
     void getAccountBalanceByIbanHappyFlow() throws Exception
     {
-        when(accountRepo.findByIban("testIban")).thenReturn(account);
+        when(accountRepo.findByIban(account.getIban())).thenReturn(account);
         Assertions.assertEquals(accountService.getAccountBalanceByIban("testIban"), account.getBalance());
     }
 
     @Test
     void getAccountBalanceByIbanWhenAccountDoesNotExist() throws Exception
     {
-        when(accountRepo.findByIban("testIban")).thenReturn(null);
+        when(accountRepo.findByIban(account.getIban())).thenReturn(null);
         Exception exception = assertThrows(Exception.class, () -> accountService.getAccountBalanceByIban("testIban"));
 
         Assertions.assertEquals("Account does not exist.", exception.getMessage());
@@ -126,8 +126,8 @@ class AccountServiceTest
     @Test
     void changeAccountTypeHappyFlow() throws Exception
     {
-        when(accountRepo.findByIban("testIban")).thenReturn(account);
-        accountService.changeAccountType("testIban", "current");
+        when(accountRepo.findByIban(account.getIban())).thenReturn(account);
+        accountService.changeAccountType(account.getIban(), "current");
         Assertions.assertEquals(account.getAccountType(), AccountType.CURRENT);
     }
 
@@ -176,8 +176,8 @@ class AccountServiceTest
     @Test
     void updateBankAccountHappyFlow() throws Exception
     {
-        when(accountRepo.findByIban("testIban")).thenReturn(account);
-        accountService.updateAccountByIban("testIban", account2);
+        when(accountRepo.findByIban(account.getIban())).thenReturn(account);
+        accountService.updateAccountByIban(account.getIban(), account2);
 
 
     }

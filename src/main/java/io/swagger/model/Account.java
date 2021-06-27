@@ -2,6 +2,8 @@ package io.swagger.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.Entity;
@@ -10,6 +12,7 @@ import javax.persistence.OneToMany;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,7 +41,8 @@ public class Account
     @JsonProperty("absoluteLimit")
     private Double absoluteLimit = 0d;
 
-    @JsonProperty("transactions")
+    //@JsonProperty("transactions")
+    @NotFound(action = NotFoundAction.IGNORE)
     @OneToMany
     private List<Transaction> transactions = null;
 
@@ -221,6 +225,7 @@ public class Account
         this.iban = "";
         this.accountType = accountType;
         this.balance = 0.0;
+        this.transactions = new ArrayList<>();
     }
 
     //These constructors are for testing
@@ -229,6 +234,7 @@ public class Account
         this.iban = "";
         this.accountType = accountType;
         this.balance = balance;
+        this.transactions = new ArrayList<>();
     }
 
 
@@ -237,6 +243,7 @@ public class Account
         this.iban = iban;
         this.accountType = accountType;
         this.balance = balance;
+        this.transactions = new ArrayList<>();
     }
 
 }

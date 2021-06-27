@@ -43,6 +43,7 @@ public abstract class Transaction {
   private UUID performedBy = null;
 
   public Transaction(Double amount, UUID performedBy, LocalDateTime transactionDate) {
+    this.transactionId = UUID.randomUUID();
     this.amount = amount;
     this.performedBy = performedBy;
     this.transactionDate = transactionDate != null ? transactionDate : LocalDateTime.now();

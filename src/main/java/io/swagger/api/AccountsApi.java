@@ -32,7 +32,7 @@ public interface AccountsApi
     @Operation(summary = "Adds a new Account", description = "", security = {@SecurityRequirement(name = "bearerAuth")}, tags = {"Account"})
     @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "The new account has been created.", content = @Content(schema = @Schema(implementation = Account.class)))})
     @RequestMapping(value = "/Accounts", produces = {"application/json"}, consumes = {"application/json"}, method = RequestMethod.POST)
-    ResponseEntity<Account> addANewAccount(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Account body);
+    ResponseEntity<Account> addANewAccount(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Account body) throws Exception;
 
 
     @Operation(summary = "Change an Account Status", description = "", security = {@SecurityRequirement(name = "bearerAuth")}, tags = {"Account"})
@@ -44,7 +44,7 @@ public interface AccountsApi
     @Operation(summary = "Changes account type.", description = "", security = {@SecurityRequirement(name = "bearerAuth")}, tags = {"Account"})
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "The account type has been changed.")})
     @RequestMapping(value = "/Accounts/{iban}/{type}", method = RequestMethod.POST)
-    ResponseEntity<Void> changeAccountType(@Size(max = 34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required = true, schema = @Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.PATH, description = "The new type for the account to be changed into.", required = true, schema = @Schema(allowableValues = {"saving", "current"})) @PathVariable("type") String type);
+    ResponseEntity<Account> changeAccountType(@Size(max = 34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required = true, schema = @Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.PATH, description = "The new type for the account to be changed into.", required = true, schema = @Schema(allowableValues = {"saving", "current"})) @PathVariable("type") String type) throws Exception;
 
 
     @Operation(summary = "Gets an account balance by Iban.", description = "", security = {@SecurityRequirement(name = "bearerAuth")}, tags = {"Account"})
@@ -68,7 +68,7 @@ public interface AccountsApi
     @Operation(summary = "Updates an existing account", description = "", security = {@SecurityRequirement(name = "bearerAuth")}, tags = {"Account"})
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "An account object has been updated.")})
     @RequestMapping(value = "/Accounts/{iban}", consumes = {"application/json"}, method = RequestMethod.PUT)
-    ResponseEntity<Void> updateAccountByIban(@Size(max = 34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required = true, schema = @Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Account body) throws Exception;
+    ResponseEntity<Account> updateAccountByIban(@Size(max = 34) @Parameter(in = ParameterIn.PATH, description = "The account to perform the action on.", required = true, schema = @Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Account body) throws Exception;
 
 }
 

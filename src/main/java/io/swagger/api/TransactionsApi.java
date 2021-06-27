@@ -206,7 +206,7 @@ public interface TransactionsApi {
               schema = @Schema(allowableValues = {}))
           @Valid
           @RequestParam(value = "offset", required = false)
-          Integer offset);
+          Integer offset) throws Exception;
 
   @Operation(
       summary = "Withdraw money from an account.",

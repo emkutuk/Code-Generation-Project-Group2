@@ -1,8 +1,6 @@
 package io.swagger.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.model.Account;
-import io.swagger.model.BearerTokenDto;
 import io.swagger.model.LoginDto;
 import io.swagger.model.User;
 import io.swagger.security.JwtTokenProvider;
@@ -24,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -52,65 +51,40 @@ public class UsersApiController implements UsersApi
     }
 
     @PreAuthorize("hasRole('EMPLOYEE')")
-    public ResponseEntity<User> createUser(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody User user)
+    public ResponseEntity<User> createUser(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody User user) throws Exception
     {
-        try
-        {
-            log.info("Trying to create user");
-            userService.register(user);
-            return new ResponseEntity<User>(HttpStatus.CREATED);
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-
+        userService.register(user);
+        return new ResponseEntity<User>(HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('EMPLOYEE')")
-    public ResponseEntity<Void> deleteUserById(@Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema()) @PathVariable("id") String id)
+    public ResponseEntity<Void> deleteUserById(@Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema()) @PathVariable("id") String id) throws Exception
     {
-        try
-        {
-            log.info("Change user status to disabled");
-            userService.deleteUserById(UUID.fromString(id));
-            return new ResponseEntity<Void>(HttpStatus.OK);
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        UUID userID = userService.convertID(id);
+        User userToBeDeleted = userService.deleteUserById(userID);
+        if (userToBeDeleted != null) return new ResponseEntity<Void>(HttpStatus.OK);
+        else return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
     }
 
     @PreAuthorize("hasRole('EMPLOYEE')")
-    public ResponseEntity<List<User>> getAllUsers(@Min(0) @Parameter(in = ParameterIn.QUERY, description = "The number of items to skip before starting to collect the result set.", schema = @Schema(allowableValues = {})) @Valid @RequestParam(value = "offset", required = false) Integer offset, @Min(10) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The maximum number of items to return.", schema = @Schema(allowableValues = {}, minimum = "10", maximum = "50", defaultValue = "10")) @Valid @RequestParam(value = "max", required = false, defaultValue = "10") Integer max)
+    public ResponseEntity<List<User>> getAllUsers(@Min(0) @Parameter(in = ParameterIn.QUERY, description = "The number of items to skip before starting to collect the result set.", schema = @Schema(allowableValues = {})) @Valid @RequestParam(value = "offset", required = false) Integer offset, @Min(10) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The maximum number of items to return.", schema = @Schema(allowableValues = {}, minimum = "10", maximum = "50", defaultValue = "10")) @Valid @RequestParam(value = "max", required = false, defaultValue = "10") Integer max) throws Exception
     {
-        List <User> allUsers = new ArrayList<User>();
-        List <User> usersList = new ArrayList<User>();
+        List<User> allUsers = new ArrayList<User>();
+        List<User> usersList = new ArrayList<User>();
 
-        try
+        allUsers = userService.getAllUsers();
+        if (allUsers != null)
         {
-            allUsers = userService.getAllUsers();
-            log.info("Returning all users");
-
             long maxValue = max + offset;
 
             //If the maxValue is bigger then existing users, max value is equal to user count
-            if (maxValue > allUsers.stream().count())
-                maxValue = allUsers.stream().count();
+            if (maxValue > allUsers.stream().count()) maxValue = allUsers.stream().count();
 
             for (int i = offset; i < maxValue; i++)
                 usersList.add(allUsers.get(i));
 
-            return new ResponseEntity<List<Account>>(HttpStatus.OK).status(200).body(usersList);
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return new ResponseEntity<List<User>>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-
+            return new ResponseEntity<List<User>>(HttpStatus.OK).status(200).body(usersList);
+        } else return new ResponseEntity<List<User>>(HttpStatus.NOT_FOUND);
     }
 
     @PreAuthorize("hasRole('EMPLOYEE') OR hasRole('CUSTOMER')")
@@ -121,30 +95,28 @@ public class UsersApiController implements UsersApi
 
         User loggedInUser = userService.getUserByEmail(email);
         Role role = loggedInUser.getRole();
-        try
+
+        if (loggedInUser != null)
         {
-            log.info("Getting user by ID");
+            UUID userID = userService.convertID(id);
+
             //If its a user then check if this is him/her
             if (role == Role.ROLE_CUSTOMER)
             {
-                if (id.equals(loggedInUser.getId().toString()))
+                if (userID.equals(loggedInUser.getId()))
                 {
-                    return new ResponseEntity<User>(userService.getUserById(UUID.fromString(id)), HttpStatus.OK);
+                    return new ResponseEntity<User>(userService.getUserById(userID), HttpStatus.OK);
                 }
                 //If its not him/her, return unauthorized
                 else return new ResponseEntity<User>(HttpStatus.UNAUTHORIZED);
 
                 //If its an employee then return the user
             } else if (role == Role.ROLE_EMPLOYEE)
-                return new ResponseEntity<User>(userService.getUserById(UUID.fromString(id)), HttpStatus.OK);
+                return new ResponseEntity<User>(userService.getUserById(userID), HttpStatus.OK);
             else return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
+        } else return new ResponseEntity<User>(HttpStatus.NOT_FOUND);
     }
+
 
     @PostMapping("/Login")
     @PermitAll
@@ -169,13 +141,13 @@ public class UsersApiController implements UsersApi
         User loggedInUser = userService.getUserByEmail(email);
         Role role = loggedInUser.getRole();
 
-        try
+        if (loggedInUser != null)
         {
-            log.info("Updating a user");
+            UUID userID = userService.convertID(id);
             //If its a user then check if this is him/her
             if (role == Role.ROLE_CUSTOMER)
             {
-                if (id.equals(loggedInUser.getId().toString()))
+                if (userID.equals(loggedInUser.getId()))
                 {
                     user.setId(loggedInUser.getId());
                     userService.updateUser(user);
@@ -184,17 +156,12 @@ public class UsersApiController implements UsersApi
                 //If its not him/her, return unauthorized
                 else return new ResponseEntity<User>(HttpStatus.UNAUTHORIZED);
                 //If its an employee then update the user
-            } else if (role == Role.ROLE_EMPLOYEE)
+            } else
             {
-                user.setId(loggedInUser.getId());
+                user.setId(userID);
                 userService.updateUser(user);
-            } else return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
-
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         }
-        return null;
+        return new ResponseEntity<User>(HttpStatus.NOT_FOUND).status(404).body(null);
     }
 }
