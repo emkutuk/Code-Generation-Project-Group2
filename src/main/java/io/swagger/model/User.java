@@ -1,5 +1,6 @@
 package io.swagger.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -71,6 +72,9 @@ public class User
 
     @JsonProperty("email")
     private String email = null;
+
+    @JsonIgnore
+    private int transactionLimit;
 
     @JsonProperty("password")
     private String password = null;

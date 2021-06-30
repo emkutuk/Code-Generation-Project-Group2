@@ -9,5 +9,4 @@ import java.util.UUID;
 @Repository
 public interface TransactionRepo extends JpaRepository<Transaction, UUID>
 {
-
 }

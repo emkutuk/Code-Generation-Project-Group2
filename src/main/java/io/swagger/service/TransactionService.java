@@ -22,6 +22,8 @@ import java.util.*;
 @NoArgsConstructor
 public class TransactionService {
 
+  private final double dailyTransactionLimit = 1000;
+
   private TransactionRepo transactionRepo;
   private RegularTransactionRepo regularTransactionRepo;
   private DepositRepo depositRepo;
@@ -146,14 +148,42 @@ public class TransactionService {
     if (!userFrom.getId().equals(user.getId()) && user.getRole().equals(Role.ROLE_CUSTOMER)) {
       log.info("User trying to make transaction from another users account");
       throw new IllegalArgumentException("user is not authorized to do this");
-    } else if (!(userFrom.getAccounts().contains(accountTo))
+    }
+
+    // If accountTo is savings and not owned by user of accountFrom
+    if (!(userFrom.getAccounts().contains(accountTo))
         && accountTo.getAccountType().equals(AccountType.SAVING)) {
       log.info("User trying to make transaction to savings account of another user");
       throw new IllegalArgumentException("Cannot transfer to savings of another user");
     }
+
+    // If Transaction would be above daily transaction limit
+    double dailyTransactionAmount = calculateDailyTransactionAmount(accountFrom);
+
+    if(dailyTransactionAmount + transaction.getAmount() > dailyTransactionLimit){
+      log.info("Transaction exceeds daily limit");
+      throw new IllegalArgumentException("Transaction amount exceeds daily limit");
+    }
+
+    // If Transaction exceeds user transaction limit
+    if(transaction.getAmount() > userFrom.getTransactionLimit()){
+      log.info("Transaction exceeds user transaction limit");
+      throw new IllegalArgumentException("Transaction amount exceeds user limit");
+    }
+
+
     log.info("Checked role and account owner");
 
     return performRegularTransaction(transaction);
+  }
+
+  @Transactional
+  protected double calculateDailyTransactionAmount(Account accountFrom) {
+    double dailyTransactions = regularTransactionRepo.findRegularTransactionByAccountFrom(accountFrom.getIban());
+    dailyTransactions += depositRepo.findDepositByAccountTo(accountFrom.getIban());
+    dailyTransactions += withdrawalRepo.findWithdrawalByAccountFrom(accountFrom.getIban());
+
+    return dailyTransactions;
   }
 
   @Transactional
