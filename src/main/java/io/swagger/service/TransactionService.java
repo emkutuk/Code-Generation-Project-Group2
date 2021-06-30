@@ -1,20 +1,21 @@
 package io.swagger.service;
 
 import io.swagger.model.*;
+import io.swagger.repo.DepositRepo;
+import io.swagger.repo.RegularTransactionRepo;
 import io.swagger.repo.TransactionRepo;
+import io.swagger.repo.WithdrawalRepo;
 import io.swagger.security.Role;
 import lombok.NoArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.beans.Transient;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Log
@@ -22,13 +23,19 @@ import java.util.UUID;
 public class TransactionService {
 
   private TransactionRepo transactionRepo;
+  private RegularTransactionRepo regularTransactionRepo;
+  private DepositRepo depositRepo;
+  private WithdrawalRepo withdrawalRepo;
   private AccountService accountService;
   private UserService userService;
 
   @Autowired
   public TransactionService(
-      TransactionRepo repo, AccountService accountService, UserService userService) {
+          TransactionRepo repo, RegularTransactionRepo regularTransactionRepo, DepositRepo depositRepo, WithdrawalRepo withdrawalRepo, AccountService accountService, UserService userService) {
     this.transactionRepo = repo;
+    this.regularTransactionRepo = regularTransactionRepo;
+    this.depositRepo = depositRepo;
+    this.withdrawalRepo = withdrawalRepo;
     this.accountService = accountService;
     this.userService = userService;
   }
@@ -88,6 +95,7 @@ public class TransactionService {
   public List<Transaction> getTransactionsByIban(String Iban, Integer max, Integer offset)
       throws Exception {
     // validate user
+
     List<Transaction> allAccountTransactions = getAllTransactionsForAccountByIban(Iban);
     ArrayList<Transaction> filteredList = new ArrayList<Transaction>();
     try {
@@ -124,16 +132,14 @@ public class TransactionService {
 
   public RegularTransaction createTransaction(RegularTransaction transaction, User user)
       throws Exception {
-    isValidTransactionDate(transaction);
+    validateTransactionDate(transaction);
     Account accountFrom = accountService.getAccountByIban(transaction.getAccountFrom());
     User userFrom = userService.getUserByIban(accountFrom);
     Account accountTo = accountService.getAccountByIban(transaction.getAccountTo());
 
-    log.info("Test");
-
     if (userFrom == null || accountFrom == null || accountTo == null) {
       log.info("User or account doesn't exist");
-      throw new IllegalArgumentException("one of these doesn't exist");
+      throw new IllegalArgumentException("User or account doesn't exist");
     }
 
     // If user is a customer and does not own the account from which the money is leaving
@@ -150,24 +156,13 @@ public class TransactionService {
     return performRegularTransaction(transaction);
   }
 
+  @Transactional
   public List<Transaction> getAllTransactionsForAccountByIban(String iban) {
-    List<Transaction> returnTransactionList = new ArrayList<>();
-    List<Transaction> transactionList = transactionRepo.findAll();
-
-    for (Transaction t : transactionList) {
-      if (t instanceof Deposit && ((Deposit) t).getAccountTo().equals(iban)) {
-        returnTransactionList.add(t);
-      } else if (t instanceof RegularTransaction
-          && ((RegularTransaction) t).getAccountTo().equals(iban)) {
-        returnTransactionList.add(t);
-      } else if (t instanceof RegularTransaction
-          && ((RegularTransaction) t).getAccountFrom().equals(iban)) {
-        returnTransactionList.add(t);
-      } else if (t instanceof Withdrawal && ((Withdrawal) t).getAccountFrom().equals(iban)) {
-        returnTransactionList.add(t);
-      }
-    }
-    return returnTransactionList;
+    return new ArrayList<>(){{
+      addAll(regularTransactionRepo.findAllByAccountFrom(iban));
+      addAll(depositRepo.findAllByAccountTo(iban));
+      addAll(withdrawalRepo.findAllByAccountFrom(iban));
+    }};
   }
 
   public Deposit depositMoney(Deposit deposit) throws Exception {
@@ -182,11 +177,12 @@ public class TransactionService {
     if (user.getRole().equals(Role.ROLE_EMPLOYEE) || accountOwner.getId() == user.getId()) {
       return performWithdrawal(withdrawal);
     } else {
-      throw new IllegalArgumentException("user is not authorized to do this");
+      throw new IllegalArgumentException("User is not authorized to do this");
     }
   }
 
-  private Deposit performDeposit(Deposit deposit) throws Exception {
+  @Transactional
+  protected Deposit performDeposit(Deposit deposit) throws Exception {
     // Assuming valid user
     // Assuming validation done in account service
     // Assuming deposit is a valid deposit
@@ -195,7 +191,8 @@ public class TransactionService {
     return transactionRepo.save(deposit);
   }
 
-  private Withdrawal performWithdrawal(Withdrawal withdrawal) throws Exception {
+  @Transactional
+  protected Withdrawal performWithdrawal(Withdrawal withdrawal) throws Exception {
     // Assuming valid user
     // Assuming validation done in account
     // Assuming withdrawal is a valid withdrawal
@@ -204,49 +201,28 @@ public class TransactionService {
     return transactionRepo.save(withdrawal);
   }
 
-  private RegularTransaction performRegularTransaction(RegularTransaction transaction)
+  @Transactional
+  protected RegularTransaction performRegularTransaction(RegularTransaction transaction)
       throws Exception {
     // Assuming valid user
     // Assuming validation done in account
     // Assuming transaction is a valid transaction
 
     log.info("Performing transaction");
-
-    boolean deductedFrom = false, addedTo = false;
-
-    try {
-      deductedFrom =
-          accountService.subtractBalance(transaction.getAccountFrom(), transaction.getAmount());
-      addedTo = accountService.addBalance(transaction.getAccountTo(), transaction.getAmount());
-      transaction.setTransactionId(UUID.randomUUID());
-      return transactionRepo.save(transaction);
-    } catch (Exception e) {
-      undoRegularTransaction(transaction, deductedFrom, addedTo);
-      throw e;
-    }
+    accountService.subtractBalance(transaction.getAccountFrom(), transaction.getAmount());
+    accountService.addBalance(transaction.getAccountTo(), transaction.getAmount());
+    transaction.setTransactionId(UUID.randomUUID());
+    return transactionRepo.save(transaction);
   }
 
-  private void undoRegularTransaction(
-      RegularTransaction transaction, boolean deductedFrom, boolean addedTo) throws Exception {
-    if (deductedFrom) {
-      accountService.addBalance(transaction.getAccountFrom(), transaction.getAmount());
-    }
-    if (addedTo) {
-      accountService.subtractBalance(transaction.getAccountTo(), transaction.getAmount());
-    }
-  }
-
-  private boolean isValidTransactionDate(Transaction transaction) {
-    if(transaction.getTransactionDate() == null){
+  private void validateTransactionDate(Transaction transaction) throws IllegalArgumentException {
+    if (transaction.getTransactionDate() == null) {
       transaction.setTransactionDate(LocalDateTime.now());
-      return true;
-    }
-    else if (LocalDateTime.now().minusMinutes(3).isAfter(transaction.getTransactionDate())) {
+    } else if (LocalDateTime.now().minusMinutes(3).isAfter(transaction.getTransactionDate())) {
       // Transaction is too old
       log.info("Transaction is too old");
-      throw new IllegalStateException(
+      throw new IllegalArgumentException(
           String.format("Date %s is too old to be valid", transaction.getTransactionDate()));
     }
-    return true;
   }
 }
