@@ -10,6 +10,7 @@ import java.util.UUID;
 public interface RegularTransactionRepo extends JpaRepository<RegularTransaction, UUID>{
   List<RegularTransaction> findAllByAccountFrom(String iban);
 
-  @Query(value = "SELECT SUM(t.amount) FROM RegularTransaction as t WHERE t.transactionDate = current_date AND t.accountFrom = :iban")
-  double findRegularTransactionByAccountFrom(String iban);
+
+  @Query(value = "SELECT SUM(t.amount) FROM RegularTransaction as t WHERE current_date = CAST(t.transactionDate as date) AND t.accountFrom = :iban")
+  Double findRegularTransactionByAccountFrom(String iban);
 }

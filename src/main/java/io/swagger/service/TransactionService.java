@@ -15,7 +15,10 @@ import javax.transaction.Transactional;
 import java.beans.Transient;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Log
@@ -33,7 +36,12 @@ public class TransactionService {
 
   @Autowired
   public TransactionService(
-          TransactionRepo repo, RegularTransactionRepo regularTransactionRepo, DepositRepo depositRepo, WithdrawalRepo withdrawalRepo, AccountService accountService, UserService userService) {
+      TransactionRepo repo,
+      RegularTransactionRepo regularTransactionRepo,
+      DepositRepo depositRepo,
+      WithdrawalRepo withdrawalRepo,
+      AccountService accountService,
+      UserService userService) {
     this.transactionRepo = repo;
     this.regularTransactionRepo = regularTransactionRepo;
     this.depositRepo = depositRepo;
@@ -160,17 +168,16 @@ public class TransactionService {
     // If Transaction would be above daily transaction limit
     double dailyTransactionAmount = calculateDailyTransactionAmount(accountFrom);
 
-    if(dailyTransactionAmount + transaction.getAmount() > dailyTransactionLimit){
+    if (dailyTransactionAmount + transaction.getAmount() > dailyTransactionLimit) {
       log.info("Transaction exceeds daily limit");
       throw new IllegalArgumentException("Transaction amount exceeds daily limit");
     }
 
     // If Transaction exceeds user transaction limit
-    if(transaction.getAmount() > userFrom.getTransactionLimit()){
+    if (transaction.getAmount() > userFrom.getTransactionLimit()) {
       log.info("Transaction exceeds user transaction limit");
       throw new IllegalArgumentException("Transaction amount exceeds user limit");
     }
-
 
     log.info("Checked role and account owner");
 
@@ -179,20 +186,31 @@ public class TransactionService {
 
   @Transactional
   protected double calculateDailyTransactionAmount(Account accountFrom) {
-    double dailyTransactions = regularTransactionRepo.findRegularTransactionByAccountFrom(accountFrom.getIban());
-    dailyTransactions += depositRepo.findDepositByAccountTo(accountFrom.getIban());
-    dailyTransactions += withdrawalRepo.findWithdrawalByAccountFrom(accountFrom.getIban());
+    double dailyTransactions = 0.0;
+
+    Double transactions =
+        regularTransactionRepo.findRegularTransactionByAccountFrom(accountFrom.getIban());
+    Double deposits = depositRepo.findDepositByAccountTo(accountFrom.getIban());
+    Double withdrawals = withdrawalRepo.findWithdrawalByAccountFrom(accountFrom.getIban());
+
+    dailyTransactions = transactions != null ? dailyTransactions + transactions : dailyTransactions;
+    dailyTransactions = deposits != null ? dailyTransactions + deposits : dailyTransactions;
+    dailyTransactions = withdrawals != null ? dailyTransactions + withdrawals : dailyTransactions;
+
+    log.warning("Daily Transaction " + dailyTransactions);
 
     return dailyTransactions;
   }
 
   @Transactional
   public List<Transaction> getAllTransactionsForAccountByIban(String iban) {
-    return new ArrayList<>(){{
-      addAll(regularTransactionRepo.findAllByAccountFrom(iban));
-      addAll(depositRepo.findAllByAccountTo(iban));
-      addAll(withdrawalRepo.findAllByAccountFrom(iban));
-    }};
+    return new ArrayList<>() {
+      {
+        addAll(regularTransactionRepo.findAllByAccountFrom(iban));
+        addAll(depositRepo.findAllByAccountTo(iban));
+        addAll(withdrawalRepo.findAllByAccountFrom(iban));
+      }
+    };
   }
 
   public Deposit depositMoney(Deposit deposit) throws Exception {

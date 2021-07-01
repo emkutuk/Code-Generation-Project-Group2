@@ -10,6 +10,6 @@ import java.util.UUID;
 public interface WithdrawalRepo extends JpaRepository<Withdrawal, UUID> {
   List<Withdrawal> findAllByAccountFrom(String iban);
 
-  @Query(value = "SELECT SUM(w.amount) FROM Withdrawal as w WHERE w.transactionDate = current_date AND w.accountFrom = :iban")
-  double findWithdrawalByAccountFrom(String iban);
+  @Query(value = "SELECT SUM(w.amount) FROM Withdrawal as w WHERE current_date = CAST(w.transactionDate as date) AND w.accountFrom = :iban")
+  Double findWithdrawalByAccountFrom(String iban);
 }

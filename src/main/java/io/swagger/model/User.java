@@ -74,7 +74,7 @@ public class User
     private String email = null;
 
     @JsonIgnore
-    private int transactionLimit;
+    private int transactionLimit = 250;
 
     @JsonProperty("password")
     private String password = null;

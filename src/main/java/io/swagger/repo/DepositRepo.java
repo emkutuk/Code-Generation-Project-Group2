@@ -10,6 +10,6 @@ import java.util.UUID;
 public interface DepositRepo extends JpaRepository<Deposit, UUID> {
   List<Deposit> findAllByAccountTo(String iban);
 
-  @Query(value = "SELECT SUM(d.amount) FROM Deposit as d WHERE d.transactionDate = current_date AND d.accountTo = :iban")
-  double findDepositByAccountTo(String iban);
+  @Query(value = "SELECT SUM(d.amount) FROM Deposit as d WHERE current_date = CAST(d.transactionDate as date) AND d.accountTo = :iban")
+  Double findDepositByAccountTo(String iban);
 }
