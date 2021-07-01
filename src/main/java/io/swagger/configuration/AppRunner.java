@@ -9,6 +9,7 @@ import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
@@ -21,6 +22,7 @@ import java.util.UUID;
 @Component
 @Transactional
 @Log
+@ComponentScan
 public class AppRunner implements ApplicationRunner {
   @Autowired AccountService accountService;
 
@@ -44,10 +46,15 @@ public class AppRunner implements ApplicationRunner {
     }
     for (Account a : accountList) accountService.addANewAccount(a);
 
+    // 15900ab1-e426-4cff-bce3-0bea2de5a99b Customer
+    // d98287d3-b921-427f-a4b2-6c98b716d6a9 Employee
+    // 3fa85f64-5717-4562-b3fc-2c963f66afa6 cucumberUserEmployee
+    // 3fa85f64-5717-4562-b3fc-2c963f66afa7 cucumberUserCustomer
+
     // Users
     User customer =
         new User(
-            UUID.randomUUID(),
+            UUID.fromString("15900ab1-e426-4cff-bce3-0bea2de5a99b"),
             "Hein",
             "Eken",
             "31685032148",
@@ -58,7 +65,7 @@ public class AppRunner implements ApplicationRunner {
             AccountStatus.ACTIVE);
     User employee =
         new User(
-            UUID.randomUUID(),
+            UUID.fromString("d98287d3-b921-427f-a4b2-6c98b716d6a9"),
             "Amst",
             "Erdam",
             "31685032149",
@@ -91,6 +98,18 @@ public class AppRunner implements ApplicationRunner {
             new ArrayList<>(),
             Role.ROLE_CUSTOMER,
             AccountStatus.ACTIVE);
+
+    // 192be6e7-5f4a-4424-bc1c-1514a4b35b5d
+    // 22b1905d-8d67-4f65-87e6-6da6279a645d
+    // 08ca7061-039c-4ca0-b458-6852c248e492
+    // 5ae9d83c-2938-4922-b6e6-7f70a5e625ab
+    // b45a0866-c853-48bc-9ccc-f1cd68ac776b
+    // 0dc37f91-b427-4f87-927d-32cc8375ead2
+    // a81630e8-4fb1-4b7d-aa58-f8d87abb9b9f
+    // bd0f9d60-2251-4613-b235-f3e6e8cf1122
+
+    // Account(iban, accountType, accountStatus, balance);
+
 
     // Accounts for cucumberUser
     Account cucumberCurrentAcc = new Account(AccountType.CURRENT, 500D);
